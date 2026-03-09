@@ -1,0 +1,110 @@
+﻿@model ResponseModel<Category>
+@{
+	Layout = null;
+	var IndexPageUrl = "/" + ViewContext.RouteData.Values["Area"].ToString() + "/" + ViewContext.RouteData.Values["Controller"].ToString() + "/Index";
+}
+
+<div class="col-12">
+	<div class="card card-primary card-outline mb-0">
+		<div class="card-header">
+			<h3 class="card-title">@(Model.Obj.Id > 0 ? "Edit " : "Create") Category</h3>
+			<input type="text" class="form-control d-none" id="Id" name="Id" value="@(Model.Obj != null && Model.Obj.Id > 0 ? Model.Obj.Id.ToString() : "")">
+
+			<div class="card-tools">
+				<button type="button" class="btn btn-primary btn-sm" title="Back To List" onclick="fnBackToList('@IndexPageUrl')">
+					<i class="fas fa-arrow-left"></i> Back To List
+				</button>
+			</div>
+		</div>
+
+		<div class="card-body">
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">Category Name<span style="color:red">*</span></label>
+				<div class="col-sm-4">
+					<input type="text" class="form-control form-control-sm" name="CategoryName" value="@Model.Obj.CategoryName" maxlength="80"
+						   data-required data-msg="The Categoryname field is required." autocomplete="off" />
+				</div>
+
+			</div>
+
+			<div class="form-group row">
+				<label class="col-sm-2 col-form-label text-right">Select Parent Category </label>
+				<div class="col-sm-4">
+					<select id="ParentCategoryId" name="ParentCategoryId" class="form-control select2 w-100">
+						<option value="0"> -- Select --</option>
+						@if (Model.SelectListItems != null)
+						{
+							foreach (var item in Model.SelectListItems.Where(x => x.Group == "CAT"))
+							{
+								if (item.Value == Model.Obj.ParentCategoryId.ToString() || ((Model.Obj == null || Model.Obj.Id <= 0) && Model.SelectListItems.Where(x => x.Group == "CAT").Count() == 1))
+								{
+									<option value="@item.Value" selected>@item.Text</option>
+								}
+								else
+								{
+									<option value="@item.Value">@item.Text</option>
+								}
+							}
+						}
+					</select>
+				</div>
+
+			</div>
+
+			<div class="form-group row">
+				<label class="col-sm-2 col-form-label text-right">Status </label>
+				<div class="col-sm-4">
+					<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0">
+						<input type="checkbox" class="custom-control-input"
+							   id="switch_Status" name="IsActive" @(Model.Obj == null || Model.Obj.IsActive == true || Model.Obj.Id == 0 ? "checked" : "")
+							   onchange="fnChange_Switch(this, 'label_Switch_Status')">
+						<label class="custom-control-label" for="switch_Status" id="label_Switch_Status" data-true="Active" data-false="Inactive">@((Model.Obj != null && Model.Obj.IsActive == true) || Model.Obj == null || Model.Obj.Id == 0 ? "Active" : "Inactive")</label>
+					</div>
+				</div>
+			</div>
+
+			<br />
+			<div class="form-group row">
+				<label class="col-sm-2 col-form-label text-right">Select Category Image</label>
+				<div class="col-sm-4">
+					<div class="upload-box">
+
+						<input type="file" class="imageInput" name="ImagePath" hidden accept="image/*">
+
+						<input type="hidden" name="ImagePath_Remove" value="false" class="imageRemoveFlag">
+
+						<input type="hidden" value="@Model.Obj?.ImagePath?.ToString()" class="setImagePreview">
+
+						<div class="upload-area">
+
+							<div class="upload-placeholder">
+								<h5>Drag & Drop Image</h5>
+								<p>or Click to Select</p>
+								<small>Max size: 2MB</small>
+							</div>
+
+							<img class="previewImage img-fluid rounded d-none">
+							<div class="image-actions d-none">
+								<button type="button" class="btn btn-sm btn-primary changeImage">
+									Change
+								</button>
+
+								<button type="button" class="btn btn-sm btn-danger removeImage">
+									Remove
+								</button>
+							</div>
+
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+		</div>
+		<div class="card-footer text-center">
+			<button type="submit" class="btn btn-success btnSubmit">Save</button>
+			<button type="button" class="btn btn-danger" onclick="fnCloseParialView('divformSave', '#table_Common_Data');">Cancel</button>
+		</div>
+	</div>
+</div>

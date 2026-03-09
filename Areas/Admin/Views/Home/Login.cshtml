@@ -1,0 +1,100 @@
+﻿@model ResponseModel<LoginViewModel>
+
+@{
+	Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Log in - Online Jewelry Store</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+
+	<link rel="stylesheet" href="~/Admin/plugins/fontawesome-free/css/all.min.css">
+
+	<link rel="stylesheet" href="~/Admin/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+	<link rel="stylesheet" href="~/Admin/plugins/sweetalert2/sweetalert2.css" />
+
+	<link rel="stylesheet" href="~/Admin/dist/css/adminlte.min.css">
+
+</head>
+<body class="hold-transition login-page">
+	<div class="login-box">
+
+		<div class="card card-outline card-primary">
+			<div class="card-header text-center">
+				<a asp-area="Admin" asp-controller="Home" asp-action="Login" class="h1">Online <b>Jewelry Store</b></a>
+			</div>
+			<div class="card-body">
+
+				<form id="formLogin" asp-area="Admin" asp-controller="Home" asp-action="Login" method="post" class="form-horizontal" enctype="multipart/form-data" data_form_isvalidate>
+					<div class="input-group mb-3">
+						<input type="text" id="UserName" name="UserName" class="form-control" placeholder="Username" data-required data-msg="The Username field is required." autocomplete="off" value="">
+						<div class="input-group-append">
+							<div class="input-group-text">
+								<span class="fas fa-envelope"></span>
+							</div>
+						</div>
+					</div>
+					<div class="input-group mb-3">
+						<input type="password" id="Password" name="Password" placeholder="*********" class="form-control" data-required data-msg="The Password field is required." autocomplete="off">
+						<div class="input-group-append">
+							<div class="input-group-text">
+								<span class="fa fa-fw fa-eye-slash toggle-hide-show"></span>
+							</div>
+						</div>
+					</div>
+				</form>
+
+				<div class="text-center mt-2 mb-3">
+					<button id="btnLogin" type="button" class="btn btn-block btn-primary" onclick="fnSubmitForm('formLogin')">Log in</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<script src="~/Admin/plugins/jquery/jquery.min.js"></script>
+	<script src="~/Admin/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<script src="~/Admin/dist/js/adminlte.min.js"></script>
+	<script src="~/Admin/plugins/sweetalert2/sweetalert2.min.js"></script>
+
+	<script src="~/common.js"></script>
+
+	<script type="text/javascript">
+
+		$(document).ready(function () {
+			localStorage.clear();
+
+			$(document).keyup(function (event) {
+				debugger;
+				if (event.which === 13 && $(event.target).attr('id') !== 'btnLogin') {
+					event.preventDefault();
+					fnSubmitForm('formLogin');
+				}
+			});
+		});
+
+		$(".toggle-hide-show").click(function () {
+
+			var x = document.getElementById("Password");
+			if (x.type === "password") {
+				x.type = "text";
+				$(this).removeClass('fa-eye-slash');
+				$(this).addClass('fa-eye');
+			} else {
+				x.type = "password";
+				$(this).addClass('fa-eye-slash');
+				$(this).removeClass('fa-eye');
+			}
+
+		});
+	</script>
+
+</body>
+</html>
+

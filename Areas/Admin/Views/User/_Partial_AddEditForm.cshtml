@@ -1,0 +1,107 @@
+﻿@model ResponseModel<Users>
+@{
+	Layout = null;
+	var IndexPageUrl = "/" + ViewContext.RouteData.Values["Area"].ToString() + "/" + ViewContext.RouteData.Values["Controller"].ToString() + "/Index";
+}
+
+<div class="col-12">
+	<div class="card card-primary card-outline mb-0">
+		<div class="card-header">
+			<h3 class="card-title">@(Model.Obj.Id > 0 ? "Edit " : "Create") User</h3>
+			<input type="text" class="form-control d-none" id="Id" name="Id" value="@(Model.Obj != null && Model.Obj.Id > 0 ? Model.Obj.Id.ToString() : "")">
+
+			<div class="card-tools">
+				<button type="button" class="btn btn-primary btn-sm" title="Back To List" onclick="fnBackToList('@IndexPageUrl')">
+					<i class="fas fa-arrow-left"></i> Back To List
+				</button>
+			</div>
+		</div>
+
+		<div class="card-body">
+			<div class="form-group row">
+
+				<label for="FirstName" class="col-sm-2 col-form-label text-right">Firstname<span style="color:red">*</span></label>
+				<div class="col-sm-4">
+					<input type="text" class="form-control form-control-sm" name="FirstName" value="@Model.Obj.FirstName" maxlength="80"
+						   data-required data-msg="The Firstname field is required." autocomplete="off" />
+				</div>
+
+				<label for="LastName" class="col-sm-2 col-form-label text-right">Lastname<span style="color:red">*</span></label>
+				<div class="col-sm-4">
+					<input type="text" class="form-control form-control-sm" name="LastName" value="@Model.Obj.LastName" maxlength="80"
+						   data-required data-msg="The Lastname field is required." autocomplete="off" />
+				</div>
+
+			</div>
+
+			<div class="form-group row">
+
+				<label for="UserName" class="col-sm-2 col-form-label text-right">Username<span style="color:red">*</span></label>
+				<div class="col-sm-4">
+					<input type="text" class="form-control form-control-sm" name="UserName" value="@Model.Obj.UserName" maxlength="80"
+						   data-required data-msg="The Username field is required." autocomplete="off" />
+				</div>
+				@if (Model.Obj.Id <= 0)
+				{
+					<label for="Password" class="col-sm-2 col-form-label text-right">Password<span style="color:red">*</span></label>
+					<div class="col-sm-4">
+						<input type="text" class="form-control form-control-sm" name="Password" value="@Model.Obj.Password" maxlength="80"
+							   data-required data-msg="The Password field is required." autocomplete="off" />
+					</div>
+				}
+				else
+				{
+					<label for="IsPassword_Reset" class="col-sm-2 col-form-label text-right">Password Reset</label>
+					<div class="col-sm-2">
+						<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0 mb-2">
+							<input type="checkbox" class="custom-control-input" id="switch_Password_Reset"
+								   name="IsPassword_Reset" onchange="fnChange_Switch(this, 'label_Switch_Password_Reset')">
+							<label class="custom-control-label" for="switch_Password_Reset" id="label_Switch_Password_Reset" data-true="Yes" data-false="No">No</label>
+						</div>
+						<span class="info-container"> <span class="info">Default password: 12345</span>   </span>
+					</div>
+				}
+			</div>
+
+			<div class="form-group row">
+
+				<label for="RoleId" class="col-sm-2 col-form-label text-right">Select Role<span style="color:red">*</span></label>
+				<div class="col-sm-4">
+					<select id="RoleId" name="RoleId" class="form-control select2 w-100">
+						@if (Model.SelectListItems != null)
+						{
+							foreach (var item in Model.SelectListItems.Where(x => x.Group == "ROLE"))
+							{
+								if (item.Value == Model.Obj.RoleId.ToString() || ((Model.Obj == null || Model.Obj.Id <= 0) && Model.SelectListItems.Where(x => x.Group == "ROLE").Count() == 1))
+								{
+									<option value="@item.Value" selected>@item.Text</option>
+								}
+								else
+								{
+									<option value="@item.Value">@item.Text</option>
+								}
+							}
+						}
+					</select>
+				</div>
+
+			</div>
+
+			<div class="form-group row">
+				<label class="col-sm-2 col-form-label text-right">Status </label>
+				<div class="col-sm-4">
+					<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0">
+						<input type="checkbox" class="custom-control-input"
+							   id="switch_Status" name="IsActive" @(Model.Obj == null || Model.Obj.IsActive == true || Model.Obj.Id == 0 ? "checked" : "")
+							   onchange="fnChange_Switch(this, 'label_Switch_Status')">
+						<label class="custom-control-label" for="switch_Status" id="label_Switch_Status" data-true="Active" data-false="Inactive">@((Model.Obj != null && Model.Obj.IsActive == true) || Model.Obj == null || Model.Obj.Id == 0 ? "Active" : "Inactive")</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="card-footer text-center">
+			<button type="submit" class="btn btn-success btnSubmit">Save</button>
+			<button type="button" class="btn btn-danger" onclick="fnCloseParialView('divformSave', '#table_Common_Data');">Cancel</button>
+		</div>
+	</div>
+</div>

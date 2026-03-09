@@ -1,0 +1,214 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+.panel-divider {
+    text-align: left;
+    border: 1px solid #979faf;
+    line-height: 0.1em;
+    margin-bottom: 1.5rem !important;
+    border-radius: 0.25rem
+}
+
+    .panel-divider > span {
+        background: #fff;
+        padding: 0 1rem;
+        margin-left: 1rem !important;
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+
+    .panel-divider > div.row {
+        margin: 1rem 2rem 0rem 2rem !important;
+    }
+
+    .panel-divider table td {
+        line-height: normal !important;
+    }
+
+.b-radius-0 {
+    border-radius: 0 !important;
+}
+
+.select2-selection__rendered {
+    font-size: .875rem !important;
+}
+
+.col-form-label {
+    padding-top: 0 !important;
+}
+
+.form-group {
+    margin-bottom: 0.5rem !important;
+}
+
+.dataTables_wrapper {
+    width: 100% !important;
+}
+
+.navbar-nav > .user-menu > .dropdown-menu > li.user-header {
+    height: 200px !important;
+}
+
+.swal2-container {
+    z-index: 99999999 !important;
+}
+
+.modal-backdrop {
+    height: auto;
+}
+
+tr.row-disabled {
+    background-color: rgba(255,0,0,.15) !important;
+}
+
+.select2-container {
+    width: 100% !important;
+}
+
+.progress {
+    height: 0.3rem !important;
+}
+
+.progress-bar {
+    background-color: #fff !important;
+}
+
+.progress-description {
+    padding: 10px !important;
+}
+
+.dropdown-item {
+    padding: 0.55rem 1rem !important;
+}
+
+    .dropdown-item.disabled {
+        background-color: rgba(0,0,0,.1) !important;
+    }
+
+.main-sidebar .dropdown-item:focus, .main-sidebar .dropdown-item:hover {
+    color: #16181b;
+    text-decoration: none;
+    background-color: rgba(0,0,0,.1) !important;
+}
+
+.preloader_new {
+    display: -ms-flexbox;
+    display: flex;
+    /*background-color: #f4f6f9;*/
+    /*height: 100vh;*/
+    width: 100%;
+    transition: height 200ms linear;
+    position: fixed;
+    left: 0;
+    top: 50%;
+    z-index: 9999999;
+}
+
+.animation_loader {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #29a349;
+    border-bottom: 16px solid #29a349;
+    width: 120px;
+    height: 120px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+table.dataTable thead > tr > th.sorting {
+    padding-right: inherit !important;
+}
+
+.modal-xl {
+    max-width: 90% !important;
+}
+
+.modal {
+    overflow: auto !important;
+}
+
+table {
+    line-height: normal !important;
+}
+
+.eye-pass {
+    position: absolute;
+    margin-top: 15px;
+    top: -4px;
+    right: 0;
+    margin-right: 35px;
+    cursor: pointer;
+}
+
+input[type=password]::-ms-reveal,
+input[type=password]::-ms-clear {
+    display: none;
+}
+
+#tblmain_length {
+    text-align: left !important;
+}
+
+#tblDispatchCounty_length {
+    text-align: left !important;
+}
+
+.dataTables_info {
+    text-align: left !important;
+}
+
+.table td, .table th {
+    padding: .35rem !important;
+    vertical-align: middle !important;
+}
+
+.table th {
+    border-top: none !important;
+}
+
+
+.preview_image {
+    margin-top: 15px;
+    max-width: 250px;
+    display: none;
+}

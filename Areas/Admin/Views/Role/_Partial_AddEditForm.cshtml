@@ -1,0 +1,139 @@
+﻿@model ResponseModel<Roles>
+@{
+	Layout = null;
+	var IndexPageUrl = "/" + ViewContext.RouteData.Values["Area"].ToString() + "/" + ViewContext.RouteData.Values["Controller"].ToString() + "/Index";
+}
+
+<div class="col-12">
+	<div class="card card-primary card-outline mb-0">
+		<div class="card-header">
+			<h3 class="card-title">@(Model.Obj.Id > 0 ? "Edit " : "Create") Role</h3>
+			<input type="text" class="form-control d-none" id="Id" name="Id" value="@(Model.Obj != null && Model.Obj.Id > 0 ? Model.Obj.Id.ToString() : "")">
+
+			<div class="card-tools">
+				<button type="button" class="btn btn-primary btn-sm" title="Back To List" onclick="fnBackToList('@IndexPageUrl')">
+					<i class="fas fa-arrow-left"></i> Back To List
+				</button>
+			</div>
+		</div>
+
+		<div class="card-body">
+			<div class="form-group row">
+
+				<label for="RoleName" class="col-sm-2 col-form-label text-right">Role<span style="color:red">*</span></label>
+				<div class="col-sm-4">
+					<input type="text" class="form-control form-control-sm" name="RoleName" value="@Model.Obj.RoleName" maxlength="80"
+						   data-required data-msg="The Rolename field is required." autocomplete="off" />
+				</div>
+
+			</div>
+
+			<div class="form-group row">
+
+				<label for="Description" class="col-sm-2 col-form-label text-right">Description</label>
+				<div class="col-sm-6">
+					<input type="text" class="form-control form-control-sm" name="Description" value="@Model.Obj.Description" autocomplete="off" />
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-sm-2 col-form-label text-right">Status </label>
+				<div class="col-sm-4">
+					<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0">
+						<input type="checkbox" class="custom-control-input"
+							   id="switch_Status" name="IsActive" @(Model.Obj == null || Model.Obj.IsActive == true || Model.Obj.Id == 0 ? "checked" : "")
+							   onchange="fnChange_Switch(this, 'label_Switch_Status')">
+						<label class="custom-control-label" for="switch_Status" id="label_Switch_Status" data-true="Active" data-false="Inactive">@((Model.Obj != null && Model.Obj.IsActive == true) || Model.Obj == null || Model.Obj.Id == 0 ? "Active" : "Inactive")</label>
+					</div>
+				</div>
+			</div>
+
+			@if (Common.IsAdmin())
+			{
+				List<string> selectedValue = Model.Obj.SelectedMenu?.Split(',').ToList();
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label text-right">Select Menu</label>
+					<div class="col-sm-8 d-flex flex-wrap">
+						<select multiple id="selectMenu" class="form-control form-control-sm select2 w-100" onchange="fnChange_Select('Menu')">
+							<option value="">-- Select --</option>
+							@if (Model.SelectListItems != null)
+							{
+								foreach (var item in Model.SelectListItems.Where(x => x.Group == "MENU"))
+								{
+									if (selectedValue != null && selectedValue.Any(x => x == item.Value))
+									{
+										<option value="@item.Value" selected>@item.Text</option>
+									}
+									else
+									{
+										<option value="@item.Value">@item.Text</option>
+									}
+								}
+							}
+						</select>
+
+						<input type="text" id="inputMenu" name="SelectedMenu" value="@Model.Obj.SelectedMenu" class="d-none" />
+					</div>
+				</div>
+			}
+			@* @if (Common.IsAdmin())
+			{
+				var selectedValue = Model.Obj.SelectedMenu != null ? Model.Obj.SelectedMenu.Split(',').ToList() : null;
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label text-right">Select Menu(s)</label>
+					<div class="col-sm-8 d-flex flex-column">
+
+						@if (Model.SelectListItems != null && Model.SelectListItems.Where(x => x.Group == "MENU").Count() > 0)
+						{
+							<dl id="selectMenu">
+
+								@{
+									var lookup = Model.SelectListItems.GroupBy(x => x.Value2).ToDictionary(g => g.Key, g => g.ToList());
+
+									var parents = Model.SelectListItems.Where(x => !string.IsNullOrEmpty(x.Value2) && Convert.ToInt32(x.Value2) == 0).OrderBy(x=>x.OrderBy);
+
+									foreach (var parent in parents)
+									{
+										<dd class="ml-0">
+											<div class="icheck-primary">
+												<input type="checkbox" id="checkboxPrimary_@parent.Value" data-id="@parent.Value"
+													   @(selectedValue != null && selectedValue.Any(x => x == parent.Value.ToString()) ? "checked" : "")>
+												<label for="checkboxPrimary_@parent.Value">@parent.Text</label>
+											</div>
+										</dd>
+
+										if (lookup.ContainsKey(parent.Value))
+										{
+											foreach (var child in lookup[parent.Value])
+											{
+												<dd class="ml-3 dd_@child.Value2">
+													<div class="icheck-primary">
+														<input type="checkbox" id="checkboxPrimary_@child.Value" data-id="@child.Value" data-parentid="@child.Value2"
+															   onchange="fnChange_Select('Menu')"
+															   @(selectedValue != null && selectedValue.Any(x => x == child.Value) ? "checked" : "")>
+														<label for="checkboxPrimary_@child.Value">@child.Text</label>
+													</div>
+												</dd>
+											}
+										}
+									}
+								}
+
+
+							</dl>
+						}
+
+						<input type="text" id="inputMenu" name="SelectedMenu" value="@Model.Obj.SelectedMenu" class="d-none" />
+					</div>
+				</div>
+
+			} *@
+		</div>
+		<div class="card-footer text-center">
+			<button type="submit" class="btn btn-success btnSubmit">Save</button>
+			<button type="button" class="btn btn-danger" onclick="fnCloseParialView('divformSave', '#table_Common_Data');">Cancel</button>
+		</div>
+	</div>
+</div>
