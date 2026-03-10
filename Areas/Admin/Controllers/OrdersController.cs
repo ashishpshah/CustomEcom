@@ -204,7 +204,42 @@ namespace JewelryStore.Areas.Admin.Controllers
 		{
 			try
 			{
-				var (IsSuccess, Message, Id, Extra) = (false, ResponseStatusMessage.Error, 0M, new List<string>());
+                if ( viewModel.ListOrderItems == null || !viewModel.ListOrderItems.Any())
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.Message = "Please select at least one product.";
+
+                    return Json(CommonViewModel);
+                    
+                }
+
+                // Remove empty rows if needed
+                var validItems = viewModel.ListOrderItems
+                    .Where(x => x != null && x.VariantId > 0)
+                    .ToList();
+
+                if (!validItems.Any())
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.Message = "Please select at least one product.";
+
+                    return Json(CommonViewModel);
+                }
+
+                // Check duplicate VariantId
+                var duplicateVariants = validItems
+                    .GroupBy(x => x.VariantId)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.Key)
+                    .ToList();
+
+                if (duplicateVariants.Any())
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.Message = "Same product cannot be added more than once.";
+                    return Json(CommonViewModel);                  
+                }
+                var (IsSuccess, Message, Id, Extra) = (false, ResponseStatusMessage.Error, 0M, new List<string>());
 
                 DataTable order_items_table = new DataTable();
                 order_items_table.Columns.Add("VariantId", typeof(int));

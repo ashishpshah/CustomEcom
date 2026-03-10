@@ -127,19 +127,20 @@
 						orderable: false,
 						className: "text-center",
 						render: function (data, type, row) {
-							return '<div class="btn-group">' +
+							return '<div class="btn-group flex-nowrap">' +
 								'<button type="button" class="btn btn-info btn-sm btn-flat" data-toggle="tooltip" data-placement="top" title="Edit" ' +
 								'onclick="fnLoadParialView(\'divformSave\', \'@Url.Action("Partial_AddEditForm", "Orders", new { area = "Admin" })?Id=' + row.Id + '\')">' +
 								'<i class="far fa-edit"></i></button> ' +
 								'<button type="button" class="btn btn-danger btn-sm btn-flat ml-2" data-toggle="tooltip" data-placement="top" title="Delete" ' +
 								'onclick="fnDelete_Confirm(\'@Url.Action("DeleteConfirmed", "Orders", new { area = "Admin" })?Id=' + row.Id + '\')">' +
 								'<i class="fa fa-trash"></i></button> ' +
-								'<button type="button" class="btn btn-info btn-sm btn-flat ml-2" data-toggle="tooltip" data-placement="top" title="Delete" ' +
-								'onclick="fnLoadParialView(\'divformSave\', \'@Url.Action("Partial_AddEditForm", "Orders", new { area = "Admin" })?Id=' + row.Id + '&Flag=VIEW\')">' +
-								'View</button> ' +
-										'<button type="button" class="btn btn-info btn-sm btn-flat ml-2" data-bs-toggle="tooltip" data-bs-placement="top" title="View" ' +
-										'onclick="fnShow_Modal(\'@Url.Action("Partial_AddEditForm", "Orders", new { area = "Admin" })?Id=' + row.Id + '&Flag=VIEWITEMS\',\'Order Items\',true,\'html\',false,false)">' +
-										'View Item</button>' +
+									'<button type="button" class="btn btn-info btn-sm btn-flat ml-2" data-toggle="tooltip" data-placement="top" title="View" ' +
+									'onclick="fnLoadParialView(\'divformSave\', \'@Url.Action("Partial_AddEditForm", "Orders", new { area = "Admin" })?Id=' + row.Id + '&Flag=VIEW\')">' +
+									'<i class="fa fa-eye"></i></button> ' +
+
+									'<button type="button" class="btn btn-info btn-sm btn-flat ml-2" data-toggle="tooltip" data-bs-placement="top" title="ViewItems" ' +
+									'onclick="fnShow_Modal(\'@Url.Action("Partial_AddEditForm", "Orders", new { area = "Admin" })?Id=' + row.Id + '&Flag=VIEWITEMS\',\'Order Items\',true,\'html\',false,false)">' +
+									'<i class="fa fa-list"></i></button>' +
 								'</div>';
 						}
 					}
@@ -170,9 +171,9 @@
 						${options}
 					</select>
 			</td>
-			<td><input type="text" id="ListOrderItems_${rowCount}_Quantity" name="ListOrderItems[${rowCount}].Quantity" class="form-control isNumberKey_Decimal" value="" onkeyup="calculateRow(this),calculateTotals()" /></td>
-			<td><input type="text" id="ListOrderItems_${rowCount}_UnitPrice" name="ListOrderItems[${rowCount}].UnitPrice" class="form-control isNumberKey_Decimal" value="" readonly /></td>
-			<td><input type="text" id="ListOrderItems_${rowCount}_TotalPrice" name="ListOrderItems[${rowCount}].TotalPrice" class="form-control isNumberKey_Decimal" value="" readonly /></td>
+			<td><input type="text" id="ListOrderItems_${rowCount}_Quantity" name="ListOrderItems[${rowCount}].Quantity" class="form-control isNumberKey_Decimal" value="" onkeyup="calculateRow(this),calculateTotals()" maxlength="18"/></td>
+			<td><input type="text" id="ListOrderItems_${rowCount}_UnitPrice" name="ListOrderItems[${rowCount}].UnitPrice" class="form-control isNumberKey_Decimal" value="" readonly maxlength="18"/></td>
+			<td><input type="text" id="ListOrderItems_${rowCount}_TotalPrice" name="ListOrderItems[${rowCount}].TotalPrice" class="form-control isNumberKey_Decimal" value="" readonly maxlength="18" /></td>
 			<td><div><button type="button" class="btn btn-danger btn-sm btn-flat ml-2 deletebtn" data-toggle="tooltip" data-placement="top" title="Delete" onclick="deleteRow(this)">
 			<i class="fa fa-trash"></i></button></div></td></tr>`;
 
@@ -232,6 +233,11 @@
 			var discount = parseFloat($("#DiscountAmount").val()) || 0;
 
 			var finalAmount = totalAmount - discount;
+			if (finalAmount < 0) {
+				CommonAlert_Error("Discount amount cannot be greater than Total Amount.");
+				$('#DiscountAmount').val(0);
+				finalAmount = totalAmount;
+			}
 
 			$("#FinalAmount").val(finalAmount.toFixed(2));
 		}
