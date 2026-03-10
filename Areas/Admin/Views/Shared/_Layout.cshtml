@@ -290,7 +290,7 @@
 
 					if (file.size > 2 * 1024 * 1024) {
 						alert("Image must be less than 2MB");
-						input.val("");
+						input.val("").trigger("change");
 						return;
 					}
 
@@ -298,14 +298,12 @@
 
 					reader.onload = function (e) {
 
-						preview
-							.attr("src", e.target.result)
-							.removeClass("d-none");
+						preview.attr("src", e.target.result).removeClass("d-none");
 
 						placeholder.hide();
 						actions.removeClass("d-none");
 
-						removeFlag.val(false);
+						removeFlag.val(false).trigger("change");
 					};
 
 					reader.readAsDataURL(file);
@@ -334,16 +332,14 @@
 					e.preventDefault();
 					e.stopPropagation();
 
-					preview
-						.attr("src", "")
-						.addClass("d-none");
+					preview.attr("src", "").addClass("d-none");
 
-					input.val("");
+					input.val("").trigger("change");
 
 					placeholder.show();
 					actions.addClass("d-none");
 
-					removeFlag.val(true);
+					removeFlag.val(true).trigger("change");
 
 				});
 

@@ -1,0 +1,131 @@
+﻿@{
+	ViewData["Title"] = "Product";
+	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+	<div class="container-fluid">
+		<div class="row mb-2">
+			<div class="col-sm-6">
+				<h1 class="m-0 font-weight-bold">Product</h1>
+			</div>
+			<div class="col-sm-6">
+				<div class="float-sm-right">
+					<button type="button" id="btnAddNewItem" class="btn btn-primary btn-md pull-right mr-2 divformSave_Hide"
+							onclick="fnLoadParialView('divformSave', '@Url.Action("Partial_AddEditForm", "Product", new { area = "Admin" })');">
+						<i class="fas fa-plus"></i> &nbsp; Add Product
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row no-gutters divformSave_Display d-none" style="margin: 5px !important;">
+			<div class="col-12">
+				<form id="formSave" asp-area="Admin" asp-controller="Product" asp-action="Save" method="post" class="form-horizontal" enctype="multipart/form-data">
+					<div class="row no-gutters" id="divformSave"></div>
+					<div class="clearfix"></div>
+					<hr />
+				</form>
+			</div>
+		</div>
+		<div class="row divformSave_Hide">
+			<div class="col-12">
+				<div class="card card-primary card-outline">
+
+					<div class="card-body">
+						<div class="row no-gooters">
+							<div class="col-md-12 my-1">
+								<table id="table_Common_Data" class="table table-bordered table-striped w-100"> </table>
+							</div>
+
+							<div class="clearfix"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+
+
+@section Scripts
+{
+	<script type="text/javascript">
+
+		$(document).ready(function () { fnLoadTableData(); });
+
+		function fnLoadTableData() {
+
+			if ($.fn.DataTable.isDataTable('#table_Common_Data')) { $('#table_Common_Data').DataTable().destroy(); }
+
+			$("#table_Common_Data").DataTable({
+				"destroy": true,
+				"paging": true,
+				"lengthChange": true,
+				"searching": true,
+				"ordering": true,
+				"info": true,
+				"autoWidth": false,
+				"responsive": true,
+				"pageLength": 25,
+				"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+				"sAjaxSource": "@Url.Action("GetDataList", "Product", new { area = "Admin" })",
+				"bServerSide": true,
+				"bProcessing": true,
+				"bSearchable": true,
+				"order": [[2, 'asc']],
+				"language": { "emptyTable": "No record found.", "processing": '<i class="fa fa-spinner fa-spin fa-3x fa-fw" style="color:#2a2b2b;"></i><span class="sr-only">Loading...</span> ' },
+				"fnServerParams": function (aoData) {
+					//aoData.push({ "name": "SearchTerm", "value": "" + $('#inputSearch').val() });
+				},
+				columnDefs: [
+					{ "targets": 0, "className": "text-center", "width": "3%", "autoWidth": false, "searchable": false, "orderable": false },
+					{ "targets": -1, "className": "text-center", "width": "5%", "autoWidth": false, "searchable": false, "orderable": false }
+				],
+				"columns": [
+					{
+						title: "<input type='checkbox' id='chkAll' />",
+						data: "Id",
+						render: function (data) { return '<input type="checkbox" class="chkRow" value="' + data + '" />'; }
+					},
+					{ title: "No.", data: "SrNo", width: "5%", className: "text-center" },
+					{ title: "Product", data: "ProductName" },
+					{ title: "Category", data: "CategoryName" },
+					{
+						title: "Status",
+						data: "IsActive",
+						className: "text-center",
+						render: function (data) { return data ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>'; }
+					},
+					{
+						title: "Action",
+						data: null,
+						orderable: false,
+						className: "text-center",
+						render: function (data, type, row) {
+							return '<div class="btn-group">' +
+								'<button type="button" class="btn btn-info btn-sm btn-flat" data-toggle="tooltip" data-placement="top" title="Edit" ' +
+								'onclick="fnLoadParialView(\'divformSave\', \'@Url.Action("Partial_AddEditForm", "Product", new { area = "Admin" })?Id=' + row.Id + '\')">' +
+								'<i class="far fa-edit"></i></button> ' +
+								'<button type="button" class="btn btn-danger btn-sm btn-flat ml-2" data-toggle="tooltip" data-placement="top" title="Delete" ' +
+								'onclick="fnDelete_Confirm(\'@Url.Action("DeleteConfirmed", "Product", new { area = "Admin" })?Id=' + row.Id + '\')">' +
+								'<i class="fa fa-trash"></i></button> ' +
+								'</div>';
+						}
+					}
+				]
+			});
+		}
+
+		function fnParialView_Loaded_Success($id, $isAlert){
+			debugger;
+			initImageUploader();
+		}
+
+	</script>
+}
