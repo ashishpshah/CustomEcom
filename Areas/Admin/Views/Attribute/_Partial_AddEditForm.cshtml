@@ -1,0 +1,155 @@
+﻿@model ResponseModel<AttributeMaster>
+
+@{
+	Layout = null;
+	var IndexPageUrl = "/" + ViewContext.RouteData.Values["Area"] + "/" +
+								ViewContext.RouteData.Values["Controller"] + "/Index";
+}
+
+<div class="col-12">
+	<div class="card card-primary card-outline mb-0">
+
+		<div class="card-header">
+			<h3 class="card-title">
+				@(Model.Obj.Id > 0 ? "Edit " : "Create") Attribute
+			</h3>
+
+			<input type="hidden" name="Id" value="@Model.Obj?.Id" />
+
+			<div class="card-tools">
+				<button type="button" class="btn btn-primary btn-sm"
+						onclick="fnBackToList('@IndexPageUrl')">
+					<i class="fas fa-arrow-left"></i> Back To List
+				</button>
+			</div>
+		</div>
+
+		<div class="card-body">
+
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">
+					Attribute Name <span style="color:red">*</span>
+				</label>
+
+				<div class="col-sm-4">
+					<input type="text"
+						   name="AttributeName"
+						   class="form-control form-control-sm"
+						   value="@Model.Obj?.AttributeName"
+						   maxlength="100"
+						   data-required
+						   data-msg="Attribute name required"
+						   autocomplete="off" />
+				</div>
+
+			</div>
+
+
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">
+					Values<span style="color:red">*</span>
+				</label>
+
+				<div class="col-sm-6">
+
+					<input type="text"
+						   name="AttributeValues"
+						   class="form-control form-control-sm"
+						   value="@Model.Obj?.AttributeValues"
+						   placeholder="Example: Red,Black,Orange"
+						   data-required
+						   data-msg="Values required"
+						   autocomplete="off" />
+
+					<small class="text-muted">
+						Add multiple values separated by comma.
+					</small>
+
+				</div>
+
+			</div>
+
+
+			@* <div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">Status</label>
+
+				<div class="col-sm-4">
+
+					<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0">
+
+						<input type="checkbox"
+							   class="custom-control-input"
+							   id="switch_Status"
+							   name="IsActive"
+						@(Model.Obj == null || Model.Obj.Id == 0 || Model.Obj.IsActive ? "checked" : "")
+							   onchange="fnChange_Switch(this,'label_Switch_Status')" />
+
+						<label class="custom-control-label"
+							   id="label_Switch_Status"
+							   for="switch_Status"
+							   data-true="Active"
+							   data-false="Inactive">
+
+							@(Model.Obj == null || Model.Obj.IsActive ? "Active" : "Inactive")
+
+						</label>
+
+					</div>
+
+				</div>
+
+			</div> *@
+
+		</div>
+
+
+		<div class="card-footer text-center">
+
+			<button type="submit" class="btn btn-success btnSubmit">
+				Save
+			</button>
+
+			<button type="button"
+					class="btn btn-danger"
+					onclick="fnCloseParialView('divformSave','#table_Common_Data');">
+				Cancel
+			</button>
+
+		</div>
+
+	</div>
+</div>
+
+<script>
+
+	$(document).on("submit", "#formSave", function (e) {
+
+		var values = $('input[name="AttributeValues"]').val();
+
+		if(values){
+
+			values = values.trim();
+
+			if(values.startsWith(",")){
+				CommonAlert_Error("Values cannot start with comma.");
+				return false;
+			}
+
+			if(values.endsWith(",")){
+				CommonAlert_Error("Values cannot end with comma.");
+				return false;
+			}
+
+			if(values.includes(",,")){
+				CommonAlert_Error("Invalid format. Remove extra commas.");
+				return false;
+			}
+
+		}
+
+	});
+
+</script>
