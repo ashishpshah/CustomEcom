@@ -233,7 +233,7 @@
 			var discount = parseFloat($("#DiscountAmount").val()) || 0;
 
 			var finalAmount = totalAmount - discount;
-			if (finalAmount < 0) {
+			if (finalAmount <= 0) {
 				CommonAlert_Error("Discount amount cannot be greater than Total Amount.");
 				$('#DiscountAmount').val(0);
 				finalAmount = totalAmount;
