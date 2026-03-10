@@ -1,0 +1,42 @@
+﻿@model ResponseModel<Orders>
+@{
+    Layout = null;
+}
+
+
+<div class="row clearfix pt-2">
+    <div class="card">
+        <div class="body table-responsive">
+            <table class="table table-bordered table-striped w-100 table_Common">
+                <thead>
+                    <tr>
+                        @*<th>#</th>*@
+                        <th>Product Name</th>
+                        <th>Variant Name</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total Price</th>                       
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Obj.ListOrderItems)
+                    {
+                        <tr>
+                            @*<td>@item.Id</td>*@
+                            <td>@item.ProductName</td>
+                            <td>@item.VariantName</td>
+                            <td>@item.Quantity</td>
+                            <td>@item.UnitPrice</td>
+                            <td>@item.TotalPrice</td>
+                          
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+
+

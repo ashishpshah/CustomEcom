@@ -146,7 +146,8 @@ namespace JewelryStore.Infra
 		public string Value { get; set; }
 		public string Value2 { get; set; }
 		public string Value3 { get; set; }
-		public int OrderBy { get; set; }
+        public decimal Value4 { get; set; }
+        public int OrderBy { get; set; }
 		public string Group { get; set; }
 
 		public SelectListItem_Custom(string value, string text)
@@ -188,8 +189,16 @@ namespace JewelryStore.Infra
 			Group = group;
 			OrderBy = orderBy;
 		}
+        public SelectListItem_Custom(string value, string text, decimal datavalue, string group, int orderBy = 0)
+        {
+            Value = value;
+            Text = text;
+            Value4 = datavalue;
+            Group = group;
+            OrderBy = orderBy;
+        }
 
-	}
+    }
 
 	public static class MyServer
 	{

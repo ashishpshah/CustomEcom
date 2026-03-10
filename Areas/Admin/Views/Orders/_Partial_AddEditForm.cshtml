@@ -1,0 +1,169 @@
+﻿@model ResponseModel<Orders>
+@{
+	Layout = null;
+	var IndexPageUrl = "/" + ViewContext.RouteData.Values["Area"].ToString() + "/" + ViewContext.RouteData.Values["Controller"].ToString() + "/Index";
+}
+
+<div class="col-12">
+	<div class="card card-primary card-outline mb-0">
+		<div class="card-header">
+			<h3 class="card-title">@(Model.Obj.Id > 0 ? "Edit " : "Create") Order</h3>
+			<input type="text" class="form-control d-none" id="Id" name="Id" value="@(Model.Obj != null && Model.Obj.Id > 0 ? Model.Obj.Id.ToString() : "")">
+
+			<div class="card-tools">
+				<button type="button" class="btn btn-primary btn-sm" title="Back To List" onclick="fnBackToList('@IndexPageUrl')">
+					<i class="fas fa-arrow-left"></i> Back To List
+				</button>
+			</div>
+		</div>
+
+		<div class="card-body">
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">Order No<span style="color:red">*</span></label>
+				<div class="col-sm-4">
+					<input type="text" class="form-control form-control-sm" name="OrderNumber" value="@Model.Obj.OrderNumber" maxlength="80"
+						   data-required data-msg="The OrderNumber field is required." autocomplete="off" readonly />
+				</div>
+
+				<label class="col-sm-2 col-form-label text-right">Order Date<span style="color:red">*</span></label>
+				<div class="col-sm-4">
+					<input type="date" class="form-control form-control-sm" name="OrderDate" value="@Model.Obj.OrderDate?.ToString("yyyy-MM-dd")" maxlength="80"
+						   data-required data-msg="The Order Date field is required." autocomplete="off" />
+				</div>
+
+			</div>
+
+            <!-- Order Items Header -->
+            <div class="d-flex justify-content-between align-items-center mb-2 mt-4">
+
+                <h5 class="mb-0"><b>Order Items</b></h5>
+
+                <button type="button" id="btnAddRow" class="btn btn-primary btn-sm" onclick="fnBtnAddNewItem()">
+                    <i class="fa fa-plus"></i> Add New
+                </button>
+
+            </div>
+
+
+            <!-- Order Items Table -->
+            <div class="table-responsive">
+				<table class="table table-bordered table-sm align-middle w-100" id="orderItemsTable">
+
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width:30%">Variant</th>
+                            <th style="width:15%">Quantity</th>
+                            <th style="width:20%">Unit Price</th>
+                            <th style="width:20%">Total Price</th>
+                            <th style="width:10%">Action</th>
+                        </tr>
+                    </thead>
+					<tbody>
+						@{
+							int trid = 0;
+						}
+						@if (Model.Obj.ListOrderItems != null && Model.Obj.ListOrderItems.Count > 0)
+						{
+							trid = Model.Obj.ListOrderItems.Count;
+							for (int i = 0; i < Model.Obj.ListOrderItems.Count; i++)
+							{
+								<tr id="tr_@i">
+									<td>
+
+										<select id="ListOrderItems_@(i)_VariantId" class="form-control select2" name="ListOrderItems[@i].VariantId" onchange="onProductVaraintChange(this)">
+											<option value="0">Select</option>
+											@if (Model.SelectListItems != null)
+											{
+												foreach (var item in Model.SelectListItems.Where(x => x.Group == "VARIANT"))
+												{
+													if (Model.Obj.ListOrderItems[i].VariantId.ToString() == item.Value)
+													{
+														<option value="@item.Value" data-value="@item.Value4" selected>@item.Text</option>
+													}
+													else
+													{
+														<option value="@item.Value" data-value="@item.Value4">@item.Text</option>
+													}
+												}
+											}
+										</select>
+									</td>
+									<td><input type="text" id="ListOrderItems_@(i)_Quantity" name="ListOrderItems[@i].Quantity" class="form-control isNumberKey_Decimal" value="@Model.Obj.ListOrderItems[i].Quantity" onkeyup="calculateRow(this),calculateTotals()" /></td>
+									<td><input type="text" id="ListOrderItems_@(i)_UnitPrice" name="ListOrderItems[@i].UnitPrice" class="form-control isNumberKey_Decimal" value="@Model.Obj.ListOrderItems[i].UnitPrice" onkeyup="calculateRow(this),calculateTotals()" readonly /></td>
+									<td><input type="text" id="ListOrderItems_@(i)_TotalPrice" name="ListOrderItems[@i].TotalPrice" class="form-control isNumberKey_Decimal " value="@Model.Obj.ListOrderItems[i].TotalPrice" onkeyup="calculateRow(this)" readonly /></td>
+									<td>
+										<div class="btn-group">
+											<button type="button" class="btn btn-danger btn-sm btn-flat ml-2 deletebtn" data-toggle="tooltip" data-placement="top" title="Delete" onclick="deleteRow(this)">
+												<i class="fa fa-trash"></i>
+											</button>
+										</div>
+									</td>
+								</tr>
+							}
+						}
+						else
+						{
+							<tr id="tr_@trid">
+
+								<td>
+
+									<select id="ListOrderItems_@(trid)_VariantId" class="form-control select2 show-ticks" name="ListOrderItems[@trid].VariantId" onchange="onProductVaraintChange(this)">
+										<option value="0">Select</option>
+										@if (Model.SelectListItems != null)
+										{
+											foreach (var item in Model.SelectListItems.Where(x => x.Group == "VARIANT"))
+											{
+												<option value="@item.Value" data-value="@item.Value4">@item.Text</option>
+											}
+										}
+									</select>
+								</td>
+								<td><input type="text" id="ListOrderItems_@(trid)_Quantity" name="ListOrderItems[@trid].Quantity" class="form-control isNumberKey_Decimal" value="" onkeyup="calculateRow(this),calculateTotals()" /></td>
+								<td><input type="text" id="ListOrderItems_@(trid)_UnitPrice" name="ListOrderItems[@trid].UnitPrice" class="form-control isNumberKey " value="" onkeyup="calculateRow(this),calculateTotals()" readonly /></td>
+								<td><input type="text" id="ListOrderItems_@(trid)_TotalPrice" name="ListOrderItems[@trid].TotalPrice" class="form-control isNumberKey_Decimal" value="" readonly /></td>
+								<td>
+									<div class="btn-group">
+										<button type="button" class="btn btn-danger btn-sm btn-flat ml-2 deletebtn" data-toggle="tooltip" data-placement="top" title="Delete" onclick="deleteRow(this)">
+											<i class="fa fa-trash"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+                  
+
+                </table>
+            </div>
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">Total Amount</label>
+				<div class="col-sm-4">
+					<input type="text" class="form-control form-control-sm isNumberKey_Decimal" id="TotalAmount" name="TotalAmount" value="@Model.Obj.TotalAmount" 
+						    autocomplete="off" readonly />
+				</div>
+
+				<label class="col-sm-2 col-form-label text-right">Discount Amount</label>
+				<div class="col-sm-4">
+					<input type="text" class="form-control form-control-sm isNumberKey_Decimal" id="DiscountAmount" name="DiscountAmount" value="@Model.Obj.DiscountAmount" 
+						   autocomplete="off" onkeyup="calculateTotals()" />
+				</div>
+
+			</div>
+			<div class="form-group row">
+				<label class="col-sm-2 col-form-label text-right">Final Amount</label>
+				<div class="col-sm-4">
+					<input type="text" class="form-control form-control-sm isNumberKey_Decimal" id="FinalAmount" name="FinalAmount" value="@Model.Obj.FinalAmount" 
+						   autocomplete="off" readonly />
+				</div>				
+
+			</div>
+
+		</div>
+		<div class="card-footer text-center">
+			<button type="submit" class="btn btn-success btnSubmit">Save</button>
+			<button type="button" class="btn btn-danger" onclick="fnCloseParialView('divformSave', '#table_Common_Data');">Cancel</button>
+		</div>
+	</div>
+</div>

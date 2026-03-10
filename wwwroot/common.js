@@ -1361,6 +1361,7 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
                     ShowLoader(false);
 
                     if ($hasTable === true) {
+                        debugger;
 
                         try {
 
@@ -1412,7 +1413,7 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
                         } catch { }
 
                         if ($('#modal-xl .modal-body .table_Common tbody tr').length > 0) {
-
+                            debugger;
                             $('#modal-xl').show(); //$('#modal-xl').modal('show');
 
                             var elem = document.createElement('div');
