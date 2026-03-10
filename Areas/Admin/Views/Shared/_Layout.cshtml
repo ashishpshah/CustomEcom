@@ -313,7 +313,7 @@
 					if (!file) return;
 
 					if (file.size > 2 * 1024 * 1024) {
-						alert("Image must be less than 2MB");
+						CommonAlert_Error("Image must be less than 2MB");
 						input.val("").trigger("change");
 						return;
 					}
