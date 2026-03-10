@@ -112,7 +112,6 @@ namespace JewelryStore.Areas.Admin.Controllers
 					foreach (DataRow dr in dt.Rows)
 						list.Add(new SelectListItem_Custom(GetValue<string>(dr, "Id"), (string.IsNullOrEmpty(GetValue<string>(dr, "ParentCategoryName")) ? GetValue<string>(dr, "CategoryName") : GetValue<string>(dr, "CategoryName") + " - " + GetValue<string>(dr, "ParentCategoryName")), GetValue<string>(dr, "ParentCategoryId"), "CAT", GetValue<int>(dr, "DisplayOrder")));
 
-
 			}
 			catch (Exception ex) { LogService.LogInsert(GetCurrentAction(), "", ex); }
 

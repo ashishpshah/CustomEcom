@@ -6,6 +6,7 @@ using JewelryStore.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace JewelryStore.Areas.Admin.Controllers
 {
@@ -51,8 +52,8 @@ namespace JewelryStore.Areas.Admin.Controllers
 								SrNo = GetValue<int>(dr, "SrNo"),
 								Id = GetValue<int>(dr, "Id"),
 								ProductName = GetValue<string>(dr, "ProductName"),
-								ParentProductId = GetValue<int>(dr, "ParentProductId"),
-								ParentProductName = GetValue<string>(dr, "ParentProductName"),
+								CategoryId = GetValue<int>(dr, "CategoryId"),
+								CategoryName = GetValue<string>(dr, "CategoryName"),
 								ImagePath = GetValue<string>(dr, "ImagePath"),
 								IsActive = GetValue<bool>(dr, "IsActive"),
 								LastModifiedDate = GetValue<DateTime?>(dr, "LastModifiedDate")
@@ -85,21 +86,35 @@ namespace JewelryStore.Areas.Admin.Controllers
 					oParams = new List<SqlParameter>();
 					oParams.Add(new SqlParameter("@Id", id));
 
-					dt = DataContext.ExecuteStoredProcedure_DataTable("SP_Product_Get", oParams);
+					var ds = DataContext.ExecuteStoredProcedure_DataSet("SP_Product_Get", oParams);
 
-					if (dt != null && dt.Rows.Count > 0)
+					if (ds != null && ds.Tables.Count > 0)
 					{
-						var dr = dt.Rows[0];
+						var dr = ds.Tables[0].Rows[0];
 
 						obj = new Product()
 						{
 							Id = GetValue<int>(dr, "Id"),
 							ProductName = GetValue<string>(dr, "ProductName"),
-							ParentProductId = GetValue<int>(dr, "ParentProductId"),
-							ParentProductName = GetValue<string>(dr, "ParentProductName"),
+							CategoryId = GetValue<int>(dr, "CategoryId"),
+							CategoryName = GetValue<string>(dr, "CategoryName"),
 							ImagePath = GetValue<string>(dr, "ImagePath"),
 							IsActive = GetValue<bool>(dr, "IsActive"),
 						};
+
+						dt = ds.Tables[1];
+
+						obj.ProductImages = new List<ProductImages>();
+
+						foreach (DataRow row in dt.Rows)
+						{
+							obj.ProductImages.Add(new ProductImages()
+							{
+								Id = GetValue<int>(row, "Id"),
+								ImagePath = GetValue<string>(row, "ImagePath"),
+								IsPrimary = GetValue<bool>(row, "IsPrimary")
+							});
+						}
 					}
 				}
 
@@ -130,24 +145,53 @@ namespace JewelryStore.Areas.Admin.Controllers
 			{
 				var (IsSuccess, Message, Id, Extra) = (false, ResponseStatusMessage.Error, 0M, new List<string>());
 
+				List<string> productImages = new List<string>();
+
 				if (Request.Form.Files.Count > 0)
 				{
-					var file = Request.Form.Files[0];
-
 					string uploadFolder = Path.Combine(AppHttpContextAccessor.WebRootPath, "Uploads", "Product");
 
-					string imagePath = await FileUploadService.UploadImageAsync(file, uploadFolder);
+					bool isFirst = true;
 
-					viewModel.ImagePath = imagePath;
+					foreach (var file in Request.Form.Files)
+					{
+						var match = Regex.Match(file.Name, @"\[(\d+)\]");
+						int index = int.Parse(match.Groups[1].Value);
+
+						ProductImages imageModel = new ProductImages();
+
+						if (viewModel.ProductImages?.Count > index && viewModel.ProductImages[index] != null)
+							imageModel = viewModel.ProductImages[index];
+
+						string imagePath = await FileUploadService.UploadImageAsync(file, uploadFolder);
+
+						productImages.Add($"{imageModel.Id}|{imagePath}|{(isFirst ? 1 : 0)}|{(imageModel.IsRemove ? 1 : 0)}");
+						//productImages.Add($"{imageModel.Id}|{imagePath}|{(imageModel.IsPrimary ? 1 : 0)}|{(imageModel.IsRemove ? 1 : 0)}");
+
+						isFirst = false;
+					}
 				}
+
+				//if (viewModel.ProductImages != null)
+				//{
+				//	foreach (var img in viewModel.ProductImages)
+				//	{
+				//		productImages.Add($"{img.Id}|-|{(img.IsPrimary ? 1 : 0)}|{(img.IsRemove ? 1 : 0)}");
+				//	}
+				//}
+
+				string imagesString = string.Join("||", productImages);
 
 				List<SqlParameter> oParams = new List<SqlParameter>();
 
 				oParams.Add(new SqlParameter("Id", viewModel.Id));
+				oParams.Add(new SqlParameter("CategoryId", viewModel.CategoryId));
 				oParams.Add(new SqlParameter("ProductName", viewModel.ProductName));
-				oParams.Add(new SqlParameter("ParentProductId", viewModel.ParentProductId));
-				oParams.Add(new SqlParameter("@ImagePath", viewModel.ImagePath));
-				oParams.Add(new SqlParameter("@ImagePath_Remove", viewModel.ImagePath_Remove));
+				oParams.Add(new SqlParameter("ProductDescription", viewModel.ProductDescription));
+				oParams.Add(new SqlParameter("SKU", viewModel.SKU));
+				oParams.Add(new SqlParameter("Price", viewModel.Price));
+
+				oParams.Add(new SqlParameter("ProductImages", imagesString));
 				oParams.Add(new SqlParameter("IsActive", viewModel.IsActive ? 1 : 0));
 
 				oParams.Add(new SqlParameter("Mode", "SAVE"));
