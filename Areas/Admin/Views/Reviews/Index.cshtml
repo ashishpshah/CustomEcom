@@ -1,0 +1,219 @@
+﻿@{
+	ViewData["Title"] = "Reviews";
+	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+<style>
+	/* Fix sorting arrow spacing only for Rating */
+	table.dataTable thead th:nth-child(5) {
+		padding-right: 120px !important;
+	}
+
+	/* Fix sorting arrow spacing only for Approved */
+	table.dataTable thead th:nth-child(7) {
+		padding-right: 120px !important;
+	}
+</style>
+
+<div class="content-header">
+	<div class="container-fluid">
+		<div class="row mb-2">
+			<div class="col-sm-6">
+				<h1 class="m-0 font-weight-bold">Reviews</h1>
+			</div>
+
+			<div class="col-sm-6">
+				<div class="float-sm-right">
+
+					<button type="button"
+							class="btn btn-primary btn-md mr-2 divformSave_Hide"
+							onclick="fnLoadParialView('divformSave', '@Url.Action("Partial_AddEditForm","Reviews", new { area="Admin"})')">
+
+						<i class="fas fa-plus"></i> Add Review
+
+					</button>
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+<section class="content">
+
+	<div class="container-fluid">
+
+		<div class="row no-gutters divformSave_Display d-none" style="margin:5px !important;">
+			<div class="col-12">
+
+				<form id="formSave"
+					  asp-area="Admin"
+					  asp-controller="Reviews"
+					  asp-action="Save"
+					  method="post"
+					  class="form-horizontal">
+
+					<div class="row no-gutters" id="divformSave"></div>
+
+					<div class="clearfix"></div>
+
+					<hr />
+
+				</form>
+
+			</div>
+		</div>
+
+
+		<div class="row divformSave_Hide">
+
+			<div class="col-12">
+
+				<div class="card card-primary card-outline">
+
+					<div class="card-body">
+
+						<table id="table_Common_Data"
+							   class="table table-bordered table-striped w-100"></table>
+
+					</div>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</section>
+
+
+
+@section Scripts
+{
+
+	<script>
+
+		$(document).ready(function(){
+			fnLoadTableData();
+		});
+
+
+		function fnLoadTableData(){
+
+			if ($.fn.DataTable.isDataTable('#table_Common_Data')){
+				$('#table_Common_Data').DataTable().destroy();
+			}
+
+			$("#table_Common_Data").DataTable({
+
+				"destroy":true,
+				"paging":true,
+				"searching":true,
+				"ordering":true,
+				"pageLength":25,
+				  "autoWidth" :false,
+				"sAjaxSource":"@Url.Action("GetDataList", "Reviews", new { area = "Admin" })",
+
+				"bServerSide":true,
+				"bProcessing":true,
+
+				"order":[[1,'desc']],
+
+
+						columnDefs:[
+		{ "targets":0, "className":"text-center", "width":"40px", "orderable":false }, // checkbox
+		{ "targets":1, "className":"text-center", "width":"70px", "orderable":false }, // No.
+		{ "targets":2, "width":"250px" }, // Product
+		{ "targets":3, "width":"260px" }, // User
+		{ "targets":4, "className":"text-center", "width":"142px" }, // Rating
+		{ "targets":5 }, // Review (auto expand)
+		{ "targets":6, "className":"text-center", "width":"157" }, // Approved
+		{ "targets":7, "className":"text-center", "width":"90px", "orderable":false },
+			{ "targets":-1,"className":"text-center","width":"6%","orderable":false }
+		],
+
+
+				columns:[
+
+				{
+					title:"<input type='checkbox' id='chkAll' />",
+					data:"Id",
+					render:function(data){
+						return '<input type="checkbox" class="chkRow" value="'+data+'" />';
+					}
+				},
+
+				{ title:"No.",data:"SrNo",width:"70px",className:"text-center" },
+
+				{ title:"Product",data:"ProductName",width:"270px" },
+
+				{ title:"User",data:"UserName",width:"270px" },
+
+                { title:"Rating",data:"Rating",className:"text-center"},
+
+		{
+			title:"Review",
+			data:"ReviewText",
+			render:function(data){
+
+				if(!data) return "";
+
+				if(data.length > 40)
+					return data.substring(0,40) + "...";
+
+				return data;
+
+			}
+		},
+
+		{
+			title:"Approved",
+			data:"IsApproved",
+			className:"text-center",
+			// width:"130px",
+			render:function(data){
+
+				if(data)
+				return '<span class="badge badge-success">Approved</span>';
+
+				return '<span class="badge badge-warning">Pending</span>';
+
+			}
+		},
+
+				
+
+				{
+					title:"Action",
+					data:null,
+					className:"text-center",
+
+					render:function(data,type,row){
+
+						return '<div class="btn-group">'+
+
+						'<button class="btn btn-info btn-sm" title="Edit" '+
+						'onclick="fnLoadParialView(\'divformSave\',\'@Url.Action("Partial_AddEditForm", "Reviews", new { area = "Admin" })?Id='+row.Id+'\')">'+
+						'<i class="far fa-edit"></i></button>'+
+
+						'<button class="btn btn-danger btn-sm ml-2" title="Delete" '+
+						'onclick="fnDelete_Confirm(\'@Url.Action("DeleteConfirmed", "Reviews", new { area = "Admin" })?Id='+row.Id+'\')">'+
+						'<i class="fa fa-trash"></i></button>'+
+
+						'</div>';
+
+					}
+				}
+
+				]
+
+			});
+
+		}
+
+	</script>
+
+}

@@ -1,0 +1,193 @@
+﻿@{
+	ViewData["Title"] = "Coupons";
+	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+	<div class="container-fluid">
+		<div class="row mb-2">
+			<div class="col-sm-6">
+				<h1 class="m-0 font-weight-bold">Coupons</h1>
+			</div>
+
+			<div class="col-sm-6">
+				<div class="float-sm-right">
+
+					<button type="button"
+							class="btn btn-primary btn-md mr-2 divformSave_Hide"
+							onclick="fnLoadParialView('divformSave', '@Url.Action("Partial_AddEditForm","Coupons", new { area="Admin"})')">
+
+						<i class="fas fa-plus"></i> Add Coupon
+
+					</button>
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+<section class="content">
+
+	<div class="container-fluid">
+
+		<div class="row no-gutters divformSave_Display d-none" style="margin:5px !important;">
+			<div class="col-12">
+
+				<form id="formSave"
+					  asp-area="Admin"
+					  asp-controller="Coupons"
+					  asp-action="Save"
+					  method="post"
+					  class="form-horizontal">
+
+					<div class="row no-gutters" id="divformSave"></div>
+
+					<div class="clearfix"></div>
+
+					<hr />
+
+				</form>
+
+			</div>
+		</div>
+
+
+		<div class="row divformSave_Hide">
+
+			<div class="col-12">
+
+				<div class="card card-primary card-outline">
+
+					<div class="card-body">
+
+						<table id="table_Common_Data"
+							   class="table table-bordered table-striped w-100"></table>
+
+					</div>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</section>
+
+
+
+@section Scripts
+{
+
+	<script>
+
+		$(document).ready(function(){
+			fnLoadTableData();
+		});
+
+
+		function fnLoadTableData(){
+
+			if ($.fn.DataTable.isDataTable('#table_Common_Data')){
+				$('#table_Common_Data').DataTable().destroy();
+			}
+
+			$("#table_Common_Data").DataTable({
+
+				"destroy":true,
+				"paging":true,
+				"searching":true,
+				"ordering":true,
+				"pageLength":25,
+
+				"sAjaxSource":"@Url.Action("GetDataList", "Coupons", new { area = "Admin" })",
+
+				"bServerSide":true,
+				"bProcessing":true,
+
+				"order":[[2,'asc']],
+
+
+				columnDefs:[
+					{ "targets":0,"className":"text-center","width":"3%","orderable":false },
+					{ "targets":-1,"className":"text-center","width":"6%","orderable":false }
+				],
+
+
+				columns:[
+
+				{
+					title:"<input type='checkbox' id='chkAll' />",
+					data:"Id",
+					render:function(data){
+						return '<input type="checkbox" class="chkRow" value="'+data+'" />';
+					}
+				},
+
+				{ title:"No.",data:"SrNo",width:"70px",className:"text-center" },
+
+				{ title:"Coupon Code",data:"CouponCode" },
+
+				{ title:"Discount Type",data:"DiscountType" },
+
+				{ title:"Discount Value",data:"DiscountValue" },
+
+				{ title:"Min Order",data:"MinimumOrderAmount" },
+
+				{
+					title:"Expiry Date",
+					data:"ExpiryDate",
+					render:function(data){
+						if(data==null) return "";
+						return moment(data).format("DD/MM/YYYY");
+					}
+				},
+
+				{ title:"Usage Limit",data:"UsageLimit" },
+
+				// {
+				// 	title:"Status",
+				// 	data:"IsActive",
+				// 	className:"text-center",
+				// 	render:function(data){
+				// 		return data
+				// 		? '<span class="badge badge-success">Active</span>'
+				// 		: '<span class="badge badge-danger">Inactive</span>';
+				// 	}
+				// },
+
+				{
+					title:"Action",
+					data:null,
+					className:"text-center",
+
+					render:function(data,type,row){
+
+						return '<div class="btn-group">'+
+
+						'<button class="btn btn-info btn-sm" title="Edit" '+
+						'onclick="fnLoadParialView(\'divformSave\',\'@Url.Action("Partial_AddEditForm", "Coupons", new { area = "Admin" })?Id='+row.Id+'\')">'+
+						'<i class="far fa-edit"></i></button>'+
+
+						'<button class="btn btn-danger btn-sm ml-2" title="Delete" '+
+						'onclick="fnDelete_Confirm(\'@Url.Action("DeleteConfirmed", "Coupons", new { area = "Admin" })?Id='+row.Id+'\')">'+
+						'<i class="fa fa-trash"></i></button>'+
+
+						'</div>';
+
+					}
+				}
+
+				]
+
+			});
+
+		}
+
+	</script>
+
+}
