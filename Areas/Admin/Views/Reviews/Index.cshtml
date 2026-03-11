@@ -1,13 +1,24 @@
 ﻿@{
-	ViewData["Title"] = "Coupons";
+	ViewData["Title"] = "Reviews";
 	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
+<style>
+	/* Fix sorting arrow spacing only for Rating */
+	table.dataTable thead th:nth-child(5) {
+		padding-right: 120px !important;
+	}
+
+	/* Fix sorting arrow spacing only for Approved */
+	table.dataTable thead th:nth-child(7) {
+		padding-right: 120px !important;
+	}
+</style>
 
 <div class="content-header">
 	<div class="container-fluid">
 		<div class="row mb-2">
 			<div class="col-sm-6">
-				<h1 class="m-0 font-weight-bold">Coupons</h1>
+				<h1 class="m-0 font-weight-bold">Reviews</h1>
 			</div>
 
 			<div class="col-sm-6">
@@ -15,9 +26,9 @@
 
 					<button type="button"
 							class="btn btn-primary btn-md mr-2 divformSave_Hide"
-							onclick="fnLoadParialView('divformSave', '@Url.Action("Partial_AddEditForm","Coupons", new { area="Admin"})')">
+							onclick="fnLoadParialView('divformSave', '@Url.Action("Partial_AddEditForm","Reviews", new { area="Admin"})')">
 
-						<i class="fas fa-plus"></i> Add Coupon
+						<i class="fas fa-plus"></i> Add Review
 
 					</button>
 
@@ -38,7 +49,7 @@
 
 				<form id="formSave"
 					  asp-area="Admin"
-					  asp-controller="Coupons"
+					  asp-controller="Reviews"
 					  asp-action="Save"
 					  method="post"
 					  class="form-horizontal">
@@ -103,19 +114,26 @@
 				"searching":true,
 				"ordering":true,
 				"pageLength":25,
-
-				"sAjaxSource":"@Url.Action("GetDataList", "Coupons", new { area = "Admin" })",
+				  "autoWidth" :false,
+				"sAjaxSource":"@Url.Action("GetDataList", "Reviews", new { area = "Admin" })",
 
 				"bServerSide":true,
 				"bProcessing":true,
 
-				"order":[[2,'asc']],
+				"order":[[1,'desc']],
 
 
-				columnDefs:[
-					{ "targets":0,"className":"text-center","width":"3%","orderable":false },
-					{ "targets":-1,"className":"text-center","width":"6%","orderable":false }
-				],
+						columnDefs:[
+		{ "targets":0, "className":"text-center", "width":"40px", "orderable":false }, // checkbox
+		{ "targets":1, "className":"text-center", "width":"70px", "orderable":false }, // No.
+		{ "targets":2, "width":"250px" }, // Product
+		{ "targets":3, "width":"260px" }, // User
+		{ "targets":4, "className":"text-center", "width":"142px" }, // Rating
+		{ "targets":5 }, // Review (auto expand)
+		{ "targets":6, "className":"text-center", "width":"157" }, // Approved
+		{ "targets":7, "className":"text-center", "width":"90px", "orderable":false },
+			{ "targets":-1,"className":"text-center","width":"6%","orderable":false }
+		],
 
 
 				columns:[
@@ -130,35 +148,43 @@
 
 				{ title:"No.",data:"SrNo",width:"70px",className:"text-center" },
 
-				{ title:"Coupon Code",data:"CouponCode" },
+				{ title:"Product",data:"ProductName",width:"270px" },
 
-				{ title:"Discount Type",data:"DiscountType" },
+				{ title:"User",data:"UserName",width:"270px" },
 
-				{ title:"Discount Value",data:"DiscountValue" },
+                { title:"Rating",data:"Rating",className:"text-center"},
 
-				{ title:"Min Order",data:"MinimumOrderAmount" },
+		{
+			title:"Review",
+			data:"ReviewText",
+			render:function(data){
 
-				{
-					title:"Expiry Date",
-					data:"ExpiryDate",
-					render:function(data){
-						if(data==null) return "";
-						return moment(data).format("DD/MM/YYYY");
-					}
-				},
+				if(!data) return "";
 
-				{ title:"Usage Limit",data:"UsageLimit" },
+				if(data.length > 40)
+					return data.substring(0,40) + "...";
 
-				// {
-				// 	title:"Status",
-				// 	data:"IsActive",
-				// 	className:"text-center",
-				// 	render:function(data){
-				// 		return data
-				// 		? '<span class="badge badge-success">Active</span>'
-				// 		: '<span class="badge badge-danger">Inactive</span>';
-				// 	}
-				// },
+				return data;
+
+			}
+		},
+
+		{
+			title:"Approved",
+			data:"IsApproved",
+			className:"text-center",
+			// width:"130px",
+			render:function(data){
+
+				if(data)
+				return '<span class="badge badge-success">Approved</span>';
+
+				return '<span class="badge badge-warning">Pending</span>';
+
+			}
+		},
+
+				
 
 				{
 					title:"Action",
@@ -170,11 +196,11 @@
 						return '<div class="btn-group">'+
 
 						'<button class="btn btn-info btn-sm" title="Edit" '+
-						'onclick="fnLoadParialView(\'divformSave\',\'@Url.Action("Partial_AddEditForm", "Coupons", new { area = "Admin" })?Id='+row.Id+'\')">'+
+						'onclick="fnLoadParialView(\'divformSave\',\'@Url.Action("Partial_AddEditForm", "Reviews", new { area = "Admin" })?Id='+row.Id+'\')">'+
 						'<i class="far fa-edit"></i></button>'+
 
 						'<button class="btn btn-danger btn-sm ml-2" title="Delete" '+
-						'onclick="fnDelete_Confirm(\'@Url.Action("DeleteConfirmed", "Coupons", new { area = "Admin" })?Id='+row.Id+'\')">'+
+						'onclick="fnDelete_Confirm(\'@Url.Action("DeleteConfirmed", "Reviews", new { area = "Admin" })?Id='+row.Id+'\')">'+
 						'<i class="fa fa-trash"></i></button>'+
 
 						'</div>';

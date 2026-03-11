@@ -1,0 +1,234 @@
+﻿@model ResponseModel<Reviews>
+
+@{
+	Layout = null;
+
+	var IndexPageUrl = "/" + ViewContext.RouteData.Values["Area"] + "/" +
+								ViewContext.RouteData.Values["Controller"] + "/Index";
+}
+
+<div class="col-12">
+
+    <div class="card card-primary card-outline mb-0">
+
+        <div class="card-header">
+
+            <h3 class="card-title">
+                @(Model.Obj.Id > 0 ? "Edit" : "Create") Review
+            </h3>
+
+            <input type="hidden" name="Id" value="@Model.Obj?.Id" />
+
+            <div class="card-tools">
+
+                <button type="button"
+                        class="btn btn-primary btn-sm"
+                        onclick="fnBackToList('@IndexPageUrl')">
+
+                    <i class="fas fa-arrow-left"></i> Back To List
+
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="card-body form-horizontal">
+
+            <div class="row">
+                <div class="col-12">
+
+                    <!-- ROW 1 -->
+
+                    <div class="form-group row pt-3">
+
+                        <label class="col-2 col-form-label text-right">
+                            Product Id <span style="color:red">*</span>
+                        </label>
+
+                        <div class="col-sm-4">
+
+                            <select id="ProductId" name="ProductId" class="form-control show-tick select2">
+
+                                <option value="">-- Select Product --</option>
+
+                                @foreach (var item in Model.SelectListItems.Where(x => x.Group == "Product"))
+                                {
+                                    if (item.Value == Model.Obj?.ProductId?.ToString())
+                                    {
+                                        <option value="@item.Value" selected>@item.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                }
+
+                            </select>
+
+                        </div>
+
+
+                        <label class="col-2 col-form-label text-right">
+                            User Id <span style="color:red">*</span>
+                        </label>
+
+                        <div class="col-sm-4">
+
+                            <select id="UserId" name="UserId" class="form-control show-tick select2">
+
+                                <option value="">-- Select User --</option>
+
+                                @foreach (var item in Model.SelectListItems.Where(x => x.Group == "User"))
+                                {
+                                    if (item.Value == Model.Obj?.UserId?.ToString())
+                                    {
+                                        <option value="@item.Value" selected>@item.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                }
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ROW 2 -->
+
+                    <div class="form-group row pt-3">
+
+                        <label class="col-2 col-form-label text-right">
+                            Rating <span style="color:red">*</span>
+                        </label>
+
+                        <div class="col-sm-4">
+                            <select id="Rating"
+                                    name="Rating"
+                                    class="form-control show-tick select2">
+
+                                <option value="">Select Rating</option>
+
+                                @if (Model.Obj?.Rating == 1)
+                                {
+                                    <option value="1" selected>1 Star</option>
+                                }
+                                else
+                                {
+                                    <option value="1">1 Star</option>
+                                }
+
+                                @if (Model.Obj?.Rating == 2)
+                                {
+                                    <option value="2" selected>2 Stars</option>
+                                }
+                                else
+                                {
+                                    <option value="2">2 Stars</option>
+                                }
+
+                                @if (Model.Obj?.Rating == 3)
+                                {
+                                    <option value="3" selected>3 Stars</option>
+                                }
+                                else
+                                {
+                                    <option value="3">3 Stars</option>
+                                }
+
+                                @if (Model.Obj?.Rating == 4)
+                                {
+                                    <option value="4" selected>4 Stars</option>
+                                }
+                                else
+                                {
+                                    <option value="4">4 Stars</option>
+                                }
+
+                                @if (Model.Obj?.Rating == 5)
+                                {
+                                    <option value="5" selected>5 Stars</option>
+                                }
+                                else
+                                {
+                                    <option value="5">5 Stars</option>
+                                }
+
+                            </select>
+                        </div>
+
+
+                        <label class="col-2 col-form-label text-right">
+                            Approved
+                        </label>
+
+                        <div class="col-sm-4">
+                            <select id="IsApproved"
+                                    name="IsApproved"
+                                    class="form-control show-tick select2">
+
+                                @if (Model.Obj?.IsApproved == true)
+                                {
+                                    <option value="false">Pending</option>
+                                    <option value="true" selected>Approved</option>
+                                }
+                                else
+                                {
+                                    <option value="false" selected>Pending</option>
+                                    <option value="true">Approved</option>
+                                }
+
+                            </select>
+                        </div>
+
+                    </div>
+
+
+                    <!-- ROW 3 -->
+
+                    <div class="form-group row pt-3">
+
+                        <label class="col-2 col-form-label text-right">
+                            Review <span style="color:red">*</span>
+                        </label>
+
+                        <div class="col-sm-10">
+
+                            <textarea class="form-control form-control-sm"
+                                      name="ReviewText"
+                                      rows="4"
+                                      placeholder="Enter review...">@Model.Obj?.ReviewText</textarea>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="card-footer text-center">
+
+            <button type="submit" class="btn btn-success btnSubmit">
+                Save
+            </button>
+
+            <button type="button"
+                    class="btn btn-danger"
+                    onclick="fnCloseParialView('divformSave','#table_Common_Data');">
+
+                Cancel
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>

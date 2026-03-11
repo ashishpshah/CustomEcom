@@ -5,6 +5,7 @@
 
 	var IndexPageUrl = "/" + ViewContext.RouteData.Values["Area"] + "/" +
 								ViewContext.RouteData.Values["Controller"] + "/Index";
+	var discountType = Model.Obj?.DiscountType?.Trim().ToLower();
 }
 
 
@@ -65,14 +66,20 @@
 						</label>
 
 						<div class="col-sm-4">
-							<input type="text"
-								   class="form-control form-control-sm"
-								   name="DiscountType"
-								   value="@Model.Obj?.DiscountType"
-								   placeholder="Flat / Percentage"
-								   autocomplete="off"
-								   data-required
-								   data-msg="Discount Type required">
+
+
+							<select asp-for="Obj.DiscountType"
+									id="DiscountType"
+									name="DiscountType"
+									class="form-control form-control-sm"
+									data-required
+									data-msg="Discount Type required">
+
+								<option value="">Select Discount Type</option>
+								<option value="Flat">Flat</option>
+								<option value="Percentage">Percentage</option>
+
+							</select>
 						</div>
 
 					</div>

@@ -1,4 +1,6 @@
-﻿namespace JewelryStore.Areas.Admin.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace JewelryStore.Areas.Admin.Models
 {
 	public class Inquiries : EntitiesBase
 	{
@@ -17,5 +19,9 @@
 		public int? Rating { get; set; }
 		public string ReviewText { get; set; }
 		public bool? IsApproved { get; set; }
-	}
+       
+		[NotMapped]public string ProductName { get; set; }
+
+       [NotMapped] public string UserName { get; set; }
+    }
 }
