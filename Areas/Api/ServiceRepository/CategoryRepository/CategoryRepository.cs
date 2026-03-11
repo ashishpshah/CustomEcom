@@ -7,15 +7,13 @@ namespace JewelryStore.Areas.Api.ServiceRepository.CategoryRepository
 {
     public class CategoryRepository : ICategoryRepository
     {
-        public async Task<List<Category>> GetAllCategory(PagingRequest request)
+        public async Task<object> GetAllCategory(PagingRequest request)
         {
             try
             {
-                List<Category> list = new();
-
                 var oParams = new List<SqlParameter>()
         {
-            new SqlParameter("@Id", null),
+            new SqlParameter("@Id", DBNull.Value),
             new SqlParameter("@Search", request.Search),
             new SqlParameter("@Start", request.Start),
             new SqlParameter("@Length", request.Length),
@@ -25,23 +23,48 @@ namespace JewelryStore.Areas.Api.ServiceRepository.CategoryRepository
 
                 DataSet ds = DataContext.ExecuteStoredProcedure_DataSet("SP_Category_Get", oParams);
 
-                if (ds != null && ds.Tables.Count > 1)
+                var table1 = new List<Dictionary<string, object>>();
+                var table2 = new List<Dictionary<string, object>>();
+
+                // Counts
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    foreach (DataRow dr in ds.Tables[1].Rows)
+                    foreach (DataRow row in ds.Tables[0].Rows)
                     {
-                        list.Add(new Category()
+                        var dict = new Dictionary<string, object>();
+
+                        foreach (DataColumn col in ds.Tables[0].Columns)
                         {
-                            Id = Convert.ToInt32(dr["Id"]),
-                            CategoryName = dr["CategoryName"]?.ToString(),
-                            ParentCategoryId = dr["ParentCategoryId"] != DBNull.Value ? Convert.ToInt32(dr["ParentCategoryId"]) : 0,
-                            ParentCategoryName = dr["ParentCategoryName"]?.ToString(),
-                            ImagePath = dr["ImagePath"]?.ToString(),
-                            IsActive = Convert.ToBoolean(dr["IsActive"])
-                        });
+                            dict[col.ColumnName] = row[col];
+                        }
+
+                        table1.Add(dict);
                     }
                 }
 
-                return await Task.FromResult(list);
+                //  Data
+                if (ds != null && ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                {
+                    foreach (DataRow row in ds.Tables[1].Rows)
+                    {
+                        var dict = new Dictionary<string, object>();
+
+                        foreach (DataColumn col in ds.Tables[1].Columns)
+                        {
+                            dict[col.ColumnName] = row[col];
+                        }
+
+                        table2.Add(dict);
+                    }
+                }
+
+                var result = new
+                {
+                    table1 = table1,
+                    table2 = table2
+                };
+
+                return await Task.FromResult(result);
             }
             catch (Exception ex)
             {

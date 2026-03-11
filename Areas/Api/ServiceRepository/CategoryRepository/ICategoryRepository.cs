@@ -7,7 +7,7 @@ namespace JewelryStore.Areas.Api.ServiceRepository.CategoryRepository
 {
     public interface ICategoryRepository
     {
-        Task<List<Category>> GetAllCategory(PagingRequest request);
+        Task<object> GetAllCategory(PagingRequest request);
 
         Task<Category?> GetCategoryById(int id);
 
