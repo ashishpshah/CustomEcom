@@ -72,10 +72,19 @@ namespace JewelryStore.Areas.Api.Controllers
         }
 
         [HttpPost("[Action]")]
-        public async Task<IActionResult> Save(Category category)
+        public async Task<IActionResult> Save([FromForm] Category category)
         {
             try
             {
+                if (category.ImageFile != null)
+                {
+                    string uploadFolder = Path.Combine(AppHttpContextAccessor.WebRootPath, "Uploads", "Category");
+
+                    string imagePath = await FileUploadService.UploadImageAsync(category.ImageFile, uploadFolder);
+
+                    category.ImagePath = imagePath;
+                }
+
                 var (IsSuccess, Message, Id, Extra) = await _repository.SaveCategory(category);
 
                 CommonViewModel.IsSuccess = IsSuccess;
