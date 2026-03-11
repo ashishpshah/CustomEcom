@@ -1,4 +1,5 @@
-﻿using JewelryStore.Infra;
+﻿using JewelryStore.Areas.Api.ServiceRepository.CategoryRepository;
+using JewelryStore.Infra;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -19,7 +20,11 @@ namespace JewelryStore
 			// Add services to the container.
 			builder.Services.AddControllersWithViews();
 
-			builder.WebHost.ConfigureKestrel(options =>
+			// Add service For API
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+
+            builder.WebHost.ConfigureKestrel(options =>
 			{
 				options.Limits.MaxRequestLineSize = 16 * 1024;
 				options.Limits.MaxRequestHeadersTotalSize = 32 * 1024;
