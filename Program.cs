@@ -1,4 +1,5 @@
 ﻿using JewelryStore.Areas.Api.ServiceRepository.CategoryRepository;
+using JewelryStore.Areas.Api.ServiceRepository.ProductRepository;
 using JewelryStore.Infra;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Features;
@@ -22,6 +23,7 @@ namespace JewelryStore
 
 			// Add service For API
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 
             builder.WebHost.ConfigureKestrel(options =>
