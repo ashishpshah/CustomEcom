@@ -53,6 +53,7 @@ namespace JewelryStore.Areas.Admin.Controllers
                                 Inquiry_Date = GetValue<DateTime?>(dr, "Inquiry_Date"),
                                 Subject = GetValue<string>(dr, "Subject"),
                                 Message = GetValue<string>(dr, "Message"),
+                                Inquiry_By = GetValue<string>(dr, "Inquiry_By"),
                                 Status = GetValue<string>(dr, "Status"),
                                 Status_Desc = GetValue<string>(dr, "Status_Desc"),
                                 IsActive = GetValue<bool>(dr, "IsActive"),
