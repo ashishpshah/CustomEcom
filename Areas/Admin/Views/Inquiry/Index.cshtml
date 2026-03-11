@@ -1,0 +1,309 @@
+﻿@{
+	ViewData["Title"] = "Attributes";
+	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+	<div class="container-fluid">
+		<div class="row mb-2">
+			<div class="col-sm-6">
+				<h1 class="m-0 font-weight-bold">Inquiry</h1>
+			</div>
+			<div class="col-sm-6">
+				<div class="float-sm-right">
+					<button type="button" id="btnAddNewItem" class="btn btn-primary btn-md pull-right mr-2 divformSave_Hide"
+							onclick="fnLoadParialView('divformSave', '@Url.Action("Partial_AddEditForm", "Inquiry", new { area = "Admin" })');">
+						<i class="fas fa-plus"></i> &nbsp; Add Inquiry
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<section class="content">
+	<div class="container-fluid">
+
+		<div class="row no-gutters divformSave_Display d-none" style="margin:5px !important;">
+			<div class="col-12">
+				<form id="formSave" asp-area="Admin" asp-controller="Inquiry" asp-action="Save" method="post" class="form-horizontal">
+					<div class="row no-gutters" id="divformSave"></div>
+					<div class="clearfix"></div>
+					<hr />
+				</form>
+			</div>
+		</div>
+
+		<div class="row divformSave_Hide">
+			<div class="col-12">
+				<div class="card card-primary card-outline">
+					<div class="card-body">
+						<div class="row no-gooters">
+							<div class="col-md-12 my-1">
+								<table id="table_Common_Data" class="table table-bordered table-striped w-100"></table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</section>
+
+@section Scripts
+{
+	<script>
+
+		$(document).ready(function () { fnLoadTableData(); });
+
+		function fnLoadTableData(){
+
+			if ($.fn.DataTable.isDataTable('#table_Common_Data')){
+				$('#table_Common_Data').DataTable().destroy();
+			}
+
+			$("#table_Common_Data").DataTable({
+
+				"destroy": true,
+				"paging": true,
+				"searching": true,
+				"ordering": true,
+				"pageLength": 25,
+				"sAjaxSource": "@Url.Action("GetDataList", "Inquiry", new { area = "Admin" })",
+				"bServerSide": true,
+				"bProcessing": true,
+				"order": [[2,'asc']],
+
+				columnDefs: [
+					{ "targets":0,"className":"text-center","width":"3%","orderable":false },
+					{ "targets":-1,"className":"text-center","width":"5%","orderable":false }
+				],
+
+				columns: [
+
+					{
+						title:"<input type='checkbox' id='chkAll' />",
+						data:"Id",
+						render:function(data){
+							return '<input type="checkbox" class="chkRow" value="'+data+'" />';
+						}
+					},
+
+					{ title:"No.", data:"SrNo", className:"text-center" },
+					{ title:"Inquiry By", data:"Inquiry_By" },
+					{ title:"Product Name", data:"ProductName" },
+					{
+					title: "Inquiry Date",
+					data: "Inquiry_Date",
+					render: function (data, type, row) {
+						if (data) {
+							var date = new Date(data);
+							var day = ("0" + date.getDate()).slice(-2);
+							var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+											  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+							var month = monthNames[date.getMonth()];
+							var year = date.getFullYear();
+
+							return day + "-" + month + "-" + year;
+						}
+						return "";
+					}
+					},
+					{ title:"Subject", data:"Subject" },
+					{ title:"Message", data:"Message" },
+
+					{
+						title: "Status",
+						data: "Status_Desc",
+						className: "text-center",
+						render: function (data, type, row) {
+
+							if (row.Status == 'PEND') {
+								return '<span class="badge badge-danger">' + data + '</span>';
+							}
+							else if (row.Status == 'INP') {
+								return '<span class="badge badge-warning">' + data + '</span>';
+							}
+							else if (row.Status == 'REP') {
+								return '<span class="badge badge-info">' + data + '</span>';
+							}
+							else if (row.Status == 'COMP') {
+								return '<span class="badge badge-success">' + data + '</span>';
+							}
+							else {
+								return '<span class="badge badge-secondary">' + data + '</span>';
+							}
+
+						}
+					},
+						{
+						title:"Action",
+						data:null,
+						className:"text-center",
+						render: function (data, type, row) {
+
+							var buttons = '<div class="btn-group">';
+
+							// Show Edit & Delete only if status is NOT Closed
+							if (row.Status != 'COMP') {
+
+								buttons += '<button class="btn btn-info btn-sm" title="Edit" ' +
+									'onclick="fnLoadParialView(\'divformSave\', \'@Url.Action("Partial_AddEditForm", "Inquiry", new { area = "Admin" })?Id=' + row.Id + '\')">' +
+									'<i class="far fa-edit"></i></button>';
+
+								buttons += '<button class="btn btn-danger btn-sm ml-2" title="Delete" ' +
+									'onclick="fnDelete_Confirm(\'@Url.Action("DeleteConfirmed", "Inquiry", new { area = "Admin" })?Id=' + row.Id + '\')">' +
+									'<i class="fa fa-trash"></i></button>';
+							}
+
+							// Status History
+							buttons += '<button type="button" class="btn btn-info btn-sm btn-flat ml-2" title="Status History" ' +
+								'onclick="fnShow_Modal(\'@Url.Action("Partial_AddEditForm_StatusHistory", "Inquiry", new { area = "Admin" })?Id=' + row.Id + '&Flag=S\',\'Inquiry Status History\',true,\'html\',false,false)">' +
+								'<i class="fas fa-history"></i></button>';
+
+							// Reply History
+							buttons += '<button type="button" class="btn btn-info btn-sm btn-flat ml-2" title="Reply History" ' +
+								'onclick="fnShow_Modal(\'@Url.Action("Partial_AddEditForm_RepliedHistory", "Inquiry", new { area = "Admin" })?Id=' + row.Id + '&Flag=R\',\'Conversation History\',true,\'html\',false,false)">' +
+								'<i class="fas fa-comments"></i></button>';
+
+							buttons += '</div>';
+
+							return buttons;
+						}
+					}
+
+				]
+
+			});
+		}
+		function fnChangeInquiryStatus(id, actionType) {
+			let status = "";
+			let title = "";
+			let label = "";
+			let isRequired = false;
+
+			if (actionType === "INP") {
+				status = "INP";
+				title = "Put Inquiry In Process";
+				label = "Remarks";
+				isRequired = false;
+			}
+			else if (actionType === "REP") {
+				status = "REP";
+				title = "Reply to Inquiry";
+				label = "Reply Answer";
+				isRequired = true;
+			}
+			else if (actionType === "COMP") {
+				status = "COMP";
+
+				Swal.fire({
+					title: "Are you sure?",
+					text: "Do you want to close this inquiry?",
+					icon: "warning",
+					showCancelButton: true,
+					confirmButtonText: "Yes, Close It",
+					cancelButtonText: "Cancel"
+				}).then((result) => {
+					if (result.isConfirmed) {
+						let postData = {
+							InquiryId: id,
+							Status: status,
+							Remarks: "",
+							
+						};
+
+						$.ajax({
+							url: '@Url.Action("Change_Status", "Inquiry", new { area = "Admin" })', // change path if needed
+							type: 'POST',
+							data: postData,
+							success: function (response) {
+								if (response.IsSuccess) {
+									Swal.fire({
+										icon: "success",
+										title: "Success",
+										text: response.Message
+									}).then(() => {
+										if (response.RedirectURL) {
+											window.location.href = response.RedirectURL;
+										} else {
+											location.reload();
+										}
+									});
+								} else {
+									Swal.fire("Error", response.Message, "error");
+								}
+							},
+							error: function (xhr) {
+								Swal.fire("Error", "Something went wrong while closing inquiry.", "error");
+							}
+						});
+					}
+				});
+
+				return;
+			}
+
+			Swal.fire({
+				title: title,
+				html:
+					`<div class="text-left">
+						<label style="font-weight:600; margin-bottom:6px;">${label}${isRequired ? ' <span style="color:red">*</span>' : ''}</label>
+						<textarea id="swalRemarks" class="swal2-textarea" placeholder="Enter ${label}" style="display:flex; width:100%; height:120px; margin:0;"></textarea>
+					</div>`,
+				icon: "question",
+				showCancelButton: true,
+				confirmButtonText: "Save",
+				cancelButtonText: "Close",
+				focusConfirm: false,
+				preConfirm: () => {
+					let remarks = document.getElementById("swalRemarks").value.trim();
+
+					if (isRequired && remarks === "") {
+						Swal.showValidationMessage(`${label} is required`);
+						return false;
+					}
+
+					return { remarks: remarks };
+				}
+			}).then((result) => {
+				if (result.isConfirmed) {
+					let postData = {
+						InquiryId: id,
+						Status: status,
+						Remarks: result.value.remarks,
+						IsActive: true
+					};
+
+					$.ajax({
+						url: '@Url.Action("Change_Status", "Inquiry", new { area = "Admin" })', // change path if needed
+						type: 'POST',
+						data: postData,
+						success: function (response) {
+							if (response.IsSuccess) {
+								Swal.fire({
+									icon: "success",
+									title: "Success",
+									text: response.Message
+								}).then(() => {
+									if (response.RedirectURL) {
+										window.location.href = response.RedirectURL;
+									} else {
+										location.reload();
+									}
+								});
+							} else {
+								Swal.fire("Error", response.Message, "error");
+							}
+						},
+						error: function (xhr) {
+							Swal.fire("Error", "Something went wrong while saving inquiry status.", "error");
+						}
+					});
+				}
+			});
+		}
+
+	</script>
+}

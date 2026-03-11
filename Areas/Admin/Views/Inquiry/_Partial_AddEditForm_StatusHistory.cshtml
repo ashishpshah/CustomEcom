@@ -1,0 +1,41 @@
+﻿@model ResponseModel<Inquiries>
+@{
+    Layout = null;
+}
+
+
+<div class="row clearfix pt-2">
+    
+        <div class="body table-responsive">
+            <table class="table table-bordered table-striped  table_Common">
+            <thead>
+                <tr>
+                    @*<th>#</th>*@
+                    <th>Old Status</th>
+                    <th>New Status</th>
+                    <th>Remarks</th>
+                    <th>Status Date</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.ObjList)
+                {
+                    <tr>
+                        @*<td>@item.Id</td>*@
+                        <td>@item.OldStatus_Desc</td>
+                        <td>@item.NewStatus_Desc</td>
+                        <td>@item.Remarks</td>
+                        <td>@item.CreatedDate?.ToString("dd-MMM-yyyy")</td>
+
+                    </tr>
+                }
+            </tbody>
+            </table>
+        </div>
+   
+
+</div>
+
+
+
