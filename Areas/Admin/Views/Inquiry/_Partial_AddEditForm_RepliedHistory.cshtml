@@ -1,0 +1,39 @@
+﻿@model ResponseModel<Inquiries>
+@{
+    Layout = null;
+}
+
+
+<div class="row clearfix pt-2">
+    
+        <div class="body table-responsive">
+            <table class="table table-bordered table-striped  table_Common">
+                <thead>
+                    <tr>
+                        @*<th>#</th>*@
+                        <th>Reply Message</th>
+                        <th>Replied Date</th>
+                        <th>Replied By</th>                      
+                                            
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ObjList)
+                    {
+                        <tr>
+                            @*<td>@item.Id</td>*@
+                            <td>@item.Remarks</td>
+                            <td>@item.ReplyDate?.ToString("dd-MMM-yyyy hh:mm tt")</td>
+                            <td>@item.ReplyBy_Text</td>                          
+                          
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+   
+
+</div>
+
+
+
