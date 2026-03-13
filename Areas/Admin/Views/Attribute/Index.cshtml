@@ -73,15 +73,12 @@
 				"sAjaxSource": "@Url.Action("GetDataList", "Attribute", new { area = "Admin" })",
 				"bServerSide": true,
 				"bProcessing": true,
-				"order": [[2,'asc']],
-
+				"order": [[0, 'desc']],
 				columnDefs: [
 					{ "targets":0,"className":"text-center","width":"3%","orderable":false },
 					{ "targets":-1,"className":"text-center","width":"5%","orderable":false }
 				],
-
 				columns: [
-
 					{
 						title:"<input type='checkbox' id='chkAll' />",
 						data:"Id",
@@ -89,12 +86,10 @@
 							return '<input type="checkbox" class="chkRow" value="'+data+'" />';
 						}
 					},
-
 					{ title:"No.", data:"SrNo", className:"text-center" },
 					{ title:"Attribute", data:"Name" },
 					{ title:"Display name", data:"DisplayName" },
 					{ title:"Values", data:"Values" },
-
 					{
 						title:"Status",
 						data:"IsActive",
@@ -105,7 +100,6 @@
 							: '<span class="badge badge-danger">Inactive</span>';
 						}
 					},
-
 					{
 						title:"Action",
 						data:null,
@@ -124,9 +118,7 @@
 							'</div>';
 						}
 					}
-
 				]
-
 			});
 		}
 
