@@ -1,0 +1,230 @@
+﻿@{
+	ViewData["Title"] = "Customer";
+	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+	<div class="container-fluid">
+
+		<div class="row mb-2">
+
+			<div class="col-sm-6">
+				<h1 class="m-0 font-weight-bold">Customer</h1>
+			</div>
+
+			<div class="col-sm-6">
+				<div class="float-sm-right">
+
+					<button type="button"
+							id="btnAddNewItem"
+							class="btn btn-primary btn-md pull-right mr-2 divformSave_Hide"
+							onclick="fnLoadParialView('divformSave', '@Url.Action("Partial_AddEditForm", "Customer", new { area = "Admin" })')">
+
+						<i class="fas fa-plus"></i> Add Customer
+
+					</button>
+
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+</div>
+
+
+<section class="content">
+
+	<div class="container-fluid">
+
+		<div class="row no-gutters divformSave_Display d-none" style="margin:5px!important">
+
+			<div class="col-12">
+
+				<form id="formSave"
+					  asp-area="Admin"
+					  asp-controller="Customer"
+					  asp-action="Save"
+					  method="post"
+					  class="form-horizontal">
+
+					<div class="row no-gutters" id="divformSave"></div>
+
+					<hr />
+
+				</form>
+
+			</div>
+
+		</div>
+
+
+		<div class="row divformSave_Hide">
+
+			<div class="col-12">
+
+				<div class="card card-primary card-outline">
+
+					<div class="card-body">
+
+						<table id="table_Common_Data" class="table table-bordered table-striped w-100"></table>
+
+					</div>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</section>
+
+
+
+@section Scripts
+{
+	<script type="text/javascript">
+				$(document).ready(function () {
+			fnLoadTableData();
+		});
+
+		function fnLoadTableData() {
+
+			if ($.fn.DataTable.isDataTable('#table_Common_Data'))
+				$('#table_Common_Data').DataTable().destroy();
+
+			$("#table_Common_Data").DataTable({
+
+				"destroy": true,
+				"paging": true,
+				"searching": true,
+				"ordering": true,
+				"pageLength": 25,
+
+				"sAjaxSource": "/Admin/Customer/GetDataList",
+				"bServerSide": true,
+
+				"order": [[0, 'desc']],
+
+				columnDefs: [
+					{ "targets": 0, "className": "text-center", "orderable": false },
+					{ "targets": -1, "className": "text-center", "orderable": false }
+				],
+
+				columns: [
+
+					{
+						title: "<input type='checkbox' id='chkAll'/>",
+						data: "Id",
+						render: function (data) {
+							return '<input type="checkbox" class="chkRow" value="' + data + '" />';
+						}
+					},
+
+					{ title: "No.", data: "SrNo", width: "5%" },
+
+					{ title: "First Name", data: "FirstName" },
+
+					{ title: "Last Name", data: "LastName" },
+
+					{ title: "Email", data: "Email" },
+
+					{ title: "Mobile", data: "MobileNo" },
+
+					{
+						title: "Status",
+						data: "IsActive",
+						className: "text-center",
+						render: function (data) {
+							return data
+								? '<span class="badge badge-success">Active</span>'
+								: '<span class="badge badge-danger">Inactive</span>';
+						}
+					},
+
+					{
+						title: "Action",
+						data: null,
+						className: "text-center",
+
+						render: function (data, type, row) {
+
+							return '<div class="btn-group">' +
+
+								'<button class="btn btn-info btn-sm" ' +
+								'onclick="fnLoadParialView(\'divformSave\',\'/Admin/Customer/Partial_AddEditForm?Id=' + row.Id + '\')">' +
+								'<i class="far fa-edit"></i></button> ' +
+
+								'<button class="btn btn-danger btn-sm ml-2" ' +
+								'onclick="fnDelete_Confirm(\'/Admin/Customer/DeleteConfirmed?Id=' + row.Id + '\')">' +
+								'<i class="fa fa-trash"></i></button>' +
+
+								'</div>';
+						}
+					}
+
+				]
+
+			});
+
+		}
+
+				function addAddressRow() {
+
+			var index = $("#tblAddress tbody tr").length;
+
+			var row = `
+				<tr>
+
+				<td>
+				<input type="text" class="form-control form-control-sm"
+				name="AddressList[`+index+`].AddressLine1">
+				</td>
+
+				<td>
+				<input type="text" class="form-control form-control-sm"
+				name="AddressList[`+index+`].City">
+				</td>
+
+				<td>
+				<input type="text" class="form-control form-control-sm"
+				name="AddressList[`+index+`].State">
+				</td>
+
+				<td>
+				<input type="text" class="form-control form-control-sm"
+				name="AddressList[`+index+`].PostalCode">
+				</td>
+
+				<td>
+				<input type="text" class="form-control form-control-sm"
+				name="AddressList[`+index+`].Country">
+				</td>
+
+				<td class="text-center">
+				<input type="checkbox"
+				name="AddressList[`+index+`].IsDefault">
+				</td>
+
+				<td class="text-center">
+				<button type="button"
+				class="btn btn-danger btn-sm"
+				onclick="removeAddressRow(this)">
+				<i class="fa fa-trash"></i>
+				</button>
+				</td>
+
+				</tr>
+				`;
+
+		$("#tblAddress tbody").append(row);
+
+		}
+
+		function removeAddressRow(btn){
+		$(btn).closest("tr").remove();
+		}
+	</script>
+}
