@@ -20,7 +20,7 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
         new SqlParameter("@SortDirection", request.SortDirection)
     };
 
-            DataSet ds = DataContext.ExecuteStoredProcedure_DataSet("SP_Products_Get", oParams);
+            DataSet ds = DataContext.ExecuteStoredProcedure_DataSet("SP_Product_Get", oParams);
 
             var table1 = new List<Dictionary<string, object>>();
             var table2 = new List<Dictionary<string, object>>();

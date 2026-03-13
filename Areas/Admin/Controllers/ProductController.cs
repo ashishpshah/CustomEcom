@@ -1,11 +1,16 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.VariantTypes;
 using JewelryStore.Areas.Admin.Models;
 using JewelryStore.Controllers;
 using JewelryStore.Infra;
 using JewelryStore.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace JewelryStore.Areas.Admin.Controllers
@@ -55,6 +60,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 								CategoryId = GetValue<int>(dr, "CategoryId"),
 								CategoryName = GetValue<string>(dr, "CategoryName"),
 								ImagePath = GetValue<string>(dr, "ImagePath"),
+								Price = GetValue<decimal>(dr, "Price"),
 								IsActive = GetValue<bool>(dr, "IsActive"),
 								LastModifiedDate = GetValue<DateTime?>(dr, "LastModifiedDate")
 							});
@@ -99,7 +105,9 @@ namespace JewelryStore.Areas.Admin.Controllers
 							CategoryId = GetValue<int>(dr, "CategoryId"),
 							CategoryName = GetValue<string>(dr, "CategoryName"),
 							ImagePath = GetValue<string>(dr, "ImagePath"),
+							Price = GetValue<decimal>(dr, "Price"),
 							IsActive = GetValue<bool>(dr, "IsActive"),
+							ProductVariantMapping = new List<ProductVariantMapping>()
 						};
 
 						dt = ds.Tables[1];
@@ -112,7 +120,35 @@ namespace JewelryStore.Areas.Admin.Controllers
 							{
 								Id = GetValue<int>(row, "Id"),
 								ImagePath = GetValue<string>(row, "ImagePath"),
-								IsPrimary = GetValue<bool>(row, "IsPrimary")
+								IsPrimary = GetValue<bool>(row, "IsPrimary"),
+								VariantId = GetValue<int>(row, "VariantId")
+							});
+						}
+
+						dt = ds.Tables[2];
+						DataTable dtDetails = ds.Tables[3];
+
+						foreach (DataRow row in dt.Rows)
+						{
+							var details = dtDetails.AsEnumerable()
+								.Where(x => GetValue<int>(x, "VariantId") == GetValue<int>(row, "Id"))
+								.Select(x => new ProductVariantDetails()
+								{
+									Id = GetValue<int>(x, "Id"),
+									VariantId = GetValue<int>(x, "VariantId"),
+									AttributeId = GetValue<int>(x, "AttributeId"),
+									AttributeName = GetValue<string>(x, "AttributeName"),
+									AttributeValueId = GetValue<int>(x, "AttributeValueId"),
+									AttributeValueName = GetValue<int>(x, "AttributeId") + "-" + GetValue<int>(x, "AttributeValueId")
+								})
+								.ToList();
+
+							obj.ProductVariantMapping.Add(new ProductVariantMapping()
+							{
+								Id = GetValue<int>(row, "Id"),
+								Price = GetValue<decimal>(row, "Price"),
+								SKU = GetValue<string>(row, "SKU"),
+								ProductVariantDetails = details
 							});
 						}
 					}
@@ -126,6 +162,15 @@ namespace JewelryStore.Areas.Admin.Controllers
 				if (dt != null && dt.Rows.Count > 0)
 					foreach (DataRow dr in dt.Rows)
 						list.Add(new SelectListItem_Custom(GetValue<string>(dr, "Id"), (string.IsNullOrEmpty(GetValue<string>(dr, "ParentCategoryName")) ? GetValue<string>(dr, "CategoryName") : GetValue<string>(dr, "CategoryName") + " - " + GetValue<string>(dr, "ParentCategoryName")), GetValue<string>(dr, "ParentCategoryId"), "CAT", GetValue<int>(dr, "DisplayOrder")));
+
+				oParams = new List<SqlParameter>();
+				oParams.Add(new SqlParameter("@Id", -2));
+
+				dt = DataContext.ExecuteStoredProcedure_DataTable("SP_Attribute_Get", oParams);
+
+				if (dt != null && dt.Rows.Count > 0)
+					foreach (DataRow row in dt.Rows)
+						list.Add(new SelectListItem_Custom(GetValue<string>(row, "Value"), GetValue<string>(row, "Text"), "ATTR"));
 
 			}
 			catch (Exception ex) { LogService.LogInsert(GetCurrentAction(), "", ex); }
@@ -143,17 +188,17 @@ namespace JewelryStore.Areas.Admin.Controllers
 		{
 			try
 			{
+				string uploadFolder = Path.Combine(AppHttpContextAccessor.WebRootPath, "Uploads", "Product");
+
 				var (IsSuccess, Message, Id, Extra) = (false, ResponseStatusMessage.Error, 0M, new List<string>());
 
 				List<string> productImages = new List<string>();
 
 				if (Request.Form.Files.Count > 0)
 				{
-					string uploadFolder = Path.Combine(AppHttpContextAccessor.WebRootPath, "Uploads", "Product");
-
 					bool isFirst = true;
 
-					foreach (var file in Request.Form.Files)
+					foreach (var file in Request.Form.Files.Where(x => x.Name.StartsWith("ProductImage")))
 					{
 						var match = Regex.Match(file.Name, @"\[(\d+)\]");
 						int index = int.Parse(match.Groups[1].Value);
@@ -172,15 +217,38 @@ namespace JewelryStore.Areas.Admin.Controllers
 					}
 				}
 
-				//if (viewModel.ProductImages != null)
-				//{
-				//	foreach (var img in viewModel.ProductImages)
-				//	{
-				//		productImages.Add($"{img.Id}|-|{(img.IsPrimary ? 1 : 0)}|{(img.IsRemove ? 1 : 0)}");
-				//	}
-				//}
+				if (viewModel.ProductImages != null)
+				{
+					foreach (var img in viewModel.ProductImages.Where(x => x.Id > 0 && !productImages.Any(z => z.StartsWith(x.Id.ToString()))))
+					{
+						productImages.Add($"{img.Id}|-|{(img.IsPrimary ? 1 : 0)}|{(img.IsRemove ? 1 : 0)}");
+					}
+				}
 
 				string imagesString = string.Join("||", productImages);
+
+				List<string> productVariant = new List<string>();
+
+				if (viewModel.ProductVariantMapping != null && viewModel.ProductVariantMapping.Any(x => x.ProductVariantDetails != null))
+				{
+					for (int i = 0; i < viewModel.ProductVariantMapping.Count; i++)
+					{
+						var variantImage = "-";
+
+						if (Request.Form.Files.Count > 0 && Request.Form.Files.Any(x => x.Name.StartsWith($"ProductVariantMapping[{i}].VarientImage")))
+						{
+							var file = Request.Form.Files.First(x => x.Name.StartsWith($"ProductVariantMapping[{i}].VarientImage"));
+							var match = Regex.Match(file.Name, @"\[(\d+)\]");
+							int index = int.Parse(match.Groups[1].Value);
+							variantImage = await FileUploadService.UploadImageAsync(file, uploadFolder);
+						}
+
+						productVariant.Add($"{viewModel.ProductVariantMapping[i].Id}|{string.Join("=", viewModel.ProductVariantMapping[i].ProductVariantDetails.Select(x => x.AttributeValueName).ToArray())}|" +
+											$"{viewModel.ProductVariantMapping[i].Price}|{viewModel.ProductVariantMapping[i].SKU}|{variantImage}");
+					}
+				}
+
+				string variantString = string.Join("||", productVariant);
 
 				List<SqlParameter> oParams = new List<SqlParameter>();
 
@@ -188,10 +256,11 @@ namespace JewelryStore.Areas.Admin.Controllers
 				oParams.Add(new SqlParameter("CategoryId", viewModel.CategoryId));
 				oParams.Add(new SqlParameter("ProductName", viewModel.ProductName));
 				oParams.Add(new SqlParameter("ProductDescription", viewModel.ProductDescription));
-				oParams.Add(new SqlParameter("SKU", viewModel.SKU));
+				//oParams.Add(new SqlParameter("SKU", viewModel.SKU));
 				oParams.Add(new SqlParameter("Price", viewModel.Price));
 
 				oParams.Add(new SqlParameter("ProductImages", imagesString));
+				oParams.Add(new SqlParameter("ProductVariants", variantString));
 				oParams.Add(new SqlParameter("IsActive", viewModel.IsActive ? 1 : 0));
 
 				oParams.Add(new SqlParameter("Mode", "SAVE"));
@@ -252,5 +321,22 @@ namespace JewelryStore.Areas.Admin.Controllers
 			return Json(CommonViewModel);
 		}
 
+
+		[HttpPost]
+		public JsonResult GetAttributeValues()
+		{
+			var list = new List<SelectListItem_Custom>();
+
+			var oParams = new List<SqlParameter>();
+			oParams.Add(new SqlParameter("@Id", -2));
+
+			var dt = DataContext.ExecuteStoredProcedure_DataTable("SP_Attribute_Get", oParams);
+
+			if (dt != null && dt.Rows.Count > 0)
+				foreach (DataRow row in dt.Rows)
+					list.Add(new SelectListItem_Custom(GetValue<string>(row, "Value"), GetValue<string>(row, "Text")));
+
+			return Json(new { data = list });
+		}
 	}
 }

@@ -4,6 +4,7 @@
 	var IndexPageUrl = "/" + ViewContext.RouteData.Values["Area"].ToString() + "/" + ViewContext.RouteData.Values["Controller"].ToString() + "/Index";
 }
 
+
 <div class="col-12">
 	<div class="card card-primary card-outline mb-0">
 		<div class="card-header">
@@ -24,6 +25,12 @@
 				<div class="col-sm-4">
 					<input type="text" class="form-control form-control-sm" name="ProductName" value="@Model.Obj.ProductName" maxlength="80"
 						   data-required data-msg="The Productname field is required." autocomplete="off" />
+				</div>
+
+				<label class="col-sm-2 col-form-label text-right">Product Price<span style="color:red">*</span></label>
+				<div class="col-sm-2">
+					<input type="text" class="form-control form-control-sm" name="Price" value="@Model.Obj.Price"
+						   data-required data-msg="The Price field is required." autocomplete="off" />
 				</div>
 
 			</div>
@@ -50,9 +57,6 @@
 					</select>
 				</div>
 
-			</div>
-
-			<div class="form-group row">
 				<label class="col-sm-2 col-form-label text-right">Status </label>
 				<div class="col-sm-4">
 					<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0">
@@ -68,14 +72,34 @@
 			<div class="form-group row">
 				<label class="col-sm-2 col-form-label text-right">Select Product Image</label>
 				<div class="col-sm-4">
-					<div class="upload-box">
+					@* 
+					@await Html.PartialAsync("_DynamicImageUploader", new ImageUploaderVM
+					{
+						InputFileName = "ProductImages[0].ProductImage",
+										RemoveFlagName = "ProductImages[0].IsRemove",
+										InputImageIdName = "ProductImages[0].Id",
+										InputImageIdValue = Model.Obj?.ProductImages?.FirstOrDefault()?.Id.ToString(),
+										InputImageDefaultValue = Model.Obj?.ProductImages?.FirstOrDefault()?.ImagePath
+										}) *@
 
-						<input type="file" class="imageInput" name="ProductImages[0].ImageFile" hidden accept="image/*">
+					@* @{
+						Html.RenderPartial("_DynamicImageUploader", new ImageUploaderVM
+						{
+							InputFileName = "ProductImages[0].ProductImage",
+							RemoveFlagName = "ProductImages[0].IsRemove",
+							InputImageIdName = "ProductImages[0].Id",
+							InputImageIdValue = Model.Obj?.ProductImages?.FirstOrDefault()?.Id.ToString(),
+							InputImageDefaultValue = Model.Obj?.ProductImages?.FirstOrDefault()?.ImagePath
+						});
+					} *@
+					<div id="ProductImages" class="upload-box">
+
+						<input type="file" class="imageInput" name="ProductImages[0].ProductImage" hidden accept="image/*">
 
 						<input type="hidden" name="ProductImages[0].IsRemove" value="false" class="imageRemoveFlag">
 
 						<input type="hidden" name="ProductImages[0].Id" value="@Model.Obj?.ProductImages?.FirstOrDefault()?.Id">
-						<input type="hidden" value="@Model.Obj?.ProductImages?.FirstOrDefault()?.ImagePath" class="setImagePreview">
+						<input type="hidden" value="@Model.Obj?.ProductImages?.Where(x => x.VariantId == 0).FirstOrDefault()?.ImagePath" class="setImagePreview">
 
 						<div class="upload-area">
 
@@ -102,9 +126,141 @@
 				</div>
 			</div>
 
+			<br />
+			<div class="form-group row">
+				<div class="col-sm-12">
+					<div class="row mb-3">
+
+						<div class="col-md-9"><h4>Product Variants</h4> </div>
+
+						<div class="col-md-3 d-flex justify-content-between">
+							<button type="button" class="btn btn-primary btn-sm" onclick="addVariant()">Add Variant </button>
+							<button type="button" class="btn btn-success btn-sm" onclick="bulkPrice()">Bulk Price </button>
+						</div>
+
+					</div>
+
+					<table class="table table-bordered table-sm" id="variantTable">
+
+						<thead>
+							<tr>
+								<th>Attributes</th>
+								<th width="35%">Image</th>
+								<th width="25%">SKU</th>
+								<th width="10%">Price</th>
+								<th width="5%">Action</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							@if (Model.Obj.ProductVariantMapping != null)
+							{
+								for (int i = 0; i < Model.Obj.ProductVariantMapping.Count(); i++)
+								{
+									<tr id="tr_@i">
+										<td>
+											<div class="variant-attributes">
+												@for (int z = 0; z < Model.Obj.ProductVariantMapping[i].ProductVariantDetails?.Count(); z++)
+												{
+													<div class="attr-row">
+														<select name="ProductVariantMapping[@i].ProductVariantDetails[@z].AttributeValueName" id="select_@(i)_@z" class="form-select form-select-sm attr-value-select select2">
+															@if (Model.SelectListItems != null)
+															{
+																foreach (var item in Model.SelectListItems.Where(x => x.Group == "ATTR"))
+																{
+																	if (item.Value == Model.Obj.ProductVariantMapping[i].ProductVariantDetails[z].AttributeValueName.ToString())
+																	{
+																		<option value="@item.Value" selected>@item.Text</option>
+																	}
+																	else
+																	{
+																		<option value="@item.Value">@item.Text</option>
+																	}
+																}
+															}
+														</select>
+														<button type="button" class="btn btn-danger btn-sm removeAttr"> X </button>
+													</div>
+												}
+											</div>
+											<button type="button" class="btn btn-sm btn-primary addAttrBtn"> + Attribute </button>
+										</td>
+										<td>
+											@* <input type="file" name="ProductVariantMapping[@i].VarientImage" class="variantImageInput" accept="image/*">
+											<img class="variant-img d-none"> *@
+											<div id="ProductVariantImages_@i" class="upload-box">
+
+												<input type="file" class="imageInput" name="ProductVariantMapping[@i].VarientImage" hidden accept="image/*">
+
+												<input type="hidden" name="ProductVariantMapping[@i].IsRemove" value="false" class="imageRemoveFlag">
+
+												<input type="hidden" name="ProductVariantMapping[@i].Id" value="@Model.Obj.ProductVariantMapping[i]?.Id">
+												<input type="hidden" value="@Model.Obj?.ProductImages?.Where(x => x.VariantId == Model.Obj.ProductVariantMapping[i].Id).FirstOrDefault()?.ImagePath" class="setImagePreview">
+
+												<div class="upload-area">
+
+													<div class="upload-placeholder">
+														<h5>Drag & Drop Image</h5>
+														<p>or Click to Select</p>
+														<small>Max size: 2MB</small>
+													</div>
+
+													<img class="previewImage img-fluid rounded d-none">
+													<div class="image-actions d-none">
+														<button type="button" class="btn btn-sm btn-primary changeImage">
+															Change
+														</button>
+
+														<button type="button" class="btn btn-sm btn-danger removeImage">
+															Remove
+														</button>
+													</div>
+
+												</div>
+
+											</div>
+										</td>
+										<td>
+											<input type="text"
+												   name="ProductVariantMapping[@i].SKU"
+												   value="@Model.Obj.ProductVariantMapping[i].SKU"
+												   class="form-control form-control-sm sku">
+										</td>
+
+										<td>
+											<input type="number"
+												   name="ProductVariantMapping[@i].Price"
+												   value="@Model.Obj.ProductVariantMapping[i].Price"
+												   class="form-control form-control-sm price">
+
+											<input type="hidden"
+												   name="ProductVariantMapping[@i].Id"
+												   value="@Model.Obj.ProductVariantMapping[i].Id">
+										</td>
+										@* <td>
+											<input type="text" name=ProductVariantMapping[@i].SKU" value="@Model.Obj.ProductVariantMapping[i].SKU" class="form-control form-control-sm sku">
+										</td>
+										<td>
+											<input type="number" name=ProductVariantMapping[@i].Price" value="@Model.Obj.ProductVariantMapping[@i].Price" class="form-control form-control-sm price">
+											<input type="number" name=ProductVariantMapping[@i].Id" value="@Model.Obj.ProductVariantMapping[@i].Id" class="form-control form-control d-none">
+										</td> *@
+										<td>
+											<button type="button" class="btn btn-danger btn-sm removeVariant"> X </button>
+										</td>
+									</tr>
+								}
+							}
+
+						</tbody>
+
+					</table>
+
+				</div>
+			</div>
+
 		</div>
 		<div class="card-footer text-center">
-			<button type="submit" class="btn btn-success btnSubmit">Save</button>
+			<button type="button" class="btn btn-success btnSubmit">Save</button>
 			<button type="button" class="btn btn-danger" onclick="fnCloseParialView('divformSave', '#table_Common_Data');">Cancel</button>
 		</div>
 	</div>

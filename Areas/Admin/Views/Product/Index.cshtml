@@ -3,6 +3,44 @@
 	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
+@section Styles {
+	<style>
+
+		.attribute-block {
+			border: 1px solid #ddd;
+			padding: 10px;
+			margin-bottom: 10px;
+			border-radius: 6px;
+			background: #fafafa;
+		}
+
+		.value-chip {
+			display: inline-block;
+			padding: 6px 10px;
+			margin: 3px;
+			cursor: pointer;
+		}
+
+		.variant-img {
+			width: 40px;
+			height: 40px;
+			object-fit: cover;
+			border-radius: 5px;
+		}
+
+		.attr-chip {
+			padding: 5px 8px;
+			margin-right: 5px;
+		}
+
+		.attr-row {
+			display: flex;
+			gap: 5px;
+			margin-bottom: 5px;
+		}
+
+	</style>
+}
 <div class="content-header">
 	<div class="container-fluid">
 		<div class="row mb-2">
@@ -57,11 +95,16 @@
 {
 	<script type="text/javascript">
 
-		$(document).ready(function () { fnLoadTableData(); });
+		$(document).ready(function ()
+		{
+			fnLoadTableData();
+			fnLoadAttributeValue();
+		});
 
 		function fnLoadTableData() {
 
-			if ($.fn.DataTable.isDataTable('#table_Common_Data')) { $('#table_Common_Data').DataTable().destroy(); }
+			if ($.fn.DataTable.isDataTable('#table_Common_Data'))
+				$('#table_Common_Data').DataTable().destroy();
 
 			$("#table_Common_Data").DataTable({
 				"destroy": true,
@@ -122,10 +165,215 @@
 			});
 		}
 
-		function fnParialView_Loaded_Success($id, $isAlert){
+	</script>
+
+	<script type="text/javascript">
+
+		var attributeValueOptions = [];
+
+		function fnLoadAttributeValue(){
+			if(attributeValueOptions && attributeValueOptions.length <= 0 )
+				$.post('@Url.Action("GetAttributeValues", "Product", new { area = "Admin" })', function(res){
+					attributeValueOptions = res.data;
+				}, 'json');
+		}
+
+		function addVariant() {
+
+			var firstRow = $("#variantTable tbody tr:first");
+
+			if (firstRow.length > 0) {
+				if (firstRow.find(".attr-value-select").length === 0) {
+					CommonAlert_Error("Please add attribute in previous variant");
+					return;
+				}
+			}
+
+			var tr_index = $("#variantTable tbody tr").length;
+			var price = $('input[name="Price"]').val();
+
+			var uploader = fnBuildImageUploader({
+
+				inputFileName: `ProductVariantMapping[${tr_index}].VarientImage`,
+				removeFlagName: `ProductVariantMapping[${tr_index}].IsRemove`,
+				inputImageIdName: `ProductVariantMapping[${tr_index}].Id`,
+				inputImageIdValue: "",
+				inputImageDefaultValue: ""
+
+			});
 			debugger;
-			initImageUploader();
+			var row = `
+
+				<tr id='tr_${tr_index}'>
+				<td>
+				<div class="variant-attributes"></div>
+				<button type="button" class="btn btn-sm btn-primary addAttrBtn"> + Attribute </button>
+				</td>
+				<td> ${uploader} </td>
+				<td>
+				<input type="text" name="ProductVariantMapping[${tr_index}].SKU" class="form-control form-control-sm sku">
+				</td>
+				<td>
+				<input type="number" name="ProductVariantMapping[${tr_index}].Price" class="form-control form-control-sm price" value="${price}">
+				</td>
+				<td>
+				<button type="button" class="btn btn-danger btn-sm removeVariant"> X </button>
+				</td>
+				</tr>
+				`;
+			// var row = `
+
+			// 	<tr id='tr_${tr_index}'>
+			// 	<td>
+			// 	<div class="variant-attributes"></div>
+			// 	<button type="button" class="btn btn-sm btn-primary addAttrBtn"> + Attribute </button>
+			// 	</td>
+			// 	<td>
+			// 	<input type="file" name="ProductVariantMapping[${tr_index}].VarientImage" class="variantImageInput" accept="image/*">
+			// 	<img class="variant-img d-none">
+			// 	</td>
+			// 	<td>
+			// 	<input type="text" name="ProductVariantMapping[${tr_index}].SKU" class="form-control form-control-sm sku">
+			// 	</td>
+			// 	<td>
+			// 	<input type="number" name="ProductVariantMapping[${tr_index}].Price" class="form-control form-control-sm price" value="${price}">
+			// 	</td>
+			// 	<td>
+			// 	<button type="button" class="btn btn-danger btn-sm removeVariant"> X </button>
+			// 	</td>
+			// 	</tr>
+			// 	`;
+
+			$("#variantTable tbody").prepend(row);
+
+			initImageUploader(`#tr_${tr_index} .upload-box`);
+
+			fnLoadAttributeValue()
+		}
+
+		$(document).on("click", ".addAttrBtn", function() {
+
+			var tr_index = $(this).closest("tr").attr('id').replace('tr_','');
+			var select_index = $(this).closest("tr").find('td:eq(0) select').length;
+
+			var container = $(this).siblings(".variant-attributes");
+			var options = '<option value="">Select Attribute</option>';
+
+			attributeValueOptions.forEach(function(v) {
+				options += `<option value="${v.Value}">${v.Text}</option>`;
+			});
+
+			var html = `
+				<div class="attr-row">
+				<select name="ProductVariantMapping[${tr_index}].ProductVariantDetails[${select_index}].AttributeValueName" id="select_${tr_index}_${select_index}" class="form-select form-select-sm attr-value-select select2">
+				${options}
+				</select>
+				<button type="button" class="btn btn-danger btn-sm removeAttr"> X </button>
+				</div>
+				`;
+
+			container.append(html);
+
+			$(this).closest("tr").find("select:not(.select2-hidden-accessible)").each(function (i, ele) {
+				$(ele).select2({ width: '100%', placeholder: "Select Attribute" });
+			});
+		});
+
+		$(document).on("change", ".attr-value-select", function () {
+
+			var selected = $(this).val();
+
+			if (!selected) return;
+
+			var attribute = selected.split("-")[0];
+
+			var currentSelect = $(this);
+
+			var row = currentSelect.closest("tr");
+
+			var duplicate = false;
+
+			row.find(".attr-value-select").each(function () {
+
+				if ($(this)[0] !== currentSelect[0]) {
+
+					var val = $(this).val();
+
+					if (val && val.split("-")[0] === attribute) {
+						duplicate = true;
+						return false;
+					}
+
+				}
+
+			});
+
+			if (duplicate) {
+
+				CommonAlert_Error("Attribute already added in this variant");
+
+				currentSelect.val(null).trigger("change.select2");
+
+				return;
+
+			}
+
+			generateSKU(row);
+
+		});
+
+		function generateSKU(row) {
+
+			var product = $("#ProductName").val() || "PRODUCT";
+			product = product.replace(/\s/g, "").toLowerCase();
+
+			var values = [];
+
+			row.find(".attr-value-select").each(function() {
+				if ($(this).find('option:selected').val()) {
+					values.push($(this).find('option:selected').text().split("-")[1].toLowerCase());
+				}
+			});
+
+			var cleanValues = values.map(v => v.replace(/\s+/g, ''));
+			var sku = product.replace(/\s+/g, '') + "-" + cleanValues.join("-");
+			row.find(".sku").val(sku);
+		}
+
+		$(document).on("click", ".removeAttr", function() {
+			var row = $(this).closest("tr");
+			$(this).parent().remove();
+			generateSKU(row);
+		});
+
+		$(document).on("click", ".removeVariant", function() {
+			$(this).closest("tr").remove();
+		});
+
+		$(document).on("change", ".variantImageInput", function() {
+			var file = this.files[0];
+			var img = $(this).siblings("img");
+			if (file) {
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					img.attr("src", e.target.result).removeClass("d-none");
+				}
+				reader.readAsDataURL(file);
+			}
+		});
+
+		function bulkPrice() {
+			Swal.fire({
+				title: "Bulk Price",
+				input: "number"
+			}).then(res => {
+				if (res.isConfirmed) {
+					$(".price").val(res.value);
+				}
+			});
 		}
 
 	</script>
+
+
 }

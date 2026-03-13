@@ -94,7 +94,7 @@ $(document).ready(function () {
 
 
         $('.datepicker').on('cancel.daterangepicker', function (ev, picker) {
-            debugger;
+
             $(this).val('');
             $(this).trigger('change');
         });
@@ -389,6 +389,205 @@ function ajaxGet($url, $isReturnToForm, $redirectUrl) {
     });
 }
 
+function fnInitImageUploader() {
+
+    $(document)
+
+        /* Click Upload */
+        .on("click", ".upload-box .upload-area", function () {
+
+            let box = $(this).closest(".upload-box");
+            box.find(".imageInput").trigger("click");
+
+        })
+
+        /* Change File */
+        .on("change", ".upload-box .imageInput", function () {
+
+            let box = $(this).closest(".upload-box");
+
+            let input = box.find(".imageInput");
+            let preview = box.find(".previewImage");
+            let placeholder = box.find(".upload-placeholder");
+            let actions = box.find(".image-actions");
+            let removeFlag = box.find(".imageRemoveFlag");
+
+            let file = this.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+
+                alert("Image must be less than 2MB");
+                input.val("");
+                return;
+
+            }
+
+            let reader = new FileReader();
+
+            reader.onload = function (e) {
+
+                preview.attr("src", e.target.result).removeClass("d-none");
+                placeholder.hide();
+                actions.removeClass("d-none");
+
+                removeFlag.val(false);
+
+            };
+
+            reader.readAsDataURL(file);
+
+        })
+
+        /* Change Button */
+        .on("click", ".upload-box .changeImage", function (e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            let box = $(this).closest(".upload-box");
+
+            box.find(".imageInput").trigger("click");
+
+        })
+
+        /* Remove Image */
+        .on("click", ".upload-box .removeImage", function (e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            let box = $(this).closest(".upload-box");
+
+            box.find(".previewImage").attr("src", "").addClass("d-none");
+            box.find(".imageInput").val("");
+
+            box.find(".upload-placeholder").show();
+            box.find(".image-actions").addClass("d-none");
+
+            box.find(".imageRemoveFlag").val(true);
+
+        })
+
+        /* Drag */
+        .on("dragover", ".upload-box .upload-area", function (e) {
+
+            e.preventDefault();
+            $(this).addClass("dragging");
+
+        })
+
+        .on("dragleave", ".upload-box .upload-area", function () {
+
+            $(this).removeClass("dragging");
+
+        })
+
+        /* Drop */
+        .on("drop", ".upload-box .upload-area", function (e) {
+
+            e.preventDefault();
+
+            let box = $(this).closest(".upload-box");
+
+            let files = e.originalEvent.dataTransfer.files;
+
+            if (!files.length) return;
+
+            if (files[0].size > 2 * 1024 * 1024) {
+
+                alert("Image must be less than 2MB");
+                return;
+
+            }
+
+            box.find(".imageInput")[0].files = files;
+            box.find(".imageInput").trigger("change");
+
+        });
+
+    /* ---------- Default Image Setup ---------- */
+
+    $(".upload-box").each(function (i, ele) {
+
+        let box = $(ele);
+
+        let preview = box.find(".previewImage");
+        let placeholder = box.find(".upload-placeholder");
+        let actions = box.find(".image-actions");
+
+        let defaultImage = box.find(".setImagePreview").val();
+
+        if (defaultImage && defaultImage !== "" && defaultImage !== "/no_image_available.png") {
+
+            preview.attr("src", defaultImage).removeClass("d-none");
+            placeholder.hide();
+            actions.removeClass("d-none");
+
+        } else {
+
+            preview.attr("src", "").addClass("d-none");
+            placeholder.show();
+            actions.addClass("d-none");
+
+        }
+
+    });
+}
+function fnBuildImageUploader(options) {
+
+    let fileName = options.inputFileName || "";
+    let removeFlag = options.removeFlagName || "";
+    let imageIdName = options.inputImageIdName || "";
+    let imageIdValue = options.inputImageIdValue || "";
+    let defaultImage = options.inputImageDefaultValue || "";
+
+    let imageIdInput = "";
+
+    if (imageIdName) {
+        imageIdInput = `<input type="hidden" name="${imageIdName}" value="${imageIdValue}">`;
+    }
+
+    return `
+        <div class="upload-box">
+
+            <input type="file"
+                   name="${fileName}"
+                   class="imageInput"
+                   hidden
+                   accept="image/*">
+
+            <input type="hidden"
+                   name="${removeFlag}"
+                   value="false"
+                   class="imageRemoveFlag">
+
+            ${imageIdInput}
+
+            <input type="hidden"
+                   value="${defaultImage}"
+                   class="setImagePreview">
+
+            <div class="upload-area">
+
+                <div class="upload-placeholder">
+                    <h5>Drag & Drop Image</h5>
+                    <p>or Click to Select</p>
+                </div>
+
+                <img class="previewImage img-fluid rounded d-none">
+
+                <div class="image-actions d-none">
+                    <button type="button" class="btn btn-sm btn-primary changeImage">Change</button>
+                    <button type="button" class="btn btn-sm btn-danger removeImage">Remove</button>
+                </div>
+
+            </div>
+
+        </div>
+    `;
+}
+
 function fnFileUpload($selector) {
 
     $($selector).before(function () {
@@ -570,10 +769,9 @@ function fnLoadParialView($id, url) {
 
                         try { fnLoadCommonTable('#table_Common'); } catch { }
 
-                        try { initImageUploader(document); } catch { }
-
                         try { fnParialView_Loaded_Success($id, (response.IndexOf("Alert") > -1)); } catch { }
 
+                        try { fnInitImageUploader(); } catch { }
 
                         $('html, body').scrollTop($('#' + $id).offset().top);
 
@@ -1039,7 +1237,7 @@ function CommonConfirmed_Success_Print(msg, $url_print, functionName, functionPa
         denyButtonText: `Print Slip`
     }).then((result) => {
 
-        debugger;
+
 
         if (result.isConfirmed && typeof functionName != 'undefined' && functionName != null && functionName != '')
             if (typeof functionParams != 'undefined' && functionParams != null)
@@ -1350,10 +1548,10 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
                 }
 
 
-                $('#largeModal .modal-body').html('');
-                $('#largeModal .modal-body').append(response);
+                $('#modal-xl .modal-body').html('');
+                $('#modal-xl .modal-body').append(response);
 
-                $('#largeModal .modal-title').html($title);
+                $('#modal-xl .modal-title').html($title);
 
 
                 setTimeout(function () {
@@ -1361,15 +1559,14 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
                     ShowLoader(false);
 
                     if ($hasTable === true) {
-                        debugger;
 
                         try {
 
-                            if ($.fn.DataTable.isDataTable('#largeModal .modal-body .table_Common')) {
-                                $('#largeModal .modal-body .table_Common').DataTable().destroy();
+                            if ($.fn.DataTable.isDataTable('#modal-xl .modal-body .table_Common')) {
+                                $('#modal-xl .modal-body .table_Common').DataTable().destroy();
                             }
 
-                            table = $('#largeModal .modal-body .table_Common').DataTable({
+                            table = $('#modal-xl .modal-body .table_Common').DataTable({
                                 paging: true,
                                 lengthChange: true,
                                 searching: true,
@@ -1392,7 +1589,7 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
                                     "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
                             });
 
-                            $('#largeModal .modal-body .table_Common').css('width', '100%');
+                            $('#modal-xl .modal-body .table_Common').css('width', '100%');
 
                             table.on('click', 'tbody tr', function (e) {
 
@@ -1411,10 +1608,10 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
 
 
                         } catch { }
-                        var length = $('#largeModal .modal-body .table_Common tbody tr');
-                        if ($('#largeModal .modal-body .table_Common tbody tr').length > 0) {
-                            debugger;
-                            $('#largeModal').modal('show'); //$('#modal-xl').modal('show');
+
+                        if ($('#modal-xl .modal-body .table_Common tbody tr').length > 0) {
+
+                            $('#modal-xl').show(); //$('#modal-xl').modal('show');
 
                             var elem = document.createElement('div');
                             elem.className = "loader-overlay";
@@ -1425,7 +1622,7 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
                     }
                     else {
 
-                        $('#largeModal').modal('show');
+                        $('#modal-xl').show();
 
                         var elem = document.createElement('div');
                         elem.className = "loader-overlay";
@@ -1440,7 +1637,7 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
 
                         var locale_date_format = 'DD/MM/YYYY';
 
-                        $('#largeModal .modal-body .datepicker').each(function (i, e) {
+                        $('#modal-xl .modal-body .datepicker').each(function (i, e) {
 
                             $(e).daterangepicker({
                                 singleDatePicker: true,
@@ -1486,7 +1683,7 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
                         })
 
 
-                        $('#largeModal .modal-body .select2').select2();
+                        $('#modal-xl .modal-body .select2').select2();
 
                     } catch { }
 

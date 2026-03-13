@@ -1,0 +1,40 @@
+﻿@model ImageUploaderVM
+
+<div class="upload-box">
+
+	<input type="file" class="imageInput" name="@Model.InputFileName" hidden accept="image/*">
+
+	<input type="hidden" name="@Model.RemoveFlagName" value="false" class="imageRemoveFlag">
+
+	@if (!string.IsNullOrEmpty(Model.InputImageIdName))
+	{
+		<input type="hidden" name="@Model.InputImageIdName" value="@Model.InputImageIdValue">
+	}
+
+	<input type="hidden" value="@Model.InputImageDefaultValue" class="setImagePreview">
+
+	<div class="upload-area">
+
+		<div class="upload-placeholder">
+			<h5>Drag & Drop Image</h5>
+			<p>or Click to Select</p>
+			<small>Max size: 2MB</small>
+		</div>
+
+		<img class="previewImage img-fluid rounded d-none">
+
+		<div class="image-actions d-none">
+
+			<button type="button" class="btn btn-sm btn-primary changeImage">
+				Change
+			</button>
+
+			<button type="button" class="btn btn-sm btn-danger removeImage">
+				Remove
+			</button>
+
+		</div>
+
+	</div>
+
+</div>

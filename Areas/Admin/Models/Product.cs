@@ -28,6 +28,7 @@
 		public string SKU { get; set; }
 		public decimal? Price { get; set; }
 		public int? StockQuantity { get; set; }
+		public string ImagePath { get; set; }
 
 		public List<ProductVariantDetails> ProductVariantDetails { get; set; }
 	}

@@ -1,4 +1,4 @@
-﻿@model ResponseModel<AttributeMaster>
+﻿@model ResponseModel<Attribute>
 
 @{
 	Layout = null;
@@ -34,12 +34,25 @@
 
 				<div class="col-sm-4">
 					<input type="text"
-						   name="AttributeName"
+						   name="Name"
 						   class="form-control form-control-sm"
-						   value="@Model.Obj?.AttributeName"
+						   value="@Model.Obj?.Name"
 						   maxlength="100"
 						   data-required
 						   data-msg="Attribute name required"
+						   autocomplete="off" />
+				</div>
+
+				<label class="col-sm-2 col-form-label text-right">
+					Attribute Display Name <span style="color:red">*</span>
+				</label>
+
+				<div class="col-sm-4">
+					<input type="text"
+						   name="DisplayName"
+						   class="form-control form-control-sm"
+						   value="@Model.Obj?.DisplayName"
+						   maxlength="100"
 						   autocomplete="off" />
 				</div>
 
@@ -55,9 +68,9 @@
 				<div class="col-sm-6">
 
 					<input type="text"
-						   name="AttributeValues"
+						   name="Values"
 						   class="form-control form-control-sm"
-						   value="@Model.Obj?.AttributeValues"
+						   value="@Model.Obj?.Values"
 						   placeholder="Example: Red,Black,Orange"
 						   data-required
 						   data-msg="Values required"
@@ -108,7 +121,7 @@
 
 		<div class="card-footer text-center">
 
-			<button type="submit" class="btn btn-success btnSubmit">
+			<button type="button" class="btn btn-success btnSubmit">
 				Save
 			</button>
 
@@ -127,7 +140,7 @@
 
 	$(document).on("submit", "#formSave", function (e) {
 
-		var values = $('input[name="AttributeValues"]').val();
+		var values = $('input[name="Values"]').val();
 
 		if(values){
 
