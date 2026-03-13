@@ -146,8 +146,8 @@ namespace JewelryStore.Areas.Admin.Controllers
 				oParams.Add(new SqlParameter("Id", viewModel.Id));
 				oParams.Add(new SqlParameter("CategoryName", viewModel.CategoryName));
 				oParams.Add(new SqlParameter("ParentCategoryId", viewModel.ParentCategoryId));
-				oParams.Add(new SqlParameter("@ImagePath", viewModel.ImagePath));
-				oParams.Add(new SqlParameter("@ImagePath_Remove", viewModel.ImagePath_Remove));
+				oParams.Add(new SqlParameter("ImagePath", viewModel.ImagePath));
+				oParams.Add(new SqlParameter("ImagePath_Remove", viewModel.ImagePath_Remove));
 				oParams.Add(new SqlParameter("IsActive", viewModel.IsActive ? 1 : 0));
 
 				oParams.Add(new SqlParameter("Mode", "SAVE"));
