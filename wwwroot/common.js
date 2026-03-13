@@ -1529,7 +1529,7 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
     $('div.loader-overlay').remove();
     ShowLoader(true);
 
-    if ($('#modal-xl').hasClass('show')) $('#modal-xl').hide(); //$('#modal-xl').modal('hide');
+    if ($('#largeModal').hasClass('show')) $('#largeModal').hide(); //$('#largeModal').modal('hide');
 
     if (typeof $url != 'undefined' && $url != null && $url != '' && $url.trim().length > 0)
         $.ajax({
@@ -1548,10 +1548,10 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
                 }
 
 
-                $('#modal-xl .modal-body').html('');
-                $('#modal-xl .modal-body').append(response);
+                $('#largeModal .modal-body').html('');
+                $('#largeModal .modal-body').append(response);
 
-                $('#modal-xl .modal-title').html($title);
+                $('#largeModal .modal-title').html($title);
 
 
                 setTimeout(function () {
@@ -1562,11 +1562,11 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
 
                         try {
 
-                            if ($.fn.DataTable.isDataTable('#modal-xl .modal-body .table_Common')) {
-                                $('#modal-xl .modal-body .table_Common').DataTable().destroy();
+                            if ($.fn.DataTable.isDataTable('#largeModal .modal-body .table_Common')) {
+                                $('#largeModal .modal-body .table_Common').DataTable().destroy();
                             }
 
-                            table = $('#modal-xl .modal-body .table_Common').DataTable({
+                            table = $('#largeModal .modal-body .table_Common').DataTable({
                                 paging: true,
                                 lengthChange: true,
                                 searching: true,
@@ -1589,7 +1589,7 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
                                     "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
                             });
 
-                            $('#modal-xl .modal-body .table_Common').css('width', '100%');
+                            $('#largeModal .modal-body .table_Common').css('width', '100%');
 
                             table.on('click', 'tbody tr', function (e) {
 
@@ -1609,9 +1609,9 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
 
                         } catch { }
 
-                        if ($('#modal-xl .modal-body .table_Common tbody tr').length > 0) {
+                        if ($('#largeModal .modal-body .table_Common tbody tr').length > 0) {
 
-                            $('#modal-xl').show(); //$('#modal-xl').modal('show');
+                            $('#largeModal').modal('show');
 
                             var elem = document.createElement('div');
                             elem.className = "loader-overlay";
@@ -1621,8 +1621,8 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
                         else { CommonAlert_Error("No any record(s) found"); }
                     }
                     else {
-
-                        $('#modal-xl').show();
+                        
+                        $('#largeModal').show();
 
                         var elem = document.createElement('div');
                         elem.className = "loader-overlay";
@@ -1637,7 +1637,7 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
 
                         var locale_date_format = 'DD/MM/YYYY';
 
-                        $('#modal-xl .modal-body .datepicker').each(function (i, e) {
+                        $('#largeModal .modal-body .datepicker').each(function (i, e) {
 
                             $(e).daterangepicker({
                                 singleDatePicker: true,
@@ -1683,7 +1683,7 @@ function fnShow_Modal($url, $title, $hasTable, $type, $noAlert = false) {
                         })
 
 
-                        $('#modal-xl .modal-body .select2').select2();
+                        $('#largeModal .modal-body .select2').select2();
 
                     } catch { }
 
