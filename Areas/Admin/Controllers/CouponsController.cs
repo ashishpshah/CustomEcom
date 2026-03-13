@@ -146,7 +146,7 @@ namespace JewelryStore.Areas.Admin.Controllers
                 if (viewModel.ExpiryDate == null || viewModel.ExpiryDate < DateTime.Today)
                 {
                     CommonViewModel.IsSuccess = false;
-                    CommonViewModel.Message = "Expiry Date cannot be past date.";
+                    CommonViewModel.Message = "Expiry Date cannot be previous date.";
                     return Json(CommonViewModel);
                 }
                 var (IsSuccess, Message, Id, Extra) =
