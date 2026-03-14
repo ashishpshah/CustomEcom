@@ -30,6 +30,12 @@
 		public int? StockQuantity { get; set; }
 		public string ImagePath { get; set; }
 
+		public string VariantAttributes { get; set; }
+		public int AvailableStock { get; set; }
+		public int ReservedStock { get; set; }
+
+		public int TotalStock { get; set; }
+
 		public List<ProductVariantDetails> ProductVariantDetails { get; set; }
 	}
 

@@ -1,0 +1,141 @@
+﻿@model ResponseModel<ProductStock>
+
+<div class="card card-primary card-outline">
+
+	<div class="card-header">
+		<h3 class="card-title">Adjust Stock</h3>
+	</div>
+
+	<div class="card-body">
+
+		<input type="hidden" name="VariantId" value="@Model.Obj.VariantId" />
+
+		<!-- PRODUCT -->
+
+		<div class="form-group row">
+
+			<label class="col-sm-3 col-form-label text-right">
+				Product
+			</label>
+
+			<div class="col-sm-6">
+
+				<select id="ProductId"
+						name="ProductId"
+						class="form-control form-control-sm"
+						onchange="fnLoadVariants(this.value)">
+
+					<option value="">Select Product</option>
+
+					@if (Model.SelectListItems != null)
+					{
+						foreach (var item in Model.SelectListItems)
+						{
+							<option value="@item.Value">@item.Text</option>
+						}
+					}
+
+				</select>
+
+			</div>
+
+		</div>
+
+
+		<!-- VARIANTS -->
+
+		<div class="form-group row">
+
+			<label class="col-sm-3 col-form-label text-right">
+				Variants
+			</label>
+
+			<div class="col-sm-6">
+
+				<select id="VariantIds"
+						name="VariantIds"
+						class="form-control form-control-sm"
+						multiple>
+				</select>
+
+			</div>
+
+		</div>
+
+
+		<!-- CHANGE TYPE -->
+
+		<div class="form-group row">
+
+			<label class="col-sm-3 col-form-label text-right">
+				Change Type
+			</label>
+
+			<div class="col-sm-6">
+
+				<select name="ChangeType" class="form-control form-control-sm">
+
+					<option value="IN">Stock In</option>
+					<option value="OUT">Stock Out</option>
+					<option value="RESERVE">Reserve</option>
+					<option value="RELEASE">Release</option>
+
+				</select>
+
+			</div>
+
+		</div>
+
+
+		<!-- QUANTITY -->
+
+		<div class="form-group row">
+
+			<label class="col-sm-3 col-form-label text-right">
+				Quantity
+			</label>
+
+			<div class="col-sm-6">
+
+				<input type="number"
+					   class="form-control form-control-sm"
+					   name="Quantity"
+					   min="1" />
+
+			</div>
+
+		</div>
+
+
+		<!-- REMARKS -->
+
+		<div class="form-group row">
+
+			<label class="col-sm-3 col-form-label text-right">
+				Remarks
+			</label>
+
+			<div class="col-sm-6">
+
+<textarea class="form-control form-control-sm" name="Remarks"></textarea>
+
+			</div>
+
+		</div>
+
+	</div>
+
+
+	<div class="card-footer text-center">
+
+		<button type="button"
+				class="btn btn-success"
+				onclick="fnSaveStockAdjust()">
+
+			Save
+
+		</button>
+
+	</div>
+
+</div>
