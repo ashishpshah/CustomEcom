@@ -1,5 +1,9 @@
-﻿using JewelryStore.Areas.Api.ServiceRepository.CategoryRepository;
+﻿using JewelryStore.Areas.Api.ServiceRepository.AttibuteRepository;
+using JewelryStore.Areas.Api.ServiceRepository.AttributeRepository;
+using JewelryStore.Areas.Api.ServiceRepository.CategoryRepository;
+using JewelryStore.Areas.Api.ServiceRepository.CouponRepository;
 using JewelryStore.Areas.Api.ServiceRepository.ProductRepository;
+using JewelryStore.Areas.Api.ServiceRepository.ReviewsRepository;
 using JewelryStore.Infra;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Features;
@@ -24,6 +28,9 @@ namespace JewelryStore
 			// Add service For API
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IAttibuteRepository, AttibuteRepository>();
+            builder.Services.AddScoped<ICouponRepository, CouponRepository>();
+            builder.Services.AddScoped<IReviewsRepository, ReviewsRepository>();
 
 
             builder.WebHost.ConfigureKestrel(options =>
@@ -124,7 +131,9 @@ namespace JewelryStore
 				return Task.CompletedTask;
 			});
 
-			app.Run();
+            // API route
+            app.MapControllers();
+            app.Run();
 		}
 	}
 }
