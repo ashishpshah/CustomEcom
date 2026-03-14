@@ -1,293 +1,289 @@
 ﻿@model ResponseModel<Customer>
 @{
-    Layout = null;
-    var IndexPageUrl = "/" + ViewContext.RouteData.Values["Area"].ToString() + "/" + ViewContext.RouteData.Values["Controller"].ToString() + "/Index";
+	Layout = null;
+	var IndexPageUrl = "/" + ViewContext.RouteData.Values["Area"].ToString() + "/" + ViewContext.RouteData.Values["Controller"].ToString() + "/Index";
 }
 
 <div class="col-12">
-    <div class="card card-primary card-outline mb-0">
-
-        <div class="card-header">
-            <h3 class="card-title">@(Model.Obj.Id > 0 ? "Edit " : "Create") Customer</h3>
-
-            <input type="hidden" id="Id" name="Id"
-                   value="@(Model.Obj != null && Model.Obj.Id > 0 ? Model.Obj.Id.ToString() : "")">
-
-            <div class="card-tools">
-                <button type="button" class="btn btn-primary btn-sm"
-                        onclick="fnBackToList('@IndexPageUrl')">
-                    <i class="fas fa-arrow-left"></i> Back To List
-                </button>
-            </div>
-        </div>
-
-        <div class="card-body">
-
-            <!-- FIRST NAME -->
-            <div class="form-group row">
-                <label class="col-sm-2 col-form-label text-right">
-                    First Name<span style="color:red">*</span>
-                </label>
-
-                <div class="col-sm-4">
-                    <input type="text"
-                           class="form-control form-control-sm"
-                           name="FirstName"
-                           value="@Model.Obj.FirstName"
-                           maxlength="100"
-                           data-required
-                           data-msg="First Name required" />
-                </div>
-
-                <!-- LAST NAME -->
-                <label class="col-sm-2 col-form-label text-right">Last Name</label>
-                <div class="col-sm-4">
-                    <input type="text"
-                           class="form-control form-control-sm"
-                           name="LastName"
-                           value="@Model.Obj.LastName"
-                           maxlength="100" />
-                </div>
-            </div>
-
-
-            <!-- EMAIL + MOBILE -->
-            <div class="form-group row">
-
-                <label class="col-sm-2 col-form-label text-right">
-                    Email<span style="color:red">*</span>
-                </label>
-
-                <div class="col-sm-4">
-                    <input type="email"
-                           class="form-control form-control-sm"
-                           name="Email"
-                           value="@Model.Obj.Email"
-                           maxlength="150"
-                           data-required
-                           data-msg="Email required" />
-                </div>
-
-                <label class="col-sm-2 col-form-label text-right">
-                    Mobile No<span style="color:red">*</span>
-                </label>
-
-                <div class="col-sm-4">
-                    <input type="text"
-                           class="form-control form-control-sm"
-                           name="MobileNo"
-                           value="@Model.Obj.MobileNo"
-                           maxlength="15"
-                           data-required
-                           data-msg="Mobile required" />
-                </div>
-
-            </div>
-
-
-            <!-- PASSWORD -->
-            <div class="form-group row">
-
-                @if (Model.Obj.Id <= 0)
-                {
-                    <label for="Password" class="col-sm-2 col-form-label text-right">Password<span style="color:red">*</span></label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control form-control-sm" name="Password" value="@Model.Obj.Password" maxlength="80"
-                               data-required data-msg="The Password field is required." autocomplete="off" />
-                    </div>
-                }
-                else
-                {
-                    <label for="IsPassword_Reset" class="col-sm-2 col-form-label text-right">Password Reset</label>
-                    <div class="col-sm-2">
-                        <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0 mb-2">
-                            <input type="checkbox" class="custom-control-input" id="switch_Password_Reset"
-                                   name="IsPassword_Reset" onchange="fnChange_Switch(this, 'label_Switch_Password_Reset')">
-                            <label class="custom-control-label" for="switch_Password_Reset" id="label_Switch_Password_Reset" data-true="Yes" data-false="No">No</label>
-                        </div>
-                        <span class="info-container"> <span class="info">Default password: 12345</span>   </span>
-                    </div>
-                }
+	<div class="card card-primary card-outline mb-0">
+
+		<div class="card-header">
+			<h3 class="card-title">@(Model.Obj.Id > 0 ? "Edit " : "Create") Customer</h3>
+
+			<input type="hidden" id="Id" name="Id"
+				   value="@(Model.Obj != null && Model.Obj.Id > 0 ? Model.Obj.Id.ToString() : "")">
+
+			<div class="card-tools">
+				<button type="button" class="btn btn-primary btn-sm"
+						onclick="fnBackToList('@IndexPageUrl')">
+					<i class="fas fa-arrow-left"></i> Back To List
+				</button>
+			</div>
+		</div>
+
+		<div class="card-body">
+
+			<!-- FIRST NAME -->
+			<div class="form-group row">
+				<label class="col-sm-2 col-form-label text-right">
+					First Name<span style="color:red">*</span>
+				</label>
+
+				<div class="col-sm-4">
+					<input type="text"
+						   class="form-control form-control-sm"
+						   name="FirstName"
+						   value="@Model.Obj.FirstName"
+						   maxlength="100"
+						   data-required
+						   data-msg="First Name required" />
+				</div>
+
+				<!-- LAST NAME -->
+				<label class="col-sm-2 col-form-label text-right">Last Name</label>
+				<div class="col-sm-4">
+					<input type="text"
+						   class="form-control form-control-sm"
+						   name="LastName"
+						   value="@Model.Obj.LastName"
+						   maxlength="100" />
+				</div>
+			</div>
+
+
+			<!-- EMAIL + MOBILE -->
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">
+					Email<span style="color:red">*</span>
+				</label>
+
+				<div class="col-sm-4">
+					<input type="email"
+						   class="form-control form-control-sm"
+						   name="Email"
+						   value="@Model.Obj.Email"
+						   maxlength="150"
+						   data-required
+						   data-msg="Email required" />
+				</div>
+
+				<label class="col-sm-2 col-form-label text-right">
+					Mobile No<span style="color:red">*</span>
+				</label>
+
+				<div class="col-sm-4">
+					<input type="text"
+						   class="form-control form-control-sm"
+						   name="MobileNo"
+						   value="@Model.Obj.MobileNo"
+						   maxlength="15"
+						   data-required
+						   data-msg="Mobile required" />
+				</div>
+
+			</div>
+
+
+			<!-- PASSWORD -->
+			<div class="form-group row">
+
+				@if (Model.Obj.Id <= 0)
+				{
+					<label for="Password" class="col-sm-2 col-form-label text-right">Password<span style="color:red">*</span></label>
+					<div class="col-sm-4">
+						<input type="text" class="form-control form-control-sm" name="Password" value="@Model.Obj.Password" maxlength="80"
+							   data-required data-msg="The Password field is required." autocomplete="off" />
+					</div>
+				}
+				else
+				{
+					<label for="IsPassword_Reset" class="col-sm-2 col-form-label text-right">Password Reset</label>
+					<div class="col-sm-4">
+						<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0 mb-2">
+							<input type="checkbox" class="custom-control-input" id="switch_Password_Reset"
+								   name="IsPassword_Reset" onchange="fnChange_Switch(this, 'label_Switch_Password_Reset')">
+							<label class="custom-control-label" for="switch_Password_Reset" id="label_Switch_Password_Reset" data-true="Yes" data-false="No">No</label>
+						</div>
+						<span class="info-container"> <span class="info">Default password: 12345</span>   </span>
+					</div>
+				}
 
-                <label class="col-sm-2 col-form-label text-right">Gender</label>
+				<label class="col-sm-2 col-form-label text-right">Gender</label>
 
-                <div class="col-sm-4">
-                    <select class="form-control form-control-sm" name="Gender">
-                        <option value="">Select</option>
-                        <option value="Male" selected="@(Model.Obj.Gender == "Male" ? "selected" : null)">Male</option>
-                        <option value="Female" selected="@(Model.Obj.Gender == "Female" ? "selected" : null)">Female</option>
-                    </select>
-                </div>
+				<div class="col-sm-2">
+					<select class="form-control form-control-sm" name="Gender">
+						@if (Model.SelectListItems != null)
+						{
+							foreach (var item in Model.SelectListItems.Where(x => x.Group == "GENDER"))
+							{
+								if (item.Value == Model.Obj.Gender.ToString())
+								{
+									<option value="@item.Value" selected>@item.Text</option>
+								}
+								else
+								{
+									<option value="@item.Value">@item.Text</option>
+								}
+							}
+						}
+					</select>
+				</div>
 
-            </div>
+			</div>
 
 
-            <!-- DOB -->
-            <div class="form-group row">
+			<!-- DOB -->
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">Date Of Birth</label>
 
-                <label class="col-sm-2 col-form-label text-right">Date Of Birth</label>
+				<div class="col-sm-4">
+					<input type="date"
+						   class="form-control form-control-sm"
+						   name="DateOfBirth"
+						   value="@(Model.Obj.DateOfBirth?.ToString("yyyy-MM-dd"))" />
+				</div>
+
+			</div>
+
+
+			<!-- STATUS -->
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">Status</label>
 
-                <div class="col-sm-4">
-                    <input type="date"
-                           class="form-control form-control-sm"
-                           name="DateOfBirth"
-                           value="@(Model.Obj.DateOfBirth?.ToString("yyyy-MM-dd"))" />
-                </div>
+				<div class="col-sm-4">
 
-            </div>
+					<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0">
 
-
-            <!-- STATUS -->
-            <div class="form-group row">
-
-                <label class="col-sm-2 col-form-label text-right">Status</label>
-
-                <div class="col-sm-4">
-
-                    <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0">
-
-                        <input type="checkbox"
-                               class="custom-control-input"
-                               id="switch_Status"
-                               name="IsActive"
-                               @(Model.Obj == null || Model.Obj.IsActive == true || Model.Obj.Id == 0 ? "checked" : "")
-                               onchange="fnChange_Switch(this, 'label_Switch_Status')">
-
-                        <label class="custom-control-label"
-                               for="switch_Status"
-                               id="label_Switch_Status"
-                               data-true="Active"
-                               data-false="Inactive">
-                            @((Model.Obj != null && Model.Obj.IsActive == true) || Model.Obj == null || Model.Obj.Id == 0 ? "Active" : "Inactive")
-                        </label>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <hr />
-
-            <!-- ADDRESS SECTION -->
-
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h5 class="font-weight-bold">Customer Addresses</h5>
-                </div>
-
-                <div class="col-sm-6 text-right">
-
-                    <button type="button"
-                            class="btn btn-primary btn-sm"
-                            onclick="addAddressRow()">
-
-                        <i class="fas fa-plus"></i> Add Address
-
-                    </button>
-
-                </div>
-            </div>
-
-
-            <table class="table table-bordered table-sm" id="tblAddress">
-
-                <thead>
-                    <tr>
-                        <th width="20%">Address Line 1</th>
-                        <th width="15%">City</th>
-                        <th width="15%">State</th>
-                        <th width="10%">Postal</th>
-                        <th width="15%">Country</th>
-                        <th width="10%">Default</th>
-                        <th width="5%">Action</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    @if (Model.Obj?.AddressList != null && Model.Obj.AddressList.Count > 0)
-                    {
-                        for (int i = 0; i < Model.Obj.AddressList.Count; i++)
-                        {
-                            <tr>
-
-                                <td>
-                                    <input type="text"
-                                           class="form-control form-control-sm"
-                                           name="AddressList[@i].AddressLine1"
-                                           value="@Model.Obj.AddressList[i].AddressLine1" />
-                                </td>
-
-                                <td>
-                                    <input type="text"
-                                           class="form-control form-control-sm"
-                                           name="AddressList[@i].City"
-                                           value="@Model.Obj.AddressList[i].City" />
-                                </td>
-
-                                <td>
-                                    <input type="text"
-                                           class="form-control form-control-sm"
-                                           name="AddressList[@i].State"
-                                           value="@Model.Obj.AddressList[i].State" />
-                                </td>
-
-                                <td>
-                                    <input type="text"
-                                           class="form-control form-control-sm"
-                                           name="AddressList[@i].PostalCode"
-                                           value="@Model.Obj.AddressList[i].PostalCode" />
-                                </td>
-
-                                <td>
-                                    <input type="text"
-                                           class="form-control form-control-sm"
-                                           name="AddressList[@i].Country"
-                                           value="@Model.Obj.AddressList[i].Country" />
-                                </td>
-
-                                <td class="text-center">
-
-                                    <input type="checkbox"
-                                           name="AddressList[@i].IsDefault"
-                                           @(Model.Obj.AddressList[i].IsDefault ? "checked" : "") />
-
-                                </td>
-
-                                <td class="text-center">
-
-                                    <button type="button"
-                                            class="btn btn-danger btn-sm"
-                                            onclick="removeAddressRow(this)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-
-                                </td>
-
-                            </tr>
-                        }
-                    }
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-        <div class="card-footer text-center">
-
-            <button type="submit" class="btn btn-success btnSubmit">
-                Save
-            </button>
-
-            <button type="button"
-                    class="btn btn-danger"
-                    onclick="fnCloseParialView('divformSave', '#table_Common_Data');">
-                Cancel
-            </button>
-
-        </div>
-
-    </div>
+						<input type="checkbox"
+							   class="custom-control-input"
+							   id="switch_Status"
+							   name="IsActive"
+							   @(Model.Obj == null || Model.Obj.IsActive == true || Model.Obj.Id == 0 ? "checked" : "")
+							   onchange="fnChange_Switch(this, 'label_Switch_Status')">
+
+						<label class="custom-control-label"
+							   for="switch_Status"
+							   id="label_Switch_Status"
+							   data-true="Active"
+							   data-false="Inactive">
+							@((Model.Obj != null && Model.Obj.IsActive == true) || Model.Obj == null || Model.Obj.Id == 0 ? "Active" : "Inactive")
+						</label>
+
+					</div>
+
+				</div>
+
+			</div>
+
+			<hr />
+
+			<!-- ADDRESS SECTION -->
+
+			<div class="row mb-2">
+				<div class="col-sm-6">
+					<h5 class="font-weight-bold">Customer Addresses</h5>
+				</div>
+
+			</div>
+
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">
+					Address Line 1<span style="color:red">*</span>
+				</label>
+
+				<div class="col-sm-4">
+					<input type="text"
+						   class="form-control form-control-sm"
+						   name="AddressLine1"
+						   value="@Model.Obj.AddressLine1"
+						   maxlength="500"
+						   data-required
+						   data-msg="Address Line 1 required" />
+				</div>
+
+				<label class="col-sm-2 col-form-label text-right">
+					Address Line 2
+				</label>
+
+				<div class="col-sm-4">
+					<input type="text"
+						   class="form-control form-control-sm"
+						   name="AddressLine2"
+						   value="@Model.Obj.AddressLine2"
+						   maxlength="500" />
+				</div>
+
+			</div>
+
+
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">
+					City<span style="color:red">*</span>
+				</label>
+
+				<div class="col-sm-4">
+					<input type="text"
+						   class="form-control form-control-sm"
+						   name="City"
+						   value="@Model.Obj.City"
+						   maxlength="200"
+						   data-required
+						   data-msg="City required" />
+				</div>
+
+				<label class="col-sm-2 col-form-label text-right">
+					State
+				</label>
+
+				<div class="col-sm-4">
+					<input type="text"
+						   class="form-control form-control-sm"
+						   name="State"
+						   value="@Model.Obj.State"
+						   maxlength="200" />
+				</div>
+
+			</div>
+
+
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">
+					Postal Code
+				</label>
+
+				<div class="col-sm-4">
+					<input type="text"
+						   class="form-control form-control-sm"
+						   name="PostalCode"
+						   value="@Model.Obj.PostalCode"
+						   maxlength="20" />
+				</div>
+
+				<label class="col-sm-2 col-form-label text-right">
+					Country
+				</label>
+
+				<div class="col-sm-4">
+					<input type="text"
+						   class="form-control form-control-sm"
+						   name="Country"
+						   value="@Model.Obj.Country"
+						   maxlength="200" />
+				</div>
+
+			</div>
+		</div>
+
+		<div class="card-footer text-center">
+			<button type="submit" class="btn btn-success btnSubmit"> Save </button>
+			<button type="button" class="btn btn-danger" onclick="fnCloseParialView('divformSave', '#table_Common_Data');"> Cancel </button>
+		</div>
+
+	</div>
 </div>

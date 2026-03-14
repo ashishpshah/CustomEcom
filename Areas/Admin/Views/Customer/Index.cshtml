@@ -154,11 +154,11 @@
 							return '<div class="btn-group">' +
 
 								'<button class="btn btn-info btn-sm" ' +
-								'onclick="fnLoadParialView(\'divformSave\',\'/Admin/Customer/Partial_AddEditForm?Id=' + row.Id + '\')">' +
+								'onclick="fnLoadParialView(\'divformSave\',\'@Url.Action("Partial_AddEditForm", "Customer", new { area = "Admin" })?Id=' + row.Id + '\')">' +
 								'<i class="far fa-edit"></i></button> ' +
 
 								'<button class="btn btn-danger btn-sm ml-2" ' +
-								'onclick="fnDelete_Confirm(\'/Admin/Customer/DeleteConfirmed?Id=' + row.Id + '\')">' +
+								'onclick="fnDelete_Confirm(\'@Url.Action("DeleteConfirmed", "Customer", new { area = "Admin" })?Id=' + row.Id + '\')">' +
 								'<i class="fa fa-trash"></i></button>' +
 
 								'</div>';

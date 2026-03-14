@@ -82,6 +82,8 @@ namespace JewelryStore.Areas.Admin.Controllers
 			var obj = new Customer();
 
 			var list = new List<SelectListItem_Custom>();
+			list.Add(new SelectListItem_Custom("M", "Male", "GENDER"));
+			list.Add(new SelectListItem_Custom("F", "Female", "GENDER"));
 
 			var oParams = new List<SqlParameter>();
 
@@ -92,11 +94,11 @@ namespace JewelryStore.Areas.Admin.Controllers
 					oParams = new List<SqlParameter>();
 					oParams.Add(new SqlParameter("@Id", id));
 
-					DataSet ds = DataContext.ExecuteStoredProcedure_DataSet("SP_Customer_Get", oParams);
+					DataTable dt = DataContext.ExecuteStoredProcedure_DataTable("SP_Customer_Get", oParams);
 
-					if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+					if (dt != null && dt.Rows.Count > 0)
 					{
-						var dr = ds.Tables[0].Rows[0];
+						var dr = dt.Rows[0];
 
 						obj = new Customer()
 						{
@@ -111,75 +113,20 @@ namespace JewelryStore.Areas.Admin.Controllers
 							DateOfBirth = GetValue<DateTime?>(dr, "DateOfBirth"),
 							Gender = GetValue<string>(dr, "Gender"),
 
+							AddressLine1 = GetValue<string>(dr, "AddressLine1"),
+							AddressLine2 = GetValue<string>(dr, "AddressLine2"),
+
+							City = GetValue<string>(dr, "City"),
+							State = GetValue<string>(dr, "State"),
+							PostalCode = GetValue<string>(dr, "PostalCode"),
+							Country = GetValue<string>(dr, "Country"),
+
 							IsActive = GetValue<bool>(dr, "IsActive")
 						};
 
 					}
 
-					var addressList = new List<CustomerAddress>();
-
-					if (ds != null && ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
-						foreach (DataRow dr in ds.Tables[1].Rows)
-						{
-							addressList.Add(new CustomerAddress()
-							{
-								Id = GetValue<int>(dr, "Id"),
-								CustomerId = GetValue<int>(dr, "CustomerId"),
-
-								AddressLine1 = GetValue<string>(dr, "AddressLine1"),
-								AddressLine2 = GetValue<string>(dr, "AddressLine2"),
-
-								City = GetValue<string>(dr, "City"),
-								State = GetValue<string>(dr, "State"),
-								PostalCode = GetValue<string>(dr, "PostalCode"),
-								Country = GetValue<string>(dr, "Country"),
-
-								IsDefault = GetValue<bool>(dr, "IsDefault"),
-
-								IsActive = GetValue<bool>(dr, "IsActive"),
-								IsDeleted = GetValue<bool>(dr, "IsDeleted"),
-
-								CreatedBy = GetValue<int>(dr, "CreatedBy"),
-								CreatedDate = GetValue<DateTime>(dr, "CreatedDate"),
-
-								LastModifiedBy = GetValue<int?>(dr, "LastModifiedBy"),
-								LastModifiedDate = GetValue<DateTime?>(dr, "LastModifiedDate")
-							});
-						}
-
-					var cartList = new List<CustomerCart>();
-
-					if (ds != null && ds.Tables.Count > 2 && ds.Tables[2].Rows.Count > 0)
-						foreach (DataRow dr in ds.Tables[2].Rows)
-						{
-							cartList.Add(new CustomerCart()
-							{
-								Id = GetValue<int>(dr, "Id"),
-								CustomerId = GetValue<int>(dr, "CustomerId"),
-
-								ProductId = GetValue<int>(dr, "ProductId"),
-								VariantId = GetValue<int>(dr, "VariantId"),
-
-								Quantity = GetValue<int>(dr, "Quantity"),
-
-								IsActive = GetValue<bool>(dr, "IsActive"),
-								IsDeleted = GetValue<bool>(dr, "IsDeleted"),
-
-								CreatedBy = GetValue<int>(dr, "CreatedBy"),
-								CreatedDate = GetValue<DateTime>(dr, "CreatedDate"),
-
-								LastModifiedDate = GetValue<DateTime?>(dr, "LastModifiedDate"),
-
-								/* Joined Fields from SP */
-								ProductName = GetValue<string>(dr, "ProductName"),
-								SKU = GetValue<string>(dr, "SKU"),
-								Price = GetValue<decimal>(dr, "Price")
-							});
-						}
 				}
-
-				oParams = new List<SqlParameter>();
-				oParams.Add(new SqlParameter("@Id", -1));
 
 			}
 			catch (Exception ex) { LogService.LogInsert(GetCurrentAction(), "", ex); }
@@ -199,6 +146,8 @@ namespace JewelryStore.Areas.Admin.Controllers
 			{
 				var (IsSuccess, Message, Id, Extra) = (false, ResponseStatusMessage.Error, 0M, new List<string>());
 
+				if (viewModel.IsPassword_Reset == true) viewModel.Password = "12345";
+
 				List<SqlParameter> oParams = new List<SqlParameter>();
 
 				oParams.Add(new SqlParameter("Id", viewModel.Id));
@@ -209,7 +158,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 				oParams.Add(new SqlParameter("Email", viewModel.Email));
 				oParams.Add(new SqlParameter("MobileNo", viewModel.MobileNo));
 
-				oParams.Add(new SqlParameter("Password", viewModel.Password));
+				oParams.Add(new SqlParameter("Password", string.IsNullOrEmpty(viewModel.Password) ? null : Common.Encrypt(viewModel.Password)));
 
 				oParams.Add(new SqlParameter("DateOfBirth", viewModel.DateOfBirth ?? (object)DBNull.Value));
 				oParams.Add(new SqlParameter("Gender", viewModel.Gender ?? (object)DBNull.Value));
