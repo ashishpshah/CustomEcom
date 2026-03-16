@@ -12,6 +12,6 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
 
         Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> SaveProduct(Product product);
 
-        Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> DeleteProduct(long id, long operatedBy);
+        Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> DeleteProduct(long id);
     }
 }

@@ -134,16 +134,16 @@ namespace JewelryStore.Areas.Api.ServiceRepository.CategoryRepository
             }
         }
 
-        public async Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> DeleteCategory(long id, long operatedBy)
+        public async Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> DeleteCategory(long id)
         {
             try
             {
                 List<SqlParameter> oParams = new()
-        {
-            new SqlParameter("Id", id),
-            new SqlParameter("Mode", "DELETE"),
-            new SqlParameter("OperatedBy", operatedBy)
-        };
+                {
+                    new SqlParameter("Id", id),
+                    new SqlParameter("Mode", "DELETE"),
+                     new SqlParameter("OperatedBy", Common.LoggedUser_Id())
+                };
 
                 var result = DataContext.ExecuteStoredProcedure("SP_Category_Save", oParams, true);
 

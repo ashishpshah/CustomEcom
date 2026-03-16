@@ -13,6 +13,6 @@ namespace JewelryStore.Areas.Api.ServiceRepository.CategoryRepository
 
         Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> SaveCategory(Category category);
 
-        Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> DeleteCategory(long id, long operatedBy);
+        Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> DeleteCategory(long id);
     }
 }

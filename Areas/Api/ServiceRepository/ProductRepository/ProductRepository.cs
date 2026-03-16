@@ -160,7 +160,7 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
             }
         }
 
-        public async Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> DeleteProduct(long id, long operatedBy)
+        public async Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> DeleteProduct(long id)
         {
             try
             {
@@ -168,7 +168,7 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
                 {
                     new SqlParameter("Id", id),
                     new SqlParameter("Mode", "DELETE"),
-                    new SqlParameter("OperatedBy", operatedBy)
+                    new SqlParameter("OperatedBy", Common.LoggedUser_Id())
                 };
 
                 var result = DataContext.ExecuteStoredProcedure("SP_Product_Save", oParams, true);

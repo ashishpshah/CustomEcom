@@ -4,7 +4,7 @@ using JewelryStore.Infra;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Data;
-
+using JewelryStore.Areas.Api.DTO;
 namespace JewelryStore.Areas.Admin.Controllers
 {
     [Area("Admin")]
@@ -307,7 +307,7 @@ namespace JewelryStore.Areas.Admin.Controllers
                 oParams.Add(new SqlParameter("Id", InquiryId));
                 oParams.Add(new SqlParameter("@Status", Status));
                 oParams.Add(new SqlParameter("Remarks", Remarks));
-               oParams.Add(new SqlParameter("OperatedBy", Logged_In_UserId));
+                oParams.Add(new SqlParameter("OperatedBy", Logged_In_UserId));
 
                 (IsSuccess, Message, Id, Extra) = DataContext.ExecuteStoredProcedure("SP_Inquiry_Status_Change", oParams, true);
 

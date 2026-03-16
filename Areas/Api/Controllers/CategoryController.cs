@@ -103,11 +103,11 @@ namespace JewelryStore.Areas.Api.Controllers
         }
 
         [HttpDelete("[Action]")]
-        public async Task<IActionResult> Delete(long id, long operatedBy)
+        public async Task<IActionResult> Delete(long id)
         {
             try
             {
-                var (IsSuccess, Message, Id, Extra) = await _repository.DeleteCategory(id, operatedBy);
+                var (IsSuccess, Message, Id, Extra) = await _repository.DeleteCategory(id);
 
                 CommonViewModel.IsSuccess = IsSuccess;
                 CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
