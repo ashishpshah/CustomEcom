@@ -19,7 +19,18 @@ namespace JewelryStore
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-			builder.Services.AddHttpClient();
+            //for CROS_Po
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", builder =>
+                {
+                    builder.AllowAnyMethod()
+                          .AllowAnyHeader()
+                          .WithOrigins("http://localhost:5174");
+                });
+            });
+
+            builder.Services.AddHttpClient();
 			builder.Services.AddHttpContextAccessor();
 
 			// Add services to the container.
@@ -104,9 +115,9 @@ namespace JewelryStore
 			app.UseRequestLocalization();
 
 			app.UseRouting();
-
-			// ✅ AUTH FIRST
-			app.UseAuthentication();
+            app.UseCors("CorsPolicy");
+            // ✅ AUTH FIRST
+            app.UseAuthentication();
 
 			// ✅ SESSION AFTER AUTH
 			app.UseSession();
@@ -131,8 +142,9 @@ namespace JewelryStore
 				return Task.CompletedTask;
 			});
 
-            // API route
-            app.MapControllers();
+			// API route
+			app.MapControllers();
+
             app.Run();
 		}
 	}
