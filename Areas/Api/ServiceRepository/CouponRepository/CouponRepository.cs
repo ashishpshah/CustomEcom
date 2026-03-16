@@ -52,7 +52,14 @@ namespace JewelryStore.Areas.Api.ServiceRepository.CouponRepository
 
                         foreach (DataColumn col in ds.Tables[1].Columns)
                         {
-                            dict[col.ColumnName] = row[col];
+                            if (col.ColumnName == "ExpiryDate" && row[col] != DBNull.Value)
+                            {
+                                dict[col.ColumnName] = Convert.ToDateTime(row[col]).ToString("dd-MMM-yyyy");
+                            }
+                            else
+                            {
+                                dict[col.ColumnName] = row[col];
+                            }
                         }
 
                         table2.Add(dict);

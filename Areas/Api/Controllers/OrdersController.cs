@@ -1,20 +1,19 @@
 ﻿using JewelryStore.Areas.Admin.Models;
-using JewelryStore.Areas.Api.ServiceRepository.CouponRepository;
+using JewelryStore.Areas.Api.ServiceRepository.OrdersRepository;
 using JewelryStore.Infra;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Attribute = JewelryStore.Areas.Admin.Models.Attribute;
 
 namespace JewelryStore.Areas.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CouponController : ControllerBase
+    public class OrdersController : ControllerBase
     {
-        private readonly ICouponRepository _repository;
+        private readonly IOrdersRepository _repository;
         private readonly ApiResponseModel CommonViewModel = new();
 
-        public CouponController(ICouponRepository repository)
+        public OrdersController(IOrdersRepository repository)
         {
             _repository = repository;
         }
@@ -24,7 +23,7 @@ namespace JewelryStore.Areas.Api.Controllers
         {
             try
             {
-                var data = await _repository.GetAllCoupon(request);
+                var data = await _repository.GetAllOrders(request);
 
                 CommonViewModel.IsSuccess = true;
                 CommonViewModel.StatusCode = ResponseStatusCode.Success;
@@ -46,7 +45,7 @@ namespace JewelryStore.Areas.Api.Controllers
         {
             try
             {
-                var data = await _repository.GetCouponById(id);
+                var data = await _repository.GetOrderById(id);
 
                 if (data != null)
                 {
@@ -59,7 +58,38 @@ namespace JewelryStore.Areas.Api.Controllers
                 {
                     CommonViewModel.IsSuccess = false;
                     CommonViewModel.StatusCode = ResponseStatusCode.NotFound;
-                    CommonViewModel.Message = "Category not found";
+                    CommonViewModel.Message = "Order not found";
+                }
+            }
+            catch (Exception ex)
+            {
+                CommonViewModel.IsSuccess = false;
+                CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                CommonViewModel.Message = ex.Message;
+            }
+
+            return Ok(CommonViewModel);
+        }
+
+        [HttpGet("[Action]")]
+        public async Task<IActionResult> GetOrderNumber()
+        {
+            try
+            {
+                var data = await _repository.GetOrderNumber();
+
+                if (data != null)
+                {
+                    CommonViewModel.IsSuccess = true;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Success;
+                    CommonViewModel.Message = "Data retrieved successfully";
+                    CommonViewModel.Data = data;
+                }
+                else
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.NotFound;
+                    CommonViewModel.Message = "Order not found";
                 }
             }
             catch (Exception ex)
@@ -73,32 +103,46 @@ namespace JewelryStore.Areas.Api.Controllers
         }
 
         [HttpPost("[Action]")]
-        public async Task<IActionResult> Save([FromBody] Coupons obj)
+        public async Task<IActionResult> Save(Orders obj)
         {
             try
             {
-                if (string.IsNullOrEmpty(obj.CouponCode))
+                if (obj.ListOrderItems == null || !obj.ListOrderItems.Any())
                 {
                     CommonViewModel.IsSuccess = false;
-                    CommonViewModel.Message = "Please enter coupon code.";
+                    CommonViewModel.Message = "Please select at least one product.";
+
                     return Ok(CommonViewModel);
+
                 }
-                if (obj.MinimumOrderAmount <= obj.DiscountValue)
+
+                // Remove empty rows if needed
+                var validItems = obj.ListOrderItems
+                    .Where(x => x != null && x.VariantId > 0)
+                    .ToList();
+
+                if (!validItems.Any())
                 {
                     CommonViewModel.IsSuccess = false;
-                    CommonViewModel.Message = "Minimum Order Amount must be greater than Discount Value.";
-                    return Ok(CommonViewModel);
-                }
-                if (obj.ExpiryDate == null || obj.ExpiryDate < DateTime.Today)
-                {
-                    CommonViewModel.IsSuccess = false;
-                    CommonViewModel.Message = "Expiry Date cannot be previous date.";
+                    CommonViewModel.Message = "Please select at least one product.";
+
                     return Ok(CommonViewModel);
                 }
 
-               
+                // Check duplicate VariantId
+                var duplicateVariants = validItems
+                    .GroupBy(x => x.VariantId)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.Key)
+                    .ToList();
 
-                var (IsSuccess, Message, Id, Extra) = await _repository.SaveCoupon(obj);
+                if (duplicateVariants.Any())
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.Message = "Same product cannot be added more than once.";
+                    return Ok(CommonViewModel);
+                }
+                var (IsSuccess, Message, Id, Extra) = await _repository.SaveOrder(obj);
 
                 CommonViewModel.IsSuccess = IsSuccess;
                 CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
@@ -120,7 +164,7 @@ namespace JewelryStore.Areas.Api.Controllers
         {
             try
             {
-                var (IsSuccess, Message, Id, Extra) = await _repository.DeleteCoupon(id);
+                var (IsSuccess, Message, Id, Extra) = await _repository.DeleteOrder(id);
 
                 CommonViewModel.IsSuccess = IsSuccess;
                 CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
