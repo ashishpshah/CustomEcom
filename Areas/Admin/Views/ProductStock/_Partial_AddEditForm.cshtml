@@ -1,141 +1,148 @@
 ﻿@model ResponseModel<ProductStock>
+@{
+	Layout = null;
+	var IndexPageUrl = "/" + ViewContext.RouteData.Values["Area"] + "/" +
+								ViewContext.RouteData.Values["Controller"] + "/Index";
+}
 
-<div class="card card-primary card-outline">
+<div class="col-12">
+	<div class="card card-primary card-outline mb-0">
 
-	<div class="card-header">
-		<h3 class="card-title">Adjust Stock</h3>
-	</div>
+		<div class="card-header">
+			<h3 class="card-title">Adjust Stock</h3>
+		</div>
 
-	<div class="card-body">
+		<div class="card-body">
 
-		<input type="hidden" name="VariantId" value="@Model.Obj.VariantId" />
+			<input type="hidden" name="VariantId" value="@Model.Obj.VariantId" />
 
-		<!-- PRODUCT -->
+			<!-- PRODUCT -->
 
-		<div class="form-group row">
+			<div class="form-group row">
 
-			<label class="col-sm-3 col-form-label text-right">
-				Product
-			</label>
+				<label class="col-sm-3 col-form-label text-right">
+					Product
+				</label>
 
-			<div class="col-sm-6">
+				<div class="col-sm-6">
 
-				<select id="ProductId"
-						name="ProductId"
-						class="form-control form-control-sm"
-						onchange="fnLoadVariants(this.value)">
+					<select id="ProductId"
+							name="ProductId"
+							class="form-control form-control-sm"
+							onchange="fnLoadVariants(this.value)">
 
-					<option value="">Select Product</option>
+						<option value="">Select Product</option>
 
-					@if (Model.SelectListItems != null)
-					{
-						foreach (var item in Model.SelectListItems)
+						@if (Model.SelectListItems != null)
 						{
-							<option value="@item.Value">@item.Text</option>
+							foreach (var item in Model.SelectListItems)
+							{
+								<option value="@item.Value">@item.Text</option>
+							}
 						}
-					}
 
-				</select>
+					</select>
 
-			</div>
-
-		</div>
-
-
-		<!-- VARIANTS -->
-
-		<div class="form-group row">
-
-			<label class="col-sm-3 col-form-label text-right">
-				Variants
-			</label>
-
-			<div class="col-sm-6">
-
-				<select id="VariantIds"
-						name="VariantIds"
-						class="form-control form-control-sm"
-						multiple>
-				</select>
+				</div>
 
 			</div>
 
-		</div>
 
+			<!-- VARIANTS -->
 
-		<!-- CHANGE TYPE -->
+			<div class="form-group row">
 
-		<div class="form-group row">
+				<label class="col-sm-3 col-form-label text-right">
+					Variants
+				</label>
 
-			<label class="col-sm-3 col-form-label text-right">
-				Change Type
-			</label>
+				<div class="col-sm-6">
 
-			<div class="col-sm-6">
+					<select id="VariantIds"
+							name="VariantIds"
+							class="form-control form-control-sm"
+							multiple>
+					</select>
 
-				<select name="ChangeType" class="form-control form-control-sm">
-
-					<option value="IN">Stock In</option>
-					<option value="OUT">Stock Out</option>
-					<option value="RESERVE">Reserve</option>
-					<option value="RELEASE">Release</option>
-
-				</select>
+				</div>
 
 			</div>
 
-		</div>
 
+			<!-- CHANGE TYPE -->
 
-		<!-- QUANTITY -->
+			<div class="form-group row">
 
-		<div class="form-group row">
+				<label class="col-sm-3 col-form-label text-right">
+					Change Type
+				</label>
 
-			<label class="col-sm-3 col-form-label text-right">
-				Quantity
-			</label>
+				<div class="col-sm-6">
 
-			<div class="col-sm-6">
+					<select name="ChangeType" class="form-control form-control-sm">
 
-				<input type="number"
-					   class="form-control form-control-sm"
-					   name="Quantity"
-					   min="1" />
+						<option value="IN">Stock In</option>
+						<option value="OUT">Stock Out</option>
+						<option value="RESERVE">Reserve</option>
+						<option value="RELEASE">Release</option>
+
+					</select>
+
+				</div>
 
 			</div>
 
-		</div>
+
+			<!-- QUANTITY -->
+
+			<div class="form-group row">
+
+				<label class="col-sm-3 col-form-label text-right">
+					Quantity
+				</label>
+
+				<div class="col-sm-6">
+
+					<input type="number"
+						   class="form-control form-control-sm"
+						   name="Quantity"
+						   min="1" />
+
+				</div>
+
+			</div>
 
 
-		<!-- REMARKS -->
+			<!-- REMARKS -->
 
-		<div class="form-group row">
+			<div class="form-group row">
 
-			<label class="col-sm-3 col-form-label text-right">
-				Remarks
-			</label>
+				<label class="col-sm-3 col-form-label text-right">
+					Remarks
+				</label>
 
-			<div class="col-sm-6">
+				<div class="col-sm-6">
 
 <textarea class="form-control form-control-sm" name="Remarks"></textarea>
 
+				</div>
+
 			</div>
 
 		</div>
 
+
+		<div class="card-footer text-center">
+
+			<button type="button"
+					class="btn btn-success"
+					onclick="fnSaveStockAdjust()">
+
+				Save
+
+			</button>
+
+		</div>
+
 	</div>
-
-
-	<div class="card-footer text-center">
-
-		<button type="button"
-				class="btn btn-success"
-				onclick="fnSaveStockAdjust()">
-
-			Save
-
-		</button>
-
-	</div>
-
 </div>

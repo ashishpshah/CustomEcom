@@ -86,11 +86,13 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
                         ProductName = dr["ProductName"]?.ToString(),
                         CategoryId = dr["CategoryId"] != DBNull.Value ? Convert.ToInt32(dr["CategoryId"]) : 0,
                         CategoryName = dr["CategoryName"]?.ToString(),
+                        Price =     Convert.ToDecimal(dr["Price"]),
                         ImagePath = dr["ImagePath"]?.ToString(),
-                        IsActive = Convert.ToBoolean(dr["IsActive"])
+                        IsActive = Convert.ToBoolean(dr["IsActive"]),
+                        ProductVariantMapping = new List<ProductVariantMapping>()
                     };
 
-                    if (ds.Tables.Count > 1)
+                    if (ds.Tables.Count > 0 && ds.Tables[1].Rows.Count > 0)
                     {
                         product.ProductImages = new List<ProductImages>();
 
@@ -100,7 +102,8 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
                             {
                                 Id = Convert.ToInt32(row["Id"]),
                                 ImagePath = row["ImagePath"]?.ToString(),
-                                IsPrimary = Convert.ToBoolean(row["IsPrimary"])
+                                IsPrimary = Convert.ToBoolean(row["IsPrimary"]),
+                                VariantId = Convert.ToInt32(row["VariantId"])
                             });
                         }
                     }
