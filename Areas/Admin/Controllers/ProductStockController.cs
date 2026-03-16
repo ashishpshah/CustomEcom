@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using JewelryStore.Areas.Admin.Models;
 using JewelryStore.Controllers;
@@ -51,6 +52,9 @@ namespace JewelryStore.Areas.Admin.Controllers
 							{
 								SrNo = GetValue<int>(dr, "SrNo"),
 								Id = GetValue<int>(dr, "Id"),
+								ProductId = GetValue<int>(dr, "ProductId"),
+								VariantId = GetValue<int>(dr, "VariantId"),
+								ProductName = GetValue<string>(dr, "ProductName"),
 								Price = GetValue<decimal>(dr, "Price"),
 								SKU = GetValue<string>(dr, "SKU"),
 								VariantAttributes = GetValue<string>(dr, "VariantAttributes"),
@@ -111,8 +115,8 @@ namespace JewelryStore.Areas.Admin.Controllers
 
 				var ds = DataContext.ExecuteStoredProcedure_DataSet("SP_Product_Get", oParams);
 
-				if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
-					foreach (DataRow dr in ds.Tables[1].Rows)
+				if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+					foreach (DataRow dr in ds.Tables[0].Rows)
 						list.Add(new SelectListItem_Custom(GetValue<string>(dr, "Id"), GetValue<string>(dr, "ProductName")));
 
 			}
@@ -241,6 +245,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 		public JsonResult GetStockHistory(JqueryDatatableParam param)
 		{
 			var ProductId = Convert.ToInt32(HttpContext.Request.Query["ProductId"]);
+			var VariantId = Convert.ToInt32(HttpContext.Request.Query["VariantId"]);
 
 			int TotalRecords = 0;
 			int FilteredRecords = 0;
@@ -266,7 +271,10 @@ namespace JewelryStore.Areas.Admin.Controllers
 						result.Add(new ProductStock()
 						{
 							Id = GetValue<int>(dr, "Id"),
+							ProductId = GetValue<int>(dr, "ProductId"),
+							VariantId = GetValue<int>(dr, "VariantId"),
 							ProductName = GetValue<string>(dr, "ProductName"),
+							VariantAttributes = GetValue<string>(dr, "VariantAttributes"),
 							SKU = GetValue<string>(dr, "SKU"),
 							Price = GetValue<decimal>(dr, "Price"),
 							AvailableStock = GetValue<int>(dr, "AvailableStock"),
@@ -293,8 +301,42 @@ namespace JewelryStore.Areas.Admin.Controllers
 				}
 			}
 
-			if (ProductId > 0) return Json(historyList);
+			if (ProductId > 0) return Json(new { product = result, history = historyList.OrderByDescending(x => x.LastModifiedDate.Value.Ticks) });
 			else return Json(new { param.sEcho, iTotalRecords = TotalRecords, iTotalDisplayRecords = FilteredRecords, aaData = result });
+		}
+
+		[HttpPost]
+		public JsonResult AdjustStock(ProductStockHistory viewModel)
+		{
+			try
+			{
+				var (IsSuccess, Message, Id, Extra) = (false, ResponseStatusMessage.Error, 0M, new List<string>());
+
+				List<SqlParameter> oParams = new List<SqlParameter>();
+
+				oParams.Add(new SqlParameter("@ProductId", viewModel.ProductId));
+				oParams.Add(new SqlParameter("@VariantIds", viewModel.VariantIds));
+				oParams.Add(new SqlParameter("@ChangeType", viewModel.ChangeType));
+				oParams.Add(new SqlParameter("@Quantity", viewModel.Quantity));
+				oParams.Add(new SqlParameter("@Remarks", viewModel.Remarks));
+
+				oParams.Add(new SqlParameter("@OperatedBy", Logged_In_UserId));
+
+				(IsSuccess, Message, Id, Extra) = DataContext.ExecuteStoredProcedure("SP_ProductStock_Adjust", oParams, true);
+
+				CommonViewModel.IsConfirm = true;
+				CommonViewModel.IsSuccess = IsSuccess;
+				CommonViewModel.Message = Message;
+
+			}
+			catch (Exception ex)
+			{
+				LogService.LogInsert(GetCurrentAction(), "", ex);
+				CommonViewModel.IsSuccess = false;
+				CommonViewModel.Message = ResponseStatusMessage.Error + " | " + ex.Message;
+			}
+
+			return Json(CommonViewModel);
 		}
 	}
 }

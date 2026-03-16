@@ -1,6 +1,6 @@
 ﻿@model ResponseModel<ProductStock>
 
-<div class="card card-primary card-outline">
+<div class="col-12 card card-primary card-outline">
 
 	<div class="card-header">
 		<h3 class="card-title">Adjust Stock</h3>
@@ -22,7 +22,7 @@
 
 				<select id="ProductId"
 						name="ProductId"
-						class="form-control form-control-sm"
+						class="form-control form-control-sm select2"
 						onchange="fnLoadVariants(this.value)">
 
 					<option value="">Select Product</option>
@@ -54,7 +54,7 @@
 
 				<select id="VariantIds"
 						name="VariantIds"
-						class="form-control form-control-sm"
+						class="form-control form-control-sm select2"
 						multiple>
 				</select>
 
