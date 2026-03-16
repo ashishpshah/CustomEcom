@@ -27,6 +27,7 @@
 
 		public int ProductId { get; set; }
 		public int VariantId { get; set; }
+		public string VariantIds { get; set; }
 
 		public string ChangeType { get; set; } = string.Empty;
 

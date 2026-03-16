@@ -5,8 +5,7 @@
 								ViewContext.RouteData.Values["Controller"] + "/Index";
 }
 
-<div class="col-12">
-	<div class="card card-primary card-outline mb-0">
+<div class="col-12 card card-primary card-outline">
 
 		<div class="card-header">
 			<h3 class="card-title">Adjust Stock</h3>
@@ -26,10 +25,10 @@
 
 				<div class="col-sm-6">
 
-					<select id="ProductId"
-							name="ProductId"
-							class="form-control form-control-sm"
-							onchange="fnLoadVariants(this.value)">
+				<select id="ProductId"
+						name="ProductId"
+						class="form-control form-control-sm select2"
+						onchange="fnLoadVariants(this.value)">
 
 						<option value="">Select Product</option>
 
@@ -58,11 +57,11 @@
 
 				<div class="col-sm-6">
 
-					<select id="VariantIds"
-							name="VariantIds"
-							class="form-control form-control-sm"
-							multiple>
-					</select>
+				<select id="VariantIds"
+						name="VariantIds"
+						class="form-control form-control-sm select2"
+						multiple>
+				</select>
 
 				</div>
 
