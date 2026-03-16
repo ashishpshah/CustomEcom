@@ -1,7 +1,10 @@
-﻿using JewelryStore.Areas.Api.ServiceRepository.AttibuteRepository;
+﻿using JewelryStore.Areas.Api.DTO;
+using JewelryStore.Areas.Api.ServiceRepository.AttibuteRepository;
 using JewelryStore.Areas.Api.ServiceRepository.AttributeRepository;
 using JewelryStore.Areas.Api.ServiceRepository.CategoryRepository;
 using JewelryStore.Areas.Api.ServiceRepository.CouponRepository;
+using JewelryStore.Areas.Api.ServiceRepository.InquiryRepository;
+using JewelryStore.Areas.Api.ServiceRepository.OrdersRepository;
 using JewelryStore.Areas.Api.ServiceRepository.ProductRepository;
 using JewelryStore.Areas.Api.ServiceRepository.ReviewsRepository;
 using JewelryStore.Infra;
@@ -9,6 +12,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 
 namespace JewelryStore
@@ -42,6 +46,8 @@ namespace JewelryStore
             builder.Services.AddScoped<IAttibuteRepository, AttibuteRepository>();
             builder.Services.AddScoped<ICouponRepository, CouponRepository>();
             builder.Services.AddScoped<IReviewsRepository, ReviewsRepository>();
+            builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
+            builder.Services.AddScoped<IInquiryRepository, InquiryRepository>();
 
 
             builder.WebHost.ConfigureKestrel(options =>

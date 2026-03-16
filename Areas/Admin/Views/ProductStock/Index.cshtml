@@ -102,11 +102,11 @@
 						render: function (data, type, row) {
 							return '<div class="btn-group">' +
 								'<button type="button" class="btn btn-success btn-sm btn-flat" data-toggle="tooltip" data-placement="top" title="Edit" ' +
-								'onclick="fnViewStockHistory(' + row.ProductId + ')">' +
+								'onclick="fnViewStockHistory(' + row.ProductId + ',' + row.VariantId + ')">' +
 								'<i class="fa fa-history"></i></button> ' +
-								'<button type="button" class="btn btn-danger btn-sm btn-flat ml-2" data-toggle="tooltip" data-placement="top" title="Delete" ' +
-								'onclick="fnDelete_Confirm(\'@Url.Action("DeleteConfirmed", "ProductStock", new { area = "Admin" })?Id=' + row.Id + '\')">' +
-								'<i class="fa fa-trash"></i></button> ' +
+								// '<button type="button" class="btn btn-danger btn-sm btn-flat ml-2" data-toggle="tooltip" data-placement="top" title="Delete" ' +
+								// 'onclick="fnDelete_Confirm(\'@Url.Action("DeleteConfirmed", "ProductStock", new { area = "Admin" })?Id=' + row.Id + '\')">' +
+								// '<i class="fa fa-trash"></i></button> ' +
 								'</div>';
 						}
 					}
@@ -114,9 +114,35 @@
 			});
 		}
 
-		function fnParialView_Loaded_Success($id, $isAlert){
-			//
-			// initImageUploader();
+		function fnSaveStockAdjust(){
+
+			var data = {
+
+				ProductId: $("#ProductId").val(),
+				VariantIds: $("#VariantIds").val().join(),
+				ChangeType: $("select[name='ChangeType']").val(),
+				Quantity: $("input[name='Quantity']").val(),
+				Remarks: $("textarea[name='Remarks']").val()
+
+			};
+			debugger;
+			$.post("@Url.Action("AdjustStock", "ProductStock", new { area = "Admin" })", data, function(response){
+
+				try {
+					ShowLoader(false);
+					if (response.IsSuccess === true) {
+
+						fnCloseParialView('divformSave');
+
+						if ($.fn.DataTable.isDataTable('#table_Common_Data')) {
+							$('#table_Common_Data').DataTable().ajax.reload(null, false);
+						}
+					}
+					else { CommonAlert_Error(response.Message, null) }
+				} catch { window.location.reload(); }
+
+			});
+
 		}
 
 		function fnLoadVariants(productId){
@@ -137,35 +163,15 @@
 					});
 
 					$("#VariantIds").html(html);
+					$("#VariantIds").val(null).trigger('change');
 
 				});
 
 		}
 
-		function fnSaveStockAdjust(){
+		function fnViewStockHistory(productId, variantId,) {
 
-			var data = {
-
-				ProductId: $("#ProductId").val(),
-				VariantIds: $("#VariantIds").val(),
-				ChangeType: $("select[name='ChangeType']").val(),
-				Quantity: $("input[name='Quantity']").val(),
-				Remarks: $("textarea[name='Remarks']").val()
-
-			};
-
-			$.post("@Url.Action("AdjustStock", "ProductStock", new { area = "Admin" })", data, function(res){
-
-				if(res.IsSuccess)
-					Swal.fire("Success", res.Message, "success");
-
-			});
-
-		}
-
-		function fnViewStockHistory(productId) {
-
-			$.get("@Url.Action("GetStockHistory", "ProductStock", new { area = "Admin" })", { ProductId: productId }, function (res) {
+			$.get("@Url.Action("GetStockHistory", "ProductStock", new { area = "Admin" })", { ProductId: productId, VariantId: variantId }, function (res) {
 
 				var product = res.product;
 				var history = res.history;
@@ -226,18 +232,18 @@
 
 			data.forEach(item => {
 
-				let date = item.DateOnly;
+				// let date = item.LastModifiedDate;
 
-				if (currentDate !== date) {
+				// if (currentDate !== date) {
 
-					currentDate = date;
+				// 	currentDate = date;
 
-					html += `
-						<div class="mt-3 mb-1 font-weight-bold text-primary">
-							${date}
-						</div>
-					`;
-				}
+				// 	html += `
+				// 		<div class="mt-3 mb-1 font-weight-bold text-primary">
+				// 			${date}
+				// 		</div>
+				// 	`;
+				// }
 
 				html += `
 					<div class="border rounded p-2 mb-2 d-flex justify-content-between">
@@ -257,7 +263,7 @@
 						</div>
 
 						<div class="text-muted small">
-							${item.TimeOnly}
+							${item.LastModifiedDate}
 						</div>
 
 					</div>

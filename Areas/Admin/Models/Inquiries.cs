@@ -19,6 +19,7 @@ namespace JewelryStore.Areas.Admin.Models
         public string NewStatus { get; set; }
         public string Remarks { get; set; }
         public DateTime? ReplyDate { get; set; }
+        public string? ReplyDate_Text { get; set; }
         public string Inquiry_By { get; set; }
         public string ReplyBy { get; set; }
         public string ReplyBy_Text { get; set; }
