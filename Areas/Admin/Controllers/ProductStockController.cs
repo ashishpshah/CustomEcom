@@ -111,7 +111,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 				}
 
 				oParams = new List<SqlParameter>();
-				oParams.Add(new SqlParameter("@Id", -1));
+				oParams.Add(new SqlParameter("@Id", 0));
 
 				var ds = DataContext.ExecuteStoredProcedure_DataSet("SP_Product_Get", oParams);
 

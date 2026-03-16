@@ -1,7 +1,9 @@
-﻿using JewelryStore.Areas.Admin.Models;
+﻿using Azure.Core;
+using JewelryStore.Areas.Admin.Models;
 using JewelryStore.Infra;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
 {
@@ -11,14 +13,14 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
         public async Task<object> GetAllProduct(PagingRequest request)
         {
             var oParams = new List<SqlParameter>()
-    {
-        new SqlParameter("@Id", DBNull.Value),
-        new SqlParameter("@Search", request.Search),
-        new SqlParameter("@Start", request.Start),
-        new SqlParameter("@Length", request.Length),
-        new SqlParameter("@SortColumnIndex", request.SortColumnIndex),
-        new SqlParameter("@SortDirection", request.SortDirection)
-    };
+            {
+                new SqlParameter("@Id", DBNull.Value),
+                new SqlParameter("@Search", request.Search),
+                new SqlParameter("@Start", request.Start),
+                new SqlParameter("@Length", request.Length),
+                new SqlParameter("@SortColumnIndex", request.SortColumnIndex),
+                new SqlParameter("@SortDirection", request.SortDirection)
+            };
 
             DataSet ds = DataContext.ExecuteStoredProcedure_DataSet("SP_Product_Get", oParams);
 
@@ -107,6 +109,37 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
                             });
                         }
                     }
+                    if (ds.Tables.Count > 0 && ds.Tables[2].Rows.Count > 0)
+                    {
+                        var dt = ds.Tables[2];
+                        DataTable dtDetails = ds.Tables[3];
+
+                        product.ProductVariantMapping = new List<ProductVariantMapping>();
+
+                        foreach (DataRow row in dt.Rows)
+                        {
+                            var details = dtDetails.AsEnumerable()
+                                .Where(x => Convert.ToInt32(dr["VariantId"]) == Convert.ToInt32(row["Id"]))
+                                .Select(x => new ProductVariantDetails()
+                                {
+                                    Id = Convert.ToInt32(row["Id"]),
+                                    VariantId = Convert.ToInt32(row["VariantId"]),
+                                    AttributeId = Convert.ToInt32(row["AttributeId"]),
+                                    AttributeName = row["AttributeName"].ToString(),
+                                    AttributeValueId = Convert.ToInt32(row["AttributeValueId"]),
+                                    AttributeValueName = Convert.ToInt32(row["AttributeValueId"]) + "-" + row["AttributeValue"].ToString()
+                                })
+                                .ToList();
+
+                            product.ProductVariantMapping.Add(new ProductVariantMapping()
+                            {
+                                Id = Convert.ToInt32(row["Id"]),
+                                Price = Convert.ToDecimal(row["Price"]),
+                                SKU =  row["SKU"].ToString(),
+                                ProductVariantDetails = details
+                            });
+                        }
+                    }
                 }
 
                 return await Task.FromResult(product);
@@ -135,7 +168,19 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
                 }
 
                 string imagesString = string.Join("||", productImages);
+                List<string> productVariant = new List<string>();
+                if (product.ProductVariantMapping != null && product.ProductVariantMapping.Any(x => x.ProductVariantDetails != null))
+                {
+                    for (int i = 0; i < product.ProductVariantMapping.Count; i++)
+                    {
+                        var variantImage = "-";                       
 
+                        productVariant.Add($"{product.ProductVariantMapping[i].Id}|{string.Join("=", product.ProductVariantMapping[i].ProductVariantDetails.Select(x => x.AttributeValueName).ToArray())}|" +
+                                            $"{product.ProductVariantMapping[i].Price}|{product.ProductVariantMapping[i].SKU}|{variantImage}");
+                    }
+                }
+
+                string variantString = string.Join("||", productVariant);
                 List<SqlParameter> oParams = new()
                 {
                     new SqlParameter("Id", product.Id),

@@ -139,8 +139,8 @@ namespace JewelryStore.Areas.Admin.Controllers
 									AttributeId = GetValue<int>(x, "AttributeId"),
 									AttributeName = GetValue<string>(x, "AttributeName"),
 									AttributeValueId = GetValue<int>(x, "AttributeValueId"),
-									AttributeValueName = GetValue<int>(x, "AttributeId") + "-" + GetValue<int>(x, "AttributeValueId")
-								})
+                                    AttributeValueName = Convert.ToInt32(row["AttributeValueId"]) + "-" + row["AttributeValue"].ToString()
+                                })
 								.ToList();
 
 							obj.ProductVariantMapping.Add(new ProductVariantMapping()
