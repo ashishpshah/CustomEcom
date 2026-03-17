@@ -252,7 +252,7 @@
 		}
 
 		$(document).on("click", ".addAttrBtn", function() {
-
+			debugger;
 			var tr_index = $(this).closest("tr").attr('id').replace('tr_','');
 			var select_index = $(this).closest("tr").find('td:eq(0) select').length;
 
@@ -277,6 +277,7 @@
 			$(this).closest("tr").find("select:not(.select2-hidden-accessible)").each(function (i, ele) {
 				$(ele).select2({ width: '100%', placeholder: "Select Attribute" });
 			});
+			 $(this).trigger('change');
 		});
 
 		$(document).on("change", ".attr-value-select", function () {

@@ -139,7 +139,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 									AttributeId = GetValue<int>(x, "AttributeId"),
 									AttributeName = GetValue<string>(x, "AttributeName"),
 									AttributeValueId = GetValue<int>(x, "AttributeValueId"),
-                                    AttributeValueName = Convert.ToInt32(row["AttributeValueId"]) + "-" + row["AttributeValue"].ToString()
+                                    AttributeValueName = Convert.ToInt32(x["AttributeId"]) + "-" + x["AttributeValueId"].ToString()
                                 })
 								.ToList();
 

@@ -39,7 +39,7 @@ namespace JewelryStore.Areas.Api.Controllers
 
             return Ok(CommonViewModel);
         }
-
+        
         [HttpGet("[Action]")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -70,9 +70,69 @@ namespace JewelryStore.Areas.Api.Controllers
 
             return Ok(CommonViewModel);
         }
+        [HttpGet("[Action]")]
+        public async Task<IActionResult> GetCategory_Dropdown()
+        {
+            try
+            {
+                var data = await _repository.GetCategory_Dropdown();
+
+                if (data != null)
+                {
+                    CommonViewModel.IsSuccess = true;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Success;
+                    CommonViewModel.Message = "Data retrieved successfully";
+                    CommonViewModel.Data = data;
+                }
+                else
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.NotFound;
+                    CommonViewModel.Message = "Product not found";
+                }
+            }
+            catch (Exception ex)
+            {
+                CommonViewModel.IsSuccess = false;
+                CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                CommonViewModel.Message = ex.Message;
+            }
+
+            return Ok(CommonViewModel);
+        }
+        [HttpGet("[Action]")]
+        public async Task<IActionResult> GetAttributeValues()
+        {
+            try
+            {
+                var data = await _repository.GetAttributeValues();
+
+                if (data != null)
+                {
+                    CommonViewModel.IsSuccess = true;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Success;
+                    CommonViewModel.Message = "Data retrieved successfully";
+                    CommonViewModel.Data = data;
+                }
+                else
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.NotFound;
+                    CommonViewModel.Message = "Product not found";
+                }
+            }
+            catch (Exception ex)
+            {
+                CommonViewModel.IsSuccess = false;
+                CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                CommonViewModel.Message = ex.Message;
+            }
+
+            return Ok(CommonViewModel);
+        }
 
         [HttpPost("[Action]")]
-        public async Task<IActionResult> Save(Product product)
+        public async Task<IActionResult> Save([FromForm]Product product)
         {
             try
             {

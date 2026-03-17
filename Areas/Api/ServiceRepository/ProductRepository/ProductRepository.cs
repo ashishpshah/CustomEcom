@@ -1,7 +1,9 @@
 ﻿using Azure.Core;
 using JewelryStore.Areas.Admin.Models;
+using JewelryStore.Areas.Api.DTO;
 using JewelryStore.Infra;
 using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using System.Text.RegularExpressions;
 
@@ -86,10 +88,10 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
                     {
                         Id = Convert.ToInt32(dr["Id"]),
                         ProductName = dr["ProductName"]?.ToString(),
-                        CategoryId = dr["CategoryId"] != DBNull.Value ? Convert.ToInt32(dr["CategoryId"]) : 0,
+                        CategoryId = Convert.ToInt32(dr["CategoryId"]),
                         CategoryName = dr["CategoryName"]?.ToString(),
                         Price =     Convert.ToDecimal(dr["Price"]),
-                        ImagePath = dr["ImagePath"]?.ToString(),
+                        //ImagePath = dr["ImagePath"]?.ToString(),
                         IsActive = Convert.ToBoolean(dr["IsActive"]),
                         ProductVariantMapping = new List<ProductVariantMapping>()
                     };
@@ -119,15 +121,15 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
                         foreach (DataRow row in dt.Rows)
                         {
                             var details = dtDetails.AsEnumerable()
-                                .Where(x => Convert.ToInt32(dr["VariantId"]) == Convert.ToInt32(row["Id"]))
+                                .Where(x => Convert.ToInt32(x["VariantId"]) == Convert.ToInt32(row["Id"]))
                                 .Select(x => new ProductVariantDetails()
                                 {
-                                    Id = Convert.ToInt32(row["Id"]),
-                                    VariantId = Convert.ToInt32(row["VariantId"]),
-                                    AttributeId = Convert.ToInt32(row["AttributeId"]),
-                                    AttributeName = row["AttributeName"].ToString(),
-                                    AttributeValueId = Convert.ToInt32(row["AttributeValueId"]),
-                                    AttributeValueName = Convert.ToInt32(row["AttributeValueId"]) + "-" + row["AttributeValue"].ToString()
+                                    Id = Convert.ToInt32(x["Id"]),
+                                    VariantId = Convert.ToInt32(x["VariantId"]),
+                                    AttributeId = Convert.ToInt32(x["AttributeId"]),
+                                    AttributeName = x["AttributeName"].ToString(),
+                                    AttributeValueId = Convert.ToInt32(x["AttributeValueId"]),
+                                    AttributeValueName = Convert.ToInt32(x["AttributeId"]) + "-" + x["AttributeValueId"].ToString()
                                 })
                                 .ToList();
 
@@ -150,20 +152,122 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
             }
         }
 
+
+
+        public async Task<List<DropdownModel?>> GetCategory_Dropdown()
+        {
+            try
+            {
+                List<DropdownModel?> obj = new List<DropdownModel?>();
+
+                var oParams = new List<SqlParameter>()
+                {
+                    new SqlParameter("@Id", -1)
+                };
+
+                DataSet ds = DataContext.ExecuteStoredProcedure_DataSet("SP_Category_Get", oParams);
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    
+
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        obj.Add(new DropdownModel()
+                        {
+                            Value = row["Id"].ToString(),
+                            Text = (string.IsNullOrEmpty(row["ParentCategoryName"].ToString()) ? row["CategoryName"].ToString() : row["CategoryName"].ToString() + " - " + row["ParentCategoryName"].ToString()),
+                            Value2 = row["ParentCategoryId"].ToString(),
+                            Group = "CAT"
+                        });
+                    };
+
+                  
+                }
+
+                return await Task.FromResult(obj);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task<List<DropdownModel?>> GetAttributeValues()
+        {
+            try
+            {
+                List<DropdownModel?> obj = new List<DropdownModel?>();
+
+                var oParams = new List<SqlParameter>()
+                {
+                    new SqlParameter("@Id", -2)
+                };
+
+                DataSet ds = DataContext.ExecuteStoredProcedure_DataSet("SP_Attribute_Get", oParams);
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+
+
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        obj.Add(new DropdownModel()
+                        {
+                            Value = row["Value"].ToString(),
+                            Text = row["Text"].ToString(),
+                            Group = "ATTR"
+                        });
+                    };
+
+
+                }
+
+                return await Task.FromResult(obj);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public async Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> SaveProduct(Product product)
         {
             try
             {
+                string uploadFolder = Path.Combine(AppHttpContextAccessor.WebRootPath, "Uploads", "Product");
                 List<string> productImages = new();
-
-                if (product.ProductImages != null)
+                if (product.ProductImages != null && product.ProductImages.Count > 0)
                 {
                     bool isFirst = true;
 
-                    foreach (var img in product.ProductImages)
+                    foreach (var file in product.ProductImages)
                     {
-                        productImages.Add($"{img.Id}|{img.ImagePath}|{(isFirst ? 1 : 0)}|{(img.IsRemove ? 1 : 0)}");
+                        //string imagePath = imageModel.ImagePath;
+                        
+                        var match = Regex.Match(file.ImageFile.Name, @"\[(\d+)\]");
+                        int index = int.Parse(match.Groups[1].Value);
+
+                        ProductImages imageModel = new ProductImages();
+
+                        if (product.ProductImages?.Count > index && product.ProductImages[index] != null)
+                            imageModel = product.ProductImages[index];
+
+                        //string imagePath = await FileUploadService.UploadImageAsync(imageModel.ImageFile, uploadFolder);
+                        string imagePath = null;
+                        if (imageModel.ImageFile != null)
+                        {
+                            imagePath = await FileUploadService.UploadImageAsync(imageModel.ImageFile, uploadFolder);
+                        }
+
+                        productImages.Add($"{imageModel.Id}|{imagePath}|{(isFirst ? 1 : 0)}|{(imageModel.IsRemove ? 1 : 0)}");
+
                         isFirst = false;
+                    }
+                }
+                if (product.ProductImages != null)
+                {
+                    foreach (var img in product.ProductImages.Where(x => x.Id > 0 && !productImages.Any(z => z.StartsWith(x.Id.ToString()))))
+                    {
+                        productImages.Add($"{img.Id}|-|{(img.IsPrimary ? 1 : 0)}|{(img.IsRemove ? 1 : 0)}");
                     }
                 }
 
@@ -173,7 +277,15 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
                 {
                     for (int i = 0; i < product.ProductVariantMapping.Count; i++)
                     {
-                        var variantImage = "-";                       
+                        var variantImage = "-";
+
+                        if (product.ProductVariantMapping[i].ImageFile != null)
+                        {
+                            var file = product.ProductVariantMapping[i].ImageFile;
+                            var match = Regex.Match(file.Name, @"\[(\d+)\]");
+                            int index = int.Parse(match.Groups[1].Value);
+                            variantImage = await FileUploadService.UploadImageAsync(file, uploadFolder);
+                        }
 
                         productVariant.Add($"{product.ProductVariantMapping[i].Id}|{string.Join("=", product.ProductVariantMapping[i].ProductVariantDetails.Select(x => x.AttributeValueName).ToArray())}|" +
                                             $"{product.ProductVariantMapping[i].Price}|{product.ProductVariantMapping[i].SKU}|{variantImage}");
@@ -187,9 +299,10 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
                     new SqlParameter("CategoryId", product.CategoryId),
                     new SqlParameter("ProductName", product.ProductName),
                     new SqlParameter("ProductDescription", product.ProductDescription),
-                    new SqlParameter("SKU", product.SKU),
+                    //new SqlParameter("SKU", product.SKU),
                     new SqlParameter("Price", product.Price),
                     new SqlParameter("ProductImages", imagesString),
+                    new SqlParameter("ProductVariants", variantString),
                     new SqlParameter("IsActive", product.IsActive ? 1 : 0),
                     new SqlParameter("Mode", "SAVE"),
                     new SqlParameter("OperatedBy", 1)

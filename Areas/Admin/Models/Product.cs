@@ -20,21 +20,22 @@
 		public string ImagePath { get; set; }
 		public bool IsPrimary { get; set; }
 		public bool IsRemove { get; set; }
-	}
+        public IFormFile? ImageFile { get; set; }
+    }
 
 	public class ProductVariantMapping : EntitiesBase
 	{
 		public int? ProductId { get; set; }
-		public string SKU { get; set; }
+		public string? SKU { get; set; }
 		public decimal? Price { get; set; }
 		public int? StockQuantity { get; set; }
 		public string ImagePath { get; set; }
+        public IFormFile? ImageFile { get; set; }
+        public string? VariantAttributes { get; set; }
+		public int? AvailableStock { get; set; }
+		public int? ReservedStock { get; set; }
 
-		public string VariantAttributes { get; set; }
-		public int AvailableStock { get; set; }
-		public int ReservedStock { get; set; }
-
-		public int TotalStock { get; set; }
+		public int? TotalStock { get; set; }
 
 		public List<ProductVariantDetails> ProductVariantDetails { get; set; }
 	}
