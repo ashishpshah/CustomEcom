@@ -30,7 +30,7 @@ namespace JewelryStore
                 {
                     builder.AllowAnyMethod()
                           .AllowAnyHeader()
-                          .WithOrigins("http://localhost:5174");
+                          .WithOrigins("http://localhost:5173");
                 });
             });
 
