@@ -258,16 +258,12 @@ namespace JewelryStore.Areas.Admin.Controllers
 
 			var ds = DataContext.ExecuteStoredProcedure_DataSet("SP_ProductStock_Get", oParams);
 
-			if (ds != null && ds.Tables.Count > 0 && ProductId <= 0)
+			if (ds != null && ds.Tables[0].Rows.Count > 0)
 			{
-				if (ds.Tables[0].Rows.Count > 0)
-				{
-					TotalRecords = GetValue<int>(ds.Tables[0].Rows[0], "TotalRecords");
-					FilteredRecords = GetValue<int>(ds.Tables[0].Rows[0], "FilteredRecords");
-				}
+				
 
-				if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
-					foreach (DataRow dr in ds.Tables[1].Rows)
+				if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+					foreach (DataRow dr in ds.Tables[0].Rows)
 						result.Add(new ProductStock()
 						{
 							Id = GetValue<int>(dr, "Id"),

@@ -172,7 +172,7 @@
 		function fnViewStockHistory(productId, variantId,) {
 
 			$.get("@Url.Action("GetStockHistory", "ProductStock", new { area = "Admin" })", { ProductId: productId, VariantId: variantId }, function (res) {
-
+				debugger;
 				var product = res.product;
 				var history = res.history;
 
@@ -188,25 +188,25 @@
 							<div class="mb-3 p-3 border rounded bg-light">
 
 								<h5 class="mb-1">
-									${product.ProductName}
+									${product[0].ProductName}
 								</h5>
 
 								<div class="text-muted">
-									SKU : ${product.SKU}
+									SKU : ${product[0].SKU}
 								</div>
 
 								<div class="mt-2">
 
 									<span class="badge badge-success mr-2">
-										Available : ${product.AvailableStock}
+										Available : ${product[0].AvailableStock}
 									</span>
 
 									<span class="badge badge-warning mr-2">
-										Reserved : ${product.ReservedStock}
+										Reserved : ${product[0].ReservedStock}
 									</span>
 
 									<span class="badge badge-primary">
-										Total : ${product.TotalStock}
+										Total : ${product[0].TotalStock}
 									</span>
 
 								</div>
