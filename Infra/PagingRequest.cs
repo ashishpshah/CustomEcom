@@ -8,4 +8,11 @@
         public int SortColumnIndex { get; set; } = 0;
         public string SortDirection { get; set; } = "DESC";
     }
+    public class JsonParameters
+    {
+       
+        public int ProductId { get; set; } = 0;
+        public int VariantId { get; set; } = 10;
+       
+    }
 }
