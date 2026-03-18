@@ -311,7 +311,7 @@ namespace JewelryStore.Infra
 				return (false, ResponseStatusMessage.Error, 0, "0");
 		}
 
-		public static string ExecuteStoredProcedure(string sp, SqlParameter[] spCol)
+		public static string ExecuteStoredProcedure(string sp, List<SqlParameter> parameters)
 		{
 			try
 			{
@@ -325,8 +325,8 @@ namespace JewelryStore.Infra
 
 						returnParameter.Direction = ParameterDirection.Output;
 
-						if (spCol != null && spCol.Length > 0)
-							cmd.Parameters.AddRange(spCol);
+						if (parameters != null && parameters.Count() > 0)
+							cmd.Parameters.AddRange(parameters.ToArray());
 
 
 						cmd.Parameters.Add(returnParameter);
