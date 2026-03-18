@@ -1,0 +1,190 @@
+﻿@model List<HomePageComponent>
+
+@{
+	ViewData["Title"] = "Home Page Component";
+	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+	<div class="container-fluid">
+		<div class="row mb-2">
+			<div class="col-sm-6">
+				<h1 class="m-0 font-weight-bold">Home Page Component</h1>
+			</div>
+		</div>
+	</div>
+</div>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row no-gutters divformSave_Display d-none" style="margin: 5px !important;">
+			<div class="col-12">
+				<form id="formSave" asp-area="Admin" asp-controller="HomePage" asp-action="Save" method="post" class="form-horizontal" enctype="multipart/form-data">
+					<div class="row no-gutters" id="divformSave"></div>
+					<div class="clearfix"></div>
+					<hr />
+				</form>
+			</div>
+		</div>
+		<div class="row divformSave_Hide">
+			<div class="col-12">
+				<div class="card card-primary card-outline">
+
+					<div class="card-body">
+						<div class="row no-gooters">
+							<div class="col-md-12 my-1">
+								<table class="table table-bordered table-striped w-100">
+									<thead>
+										<tr>
+											<th class="text-center" style="width: 5%;">No.</th>
+											<th>Name</th>
+											<th>Key</th>
+											<th>Type</th>
+											<th>Status</th>
+											<th class="text-center" style="width: 5%;">Action</th>
+										</tr>
+									</thead>
+									@if (Model != null)
+									{
+										for (int i = 0; i < Model.Count; i++)
+										{
+											<tr>
+												<td class="text-center">@(i + 1)</td>
+												<td>@Model[i].Name</td>
+												<td>@Model[i].Key</td>
+												<td>@Model[i].Type</td>
+												<td text-center">
+													@if (Model[i].IsActive)
+													{
+														<span class="badge badge-success">Active</span>
+													}
+													else
+													{
+														<span class="badge badge-danger">Inactive</span>
+													}
+												</td>
+												<td class="text-center">
+													<div class="btn-group">
+														<button type="button" class="btn btn-info btn-sm btn-flat" data-toggle="tooltip" data-placement="top" title="Edit" onclick="fnLoadParialView('divformSave', '@Url.Action("Partial_AddEditForm", "HomePage", new { area = "Admin" })?Id=@Model[i].Id')"><i class="far fa-edit"></i></button>
+													</div>
+												</td>
+											</tr>
+										}
+									}
+								</table>
+							</div>
+
+							<div class="clearfix"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+
+
+@section Scripts
+{
+	<script type="text/javascript">
+
+		function addComponentItem(data = null) {
+
+			var index = $("#ComponentItemTable tbody tr").length;
+
+			var row = `
+			<tr>
+
+				<td>
+					<input type="hidden" name="Items[${index}].Id" value="${data?.Id || 0}" />
+					<input type="text" name="Items[${index}].Title" class="form-control form-control-sm" value="${data?.Title || ''}" />
+				</td>
+
+				<td>
+					<input type="text" name="Items[${index}].Subtitle" class="form-control form-control-sm" value="${data?.Subtitle || ''}" />
+				</td>
+
+				<td>
+					<div id="Items" class="upload-box">
+
+						<input type="file" class="imageInput" name="Items[${index}].Image" hidden accept="image/*">
+						<input type="hidden" value="" class="setImagePreview">
+
+						<div class="upload-area">
+
+							<div class="upload-placeholder">
+								<h5>Drag & Drop Image</h5>
+								<p>or Click to Select</p>
+								<small>Max size: 2MB</small>
+							</div>
+
+							<img class="previewImage img-fluid rounded d-none">
+							<div class="image-actions d-none">
+								<button type="button" class="btn btn-sm btn-primary changeImage"> Change </button>
+							</div>
+
+						</div>
+
+					</div>
+				</td>
+
+				<td>
+					<input type="number" name="Items[${index}].DisplayOrder" class="form-control form-control-sm" value="${data?.DisplayOrder || index + 1}" />
+				</td>
+
+				<td class="text-center">
+					<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0">
+												<input type="checkbox" class="custom-control-input"
+													   id="switch_Status_${index}" name="Items[${index}].IsActive" checked )
+													   onchange="fnChange_Switch(this, 'label_Switch_Status_${index}')">
+												<label class="custom-control-label" for="switch_Status_${index}" id="label_Switch_Status_${index}" data-true="Active" data-false="Inactive"> Active </label>
+											</div>
+				</td>
+
+				<td class="text-center">
+					<button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button>
+				</td>
+
+			</tr>`;
+
+			$("#ComponentItemTable tbody").prepend(row);
+		}
+
+		function removeRow(btn) {
+			$(btn).closest("tr").remove();
+			reIndexTable();
+		}
+
+		function reIndexTable() {
+
+			$("#ComponentItemTable tbody tr").each(function (i, row) {
+
+				$(row).find("input, select").each(function () {
+
+					var name = $(this).attr("name");
+					if (!name) return;
+
+					var newName = name.replace(/Items\[\d+\]/, `Items[${i}]`);
+					$(this).attr("name", newName);
+
+				});
+
+			});
+		}
+
+
+		function fnChange_Select($id) {
+
+			var selectedValue = $('#select' + $id).val();
+
+			if (typeof selectedValue != 'undefined' && selectedValue != null && selectedValue != '' && selectedValue.length > 0)
+				$('#input' + $id).val(selectedValue.join(','));
+			else
+				$('#input' + $id).val('');
+
+			$('#input' + $id).trigger('change');
+		}
+
+	</script>
+}
