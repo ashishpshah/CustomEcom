@@ -8,5 +8,6 @@ namespace JewelryStore.Areas.Api.ServiceRepository.HomeRepository
     {
         Task<List<DropdownModel?>> GetCategory_SubCategory_Dropdown(int ParentId = 0);
         Task<LoginResult?> CustomerLogin(LoginRequest request);
+        Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> Register(Customer obj);
     }
 }

@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
+﻿using Azure.Core;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using JewelryStore.Areas.Admin.Models;
 using JewelryStore.Areas.Api.DTO;
 using JewelryStore.Areas.Api.ServiceRepository.HomeRepository;
@@ -89,6 +90,55 @@ namespace JewelryStore.Areas.Api.Controllers
                     CommonViewModel.StatusCode = ResponseStatusCode.NotFound;
                     CommonViewModel.Message = data?.Message ?? "Invalid Email or Mobile No";
                 }
+            }
+            catch (Exception ex)
+            {
+                CommonViewModel.IsSuccess = false;
+                CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                CommonViewModel.Message = ex.Message;
+            }
+
+            return Ok(CommonViewModel);
+        }
+        [HttpPost("[Action]")]
+        public async Task<IActionResult> Register([FromBody] Customer obj)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(obj.FirstName))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.Message = "Please enter First Name.";
+                    return Ok(CommonViewModel);
+                }
+                if (string.IsNullOrWhiteSpace(obj.LastName))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Please enter Last Name.";
+                    return Ok(CommonViewModel);
+                }
+                if (string.IsNullOrWhiteSpace(obj.Email) && string.IsNullOrWhiteSpace(obj.MobileNo))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Please enter Email or Mobile Number.";
+                    return Ok(CommonViewModel);
+                }
+                if (string.IsNullOrEmpty(obj.Password))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Password is required";
+
+                    return Ok(CommonViewModel);
+                }
+                var (IsSuccess, Message, Id, Extra) = await _repository.Register(obj);
+
+                CommonViewModel.IsSuccess = IsSuccess;
+                CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
+                CommonViewModel.Message = Message;
+                CommonViewModel.Data = Id;
             }
             catch (Exception ex)
             {
