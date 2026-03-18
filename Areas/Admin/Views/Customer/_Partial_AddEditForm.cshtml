@@ -117,7 +117,7 @@
 						{
 							foreach (var item in Model.SelectListItems.Where(x => x.Group == "GENDER"))
 							{
-								if (item.Value == Model.Obj.Gender.ToString())
+								if (item.Value == Model.Obj?.Gender?.ToString())
 								{
 									<option value="@item.Value" selected>@item.Text</option>
 								}

@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.VariantTypes;
 using JewelryStore.Areas.Admin.Models;
 using JewelryStore.Controllers;
@@ -128,7 +129,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 						dt = ds.Tables[2];
 						DataTable dtDetails = ds.Tables[3];
 
-						foreach (DataRow row in dt.Rows)
+						foreach (DataRow row in dt.AsEnumerable().Where(x => GetValue<int>(x, "ProductId") == id))
 						{
 							var details = dtDetails.AsEnumerable()
 								.Where(x => GetValue<int>(x, "VariantId") == GetValue<int>(row, "Id"))
