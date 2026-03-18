@@ -868,7 +868,7 @@ function fnSubmitForm($id) {
             if ((typeof input.value != 'undefined' && input.value != null && input.value.length > 0) && !input.hasAttribute('disabled') && !$(input).hasClass('temp'))
                 array.filter(function (obj) {
                     if (obj['name'] == $(input).attr('name')) {
-                        obj['value'] = $('#' + $(input).attr('name') + ' option:selected').val()
+                        obj['value'] = $('select[name="' + $(input).attr('name') + '"] option:selected').val()
                     }
                 })
         });

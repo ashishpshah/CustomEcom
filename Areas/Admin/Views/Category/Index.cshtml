@@ -122,9 +122,37 @@
 			});
 		}
 
-		function fnParialView_Loaded_Success($id, $isAlert){
-			// 
-			// initImageUploader();
+		$(document).on('blur', '#CategoryName', function () { generateSKU(); });
+
+		$(document).on('change', '#ParentCategoryId', function () { generateSKU(); });
+
+		function generateSKU() {
+			debugger;
+			var categoryId = $('input[name="Id"]').val().trim();
+			var categoryName = $('input[name="CategoryName"]').val().trim();
+			var parentCategoryId = $('select[name="ParentCategoryId"]').val();
+
+			if (!categoryName || categoryName.length < 2) {
+				$('input[name="SKU"]').val('');
+				return;
+			}
+
+			$.ajax({
+				url: '@Url.Action("GenerateSKU", "Category", new { area = "Admin" })',
+				type: 'POST',
+				data: {
+					categoryId: categoryId,
+					categoryName: categoryName,
+					parentCategoryId: parentCategoryId || null
+				},
+				success: function (response) {
+					$('input[name="SKU"]').val(response?.sku || '');
+				},
+				error: function () {
+					console.log('SKU generation failed');
+					$('input[name="SKU"]').val('');
+				}
+			});
 		}
 
 	</script>

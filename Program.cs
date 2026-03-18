@@ -30,10 +30,11 @@ namespace JewelryStore
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", builder =>
-                {
-                    builder.AllowAnyMethod()
-                          .AllowAnyHeader()
-                          .WithOrigins("http://localhost:5173");
+				{
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+
                 });
             });
 
