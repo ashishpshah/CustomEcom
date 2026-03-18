@@ -15,9 +15,9 @@ namespace JewelryStore.Areas.Api.ServiceRepository.HomeRepository
                 List<DropdownModel?> obj = new List<DropdownModel?>();
 
                 var oParams = new List<SqlParameter>()
-        {
-            new SqlParameter("@ParentId", ParentId)
-        };
+                {
+                    new SqlParameter("@ParentId", ParentId)
+                };
 
                 DataTable dt = DataContext.ExecuteStoredProcedure_DataTable("SP_DD_Category_Get", oParams);
 
@@ -39,6 +39,47 @@ namespace JewelryStore.Areas.Api.ServiceRepository.HomeRepository
                 }
 
                 return await Task.FromResult(obj);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task<LoginResult> CustomerLogin(LoginRequest request)
+        {
+            try
+            {
+                LoginResult result = new LoginResult();
+                var Password = Common.Encrypt(request.Password);
+                var oParams = new List<SqlParameter>()
+                {
+                    new SqlParameter("@Username", request.Username),
+                    new SqlParameter("@Password", Password)
+                };
+
+                DataTable dt = DataContext.ExecuteStoredProcedure_DataTable("SP_CustomerLogin", oParams);
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    var row = dt.Rows[0];
+
+                    result.Status = Convert.ToInt32(row["Status"]);
+                    result.Message = row["Message"].ToString();
+
+                    if (result.Status == 1)
+                    {
+                        var dict = new Dictionary<string, object>();
+
+                        foreach (DataColumn col in row.Table.Columns)
+                        {
+                            dict[col.ColumnName] = row[col];
+                        }
+
+                        result.Data = dict;
+                    }
+                }
+
+                return await Task.FromResult(result);
             }
             catch (Exception ex)
             {
