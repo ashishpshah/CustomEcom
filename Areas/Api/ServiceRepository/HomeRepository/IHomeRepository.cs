@@ -6,6 +6,7 @@ namespace JewelryStore.Areas.Api.ServiceRepository.HomeRepository
 {
     public interface IHomeRepository
     {
+        Task<object> GetHomePageComponent();
         Task<List<DropdownModel?>> GetCategory_SubCategory_Dropdown(int ParentId = 0);
         Task<List<CustomerCart?>> ShoppingCartList_Get(int CustomerId = 0);
         Task<LoginResult?> CustomerLogin(LoginRequest request);

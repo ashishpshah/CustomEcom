@@ -8,144 +8,145 @@ using JewelryStore.Infra;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol.Core.Types;
+using System.Data;
 
 namespace JewelryStore.Areas.Api.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+	[Route("api/[controller]")]
+	[ApiController]
 
-    
-    public class HomeController : ControllerBase
-    {
-        private readonly IHomeRepository _repository;
-        private readonly ApiResponseModel CommonViewModel = new();
-        public HomeController(IHomeRepository repository)
-        {
-            _repository = repository;
-        }
 
-        [HttpGet("[Action]")]
-        public async Task<IActionResult> GetDropdown(int ParentId = 0)
-        {
-            try
-            {
-                var data = await _repository.GetCategory_SubCategory_Dropdown(ParentId);
-                var Password = Common.Encrypt("12345");
-                if (data != null)
-                {
-                    CommonViewModel.IsSuccess = true;
-                    CommonViewModel.StatusCode = ResponseStatusCode.Success;
-                    CommonViewModel.Message = "Data retrieved successfully";
-                    CommonViewModel.Data = data;
-                }
-                else
-                {
-                    CommonViewModel.IsSuccess = false;
-                    CommonViewModel.StatusCode = ResponseStatusCode.NotFound;
-                    CommonViewModel.Message = "Category not found";
-                }
-            }
-            catch (Exception ex)
-            {
-                CommonViewModel.IsSuccess = false;
-                CommonViewModel.StatusCode = ResponseStatusCode.Error;
-                CommonViewModel.Message = ex.Message;
-            }
+	public class HomeController : ControllerBase
+	{
+		private readonly IHomeRepository _repository;
+		private readonly ApiResponseModel CommonViewModel = new();
+		public HomeController(IHomeRepository repository)
+		{
+			_repository = repository;
+		}
 
-            return Ok(CommonViewModel);
-        }
-        [HttpPost("[Action]")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(request.Username))
-                {
-                    CommonViewModel.IsSuccess = false;
-                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
-                    CommonViewModel.Message = "User Name is required";
+		[HttpGet("[Action]")]
+		public async Task<IActionResult> GetDropdown(int ParentId = 0)
+		{
+			try
+			{
+				var data = await _repository.GetCategory_SubCategory_Dropdown(ParentId);
+				var Password = Common.Encrypt("12345");
+				if (data != null)
+				{
+					CommonViewModel.IsSuccess = true;
+					CommonViewModel.StatusCode = ResponseStatusCode.Success;
+					CommonViewModel.Message = "Data retrieved successfully";
+					CommonViewModel.Data = data;
+				}
+				else
+				{
+					CommonViewModel.IsSuccess = false;
+					CommonViewModel.StatusCode = ResponseStatusCode.NotFound;
+					CommonViewModel.Message = "Category not found";
+				}
+			}
+			catch (Exception ex)
+			{
+				CommonViewModel.IsSuccess = false;
+				CommonViewModel.StatusCode = ResponseStatusCode.Error;
+				CommonViewModel.Message = ex.Message;
+			}
 
-                    return Ok(CommonViewModel);
-                }
-                if (string.IsNullOrEmpty(request.Password))
-                {
-                    CommonViewModel.IsSuccess = false;
-                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
-                    CommonViewModel.Message = "Password is required";
+			return Ok(CommonViewModel);
+		}
+		[HttpPost("[Action]")]
+		public async Task<IActionResult> Login([FromBody] LoginRequest request)
+		{
+			try
+			{
+				if (string.IsNullOrEmpty(request.Username))
+				{
+					CommonViewModel.IsSuccess = false;
+					CommonViewModel.StatusCode = ResponseStatusCode.Error;
+					CommonViewModel.Message = "User Name is required";
 
-                    return Ok(CommonViewModel);
-                }
-                var data = await _repository.CustomerLogin(request);
+					return Ok(CommonViewModel);
+				}
+				if (string.IsNullOrEmpty(request.Password))
+				{
+					CommonViewModel.IsSuccess = false;
+					CommonViewModel.StatusCode = ResponseStatusCode.Error;
+					CommonViewModel.Message = "Password is required";
 
-                if (data != null && data.Status == 1)
-                {
-                    CommonViewModel.IsSuccess = true;
-                    CommonViewModel.StatusCode = ResponseStatusCode.Success;
-                    CommonViewModel.Message = data.Message;
-                    CommonViewModel.Data = data.Data;
-                }
-                else
-                {
-                    CommonViewModel.IsSuccess = false;
-                    CommonViewModel.StatusCode = ResponseStatusCode.NotFound;
-                    CommonViewModel.Message = data?.Message ?? "Invalid Email or Mobile No";
-                }
-            }
-            catch (Exception ex)
-            {
-                CommonViewModel.IsSuccess = false;
-                CommonViewModel.StatusCode = ResponseStatusCode.Error;
-                CommonViewModel.Message = ex.Message;
-            }
+					return Ok(CommonViewModel);
+				}
+				var data = await _repository.CustomerLogin(request);
 
-            return Ok(CommonViewModel);
-        }
-        [HttpPost("[Action]")]
-        public async Task<IActionResult> Register([FromBody] Customer obj)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(obj.FirstName))
-                {
-                    CommonViewModel.IsSuccess = false;
-                    CommonViewModel.Message = "Please enter First Name.";
-                    return Ok(CommonViewModel);
-                }
-                if (string.IsNullOrWhiteSpace(obj.LastName))
-                {
-                    CommonViewModel.IsSuccess = false;
-                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
-                    CommonViewModel.Message = "Please enter Last Name.";
-                    return Ok(CommonViewModel);
-                }
-                if (string.IsNullOrWhiteSpace(obj.Email) && string.IsNullOrWhiteSpace(obj.MobileNo))
-                {
-                    CommonViewModel.IsSuccess = false;
-                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
-                    CommonViewModel.Message = "Please enter Email or Mobile Number.";
-                    return Ok(CommonViewModel);
-                }
-                if (string.IsNullOrEmpty(obj.Password))
-                {
-                    CommonViewModel.IsSuccess = false;
-                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
-                    CommonViewModel.Message = "Password is required";
+				if (data != null && data.Status == 1)
+				{
+					CommonViewModel.IsSuccess = true;
+					CommonViewModel.StatusCode = ResponseStatusCode.Success;
+					CommonViewModel.Message = data.Message;
+					CommonViewModel.Data = data.Data;
+				}
+				else
+				{
+					CommonViewModel.IsSuccess = false;
+					CommonViewModel.StatusCode = ResponseStatusCode.NotFound;
+					CommonViewModel.Message = data?.Message ?? "Invalid Email or Mobile No";
+				}
+			}
+			catch (Exception ex)
+			{
+				CommonViewModel.IsSuccess = false;
+				CommonViewModel.StatusCode = ResponseStatusCode.Error;
+				CommonViewModel.Message = ex.Message;
+			}
 
-                    return Ok(CommonViewModel);
-                }
-                var (IsSuccess, Message, Id, Extra) = await _repository.Register(obj);
+			return Ok(CommonViewModel);
+		}
+		[HttpPost("[Action]")]
+		public async Task<IActionResult> Register([FromBody] Customer obj)
+		{
+			try
+			{
+				if (string.IsNullOrWhiteSpace(obj.FirstName))
+				{
+					CommonViewModel.IsSuccess = false;
+					CommonViewModel.Message = "Please enter First Name.";
+					return Ok(CommonViewModel);
+				}
+				if (string.IsNullOrWhiteSpace(obj.LastName))
+				{
+					CommonViewModel.IsSuccess = false;
+					CommonViewModel.StatusCode = ResponseStatusCode.Error;
+					CommonViewModel.Message = "Please enter Last Name.";
+					return Ok(CommonViewModel);
+				}
+				if (string.IsNullOrWhiteSpace(obj.Email) && string.IsNullOrWhiteSpace(obj.MobileNo))
+				{
+					CommonViewModel.IsSuccess = false;
+					CommonViewModel.StatusCode = ResponseStatusCode.Error;
+					CommonViewModel.Message = "Please enter Email or Mobile Number.";
+					return Ok(CommonViewModel);
+				}
+				if (string.IsNullOrEmpty(obj.Password))
+				{
+					CommonViewModel.IsSuccess = false;
+					CommonViewModel.StatusCode = ResponseStatusCode.Error;
+					CommonViewModel.Message = "Password is required";
 
-                CommonViewModel.IsSuccess = IsSuccess;
-                CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
-                CommonViewModel.Message = Message;
-                CommonViewModel.Data = Id;
-            }
-            catch (Exception ex)
-            {
-                CommonViewModel.IsSuccess = false;
-                CommonViewModel.StatusCode = ResponseStatusCode.Error;
-                CommonViewModel.Message = ex.Message;
-            }
+					return Ok(CommonViewModel);
+				}
+				var (IsSuccess, Message, Id, Extra) = await _repository.Register(obj);
+
+				CommonViewModel.IsSuccess = IsSuccess;
+				CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
+				CommonViewModel.Message = Message;
+				CommonViewModel.Data = Id;
+			}
+			catch (Exception ex)
+			{
+				CommonViewModel.IsSuccess = false;
+				CommonViewModel.StatusCode = ResponseStatusCode.Error;
+				CommonViewModel.Message = ex.Message;
+			}
 
             return Ok(CommonViewModel);
         }
@@ -179,5 +180,30 @@ namespace JewelryStore.Areas.Api.Controllers
 
             return Ok(CommonViewModel);
         }
+        [HttpPost("[Action]")]
+        public async Task<IActionResult> GetHomeComponent()
+        {
+            try
+            {
+                var data = await _repository.GetHomePageComponent();
+
+                CommonViewModel.IsSuccess = true;
+                CommonViewModel.StatusCode = ResponseStatusCode.Success;
+                CommonViewModel.Message = "Data retrieved successfully";
+                CommonViewModel.Data = data;
+            }
+            catch (Exception ex)
+            {
+                CommonViewModel.IsSuccess = false;
+                CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                CommonViewModel.Message = ex.Message;
+            }
+
+            return Ok(CommonViewModel);
+        }
     }
+			
+
+		
+	
 }

@@ -1,0 +1,203 @@
+﻿@model ResponseModel<HomePageComponent>
+@{
+	Layout = null;
+	var IndexPageUrl = "/" + ViewContext.RouteData.Values["Area"].ToString() + "/" + ViewContext.RouteData.Values["Controller"].ToString() + "/Index";
+}
+
+<div class="col-12">
+	<div class="card card-primary card-outline mb-0">
+		<div class="card-header">
+			<h3 class="card-title">@(Model.Obj.Id > 0 ? "Edit " : "Create") Home Page Component</h3>
+			<input type="text" class="form-control d-none" id="Id" name="Id" value="@(Model.Obj != null && Model.Obj.Id > 0 ? Model.Obj.Id.ToString() : "")">
+
+			<div class="card-tools">
+				<button type="button" class="btn btn-primary btn-sm" title="Back To List" onclick="fnBackToList('@IndexPageUrl')">
+					<i class="fas fa-arrow-left"></i> Back To List
+				</button>
+			</div>
+		</div>
+
+		<div class="card-body">
+			<div class="form-group row">
+
+				<label class="col-sm-1 col-form-label text-right">Name<span style="color:red">*</span></label>
+				<div class="col-sm-2">
+					<input type="text" class="form-control form-control-sm" id="Name" name="Name" value="@Model.Obj.Name" maxlength="80"
+						   data-required data-msg="The Name field is required." autocomplete="off" readonly="@(Model.Obj != null && Model.Obj.Id > 0 ? "readonly" : "")" />
+				</div>
+
+				<label class="col-sm-1 col-form-label text-right">Key<span style="color:red">*</span></label>
+				<div class="col-sm-2">
+					<input type="text" class="form-control form-control-sm" name="Key" value="@Model.Obj.Key"
+						   data-required data-msg="The Key field is required." autocomplete="off" readonly="@(Model.Obj != null && Model.Obj.Id > 0 ? "readonly" : "")" />
+				</div>
+
+				<label class="col-sm-1 col-form-label text-right">Type<span style="color:red">*</span></label>
+				<div class="col-sm-2">
+					<input type="text" class="form-control form-control-sm" name="Type" value="@Model.Obj.Type"
+						   data-required data-msg="The Type field is required." autocomplete="off" readonly="@(Model.Obj != null && Model.Obj.Id > 0 ? "readonly" : "")" />
+				</div>
+
+				<label class="col-sm-1 col-form-label text-right">Status </label>
+				<div class="col-sm-2">
+					<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0">
+						<input type="checkbox" class="custom-control-input"
+							   id="switch_Status" name="IsActive" @(Model.Obj == null || Model.Obj.IsActive == true || Model.Obj.Id == 0 ? "checked" : "")
+							   onchange="fnChange_Switch(this, 'label_Switch_Status')">
+						<label class="custom-control-label" for="switch_Status" id="label_Switch_Status" data-true="Active" data-false="Inactive">@((Model.Obj != null && Model.Obj.IsActive == true) || Model.Obj == null || Model.Obj.Id == 0 ? "Active" : "Inactive")</label>
+					</div>
+				</div>
+			</div>
+
+			@if (Model.Obj.Type == "Category")
+			{
+				List<string> selectedValue = Model.Obj.Items?[0]?.RefId?.Split(',').ToList();
+
+				<div class="form-group row">
+					<label class="col-sm-1 col-form-label text-right">Select Category</label>
+					<div class="col-sm-8 d-flex flex-wrap">
+						<select multiple id="selectRefId" class="form-control form-control-sm select2 w-100" onchange="fnChange_Select('RefId')">
+							@if (Model.SelectListItems != null)
+							{
+								foreach (var item in Model.SelectListItems.Where(x => x.Group == "CAT"))
+								{
+									if (selectedValue != null && selectedValue.Any(x => x == item.Value))
+									{
+										<option value="@item.Value" selected>@item.Text</option>
+									}
+									else
+									{
+										<option value="@item.Value">@item.Text</option>
+									}
+								}
+							}
+						</select>
+
+						<input type="text" id="ItemId" name="ItemId" value="@Model.Obj.Items?[0]?.Id" class="d-none" />
+						<input type="text" id="inputRefId" name="RefId" value="@Model.Obj.Items?[0]?.RefId" class="d-none" />
+					</div>
+				</div>
+
+			}
+
+			@if (Model.Obj.Type == "Product")
+			{
+				List<string> selectedValue = Model.Obj.Items?[0]?.RefId?.Split(',').ToList();
+
+				<div class="form-group row">
+					<label class="col-sm-1 col-form-label text-right">Select Product</label>
+					<div class="col-sm-8 d-flex flex-wrap">
+						<select multiple id="selectRefId" class="form-control form-control-sm select2 w-100" onchange="fnChange_Select('RefId')">
+							@if (Model.SelectListItems != null)
+							{
+								foreach (var item in Model.SelectListItems.Where(x => x.Group == "PROD"))
+								{
+									if (selectedValue != null && selectedValue.Any(x => x == item.Value))
+									{
+										<option value="@item.Value" selected>@item.Text</option>
+									}
+									else
+									{
+										<option value="@item.Value">@item.Text</option>
+									}
+								}
+							}
+						</select>
+
+						<input type="text" id="ItemId" name="ItemId" value="@Model.Obj.Items?[0]?.Id" class="d-none" />
+						<input type="text" id="inputRefId" name="RefId" value="@Model.Obj.Items?[0]?.RefId" class="d-none" />
+					</div>
+				</div>
+
+			}
+			@if (Model.Obj.Type == "Banner")
+			{
+				<br />
+				<div class="form-group row">
+					<div class="col-sm-12">
+						<div class="row mb-3">
+
+							<div class="col-md-12 d-flex justify-content-between">
+								<button type="button" class="btn btn-primary btn-sm" onclick="addComponentItem()">Add New </button>
+							</div>
+
+						</div>
+
+						<table class="table table-bordered table-sm" id="ComponentItemTable">
+							<thead>
+								<tr>
+									<th>Title</th>
+									<th>Subtitle</th>
+									<th>Image</th>
+									<th width="5%">Order</th>
+									<th width="5%">Status</th>
+									<th width="5%">Action</th>
+								</tr>
+							</thead>
+
+							<tbody>
+								@if (Model.Obj.Items != null && Model.Obj.Items.Count > 0)
+								{
+									for (int i = 0; i < Model.Obj.Items.Count; i++)
+									{
+										<tr>
+											<td>
+												<input type="hidden" name="Items[@i].Id" value="@Model.Obj.Items[i].Id" />
+												<input type="text" name="Items[@i].Title" value="@Model.Obj.Items[i].Title" class="form-control form-control-sm" />
+											</td>
+											<td>
+												<input type="text" name="Items[@i].Subtitle" value="@Model.Obj.Items[i].Subtitle" class="form-control form-control-sm" />
+											</td>
+											<td>
+												<div id="Items" class="upload-box">
+
+													<input type="file" class="imageInput" name="Items[@i].Image" hidden accept="image/*">
+													<input type="hidden" value="@Model.Obj?.Items[i].ImagePath" class="setImagePreview">
+
+													<div class="upload-area">
+
+														<div class="upload-placeholder">
+															<h5>Drag & Drop Image</h5>
+															<p>or Click to Select</p>
+															<small>Max size: 2MB</small>
+														</div>
+
+														<img class="previewImage img-fluid rounded d-none">
+														<div class="image-actions d-none">
+															<button type="button" class="btn btn-sm btn-primary changeImage"> Change </button>
+														</div>
+
+													</div>
+
+												</div>
+											</td>
+											<td>
+												<input type="number" name="Items[@i].DisplayOrder" value="@Model.Obj.Items[i].DisplayOrder" class="form-control form-control-sm" />
+											</td>
+											<td class="text-center">
+												<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0">
+													<input type="checkbox" class="custom-control-input"
+														   id="switch_Status_@i" name="Items[@i].IsActive" @(Model.Obj == null || Model.Obj.Items[i].IsActive == true ? "checked" : "")
+														   onchange="fnChange_Switch(this, 'label_Switch_Status_@i')">
+													<label class="custom-control-label" for="switch_Status_@i" id="label_Switch_Status_@i" data-true="Active" data-false="Inactive">@((Model.Obj != null && Model.Obj.Items[i].IsActive == true) ? "Active" : "Inactive")</label>
+												</div>
+											</td>
+											<td class="text-center">
+												<button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"> X </button>
+											</td>
+										</tr>
+									}
+								}
+							</tbody>
+						</table>
+
+					</div>
+				</div>
+			}
+		</div>
+		<div class="card-footer text-center">
+			<button type="submit" class="btn btn-success btnSubmit">Save</button>
+			<button type="button" class="btn btn-danger" onclick="fnBackToList('@IndexPageUrl');">Cancel</button>
+		</div>
+	</div>
+</div>

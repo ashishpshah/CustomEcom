@@ -63,16 +63,6 @@ namespace JewelryStore.Controllers
 		public string GetCurrentAction() => (string.IsNullOrEmpty(AreaName) ? "" : AreaName + " - ") + ControllerName + " - " + ActionName;
 		public string GetCurrentControllerUrl() => (string.IsNullOrEmpty(AreaName) ? "" : AreaName + "/") + ControllerName;
 
-
-		public static TModel GetValue<TModel>(object val)
-		{
-			if (val != null) return default;
-
-			Type targetType = Nullable.GetUnderlyingType(typeof(TModel)) ?? typeof(TModel);
-			return (TModel)Convert.ChangeType(val, targetType);
-		}
-
-
 		public static TModel GetValue<TModel>(DataRow row, string columnName)
 		{
 			if (!row.Table.Columns.Contains(columnName) || row[columnName] == DBNull.Value)

@@ -339,5 +339,22 @@ namespace JewelryStore.Areas.Admin.Controllers
 
 			return Json(new { data = list });
 		}
+
+
+		[HttpPost]
+		public JsonResult GenerateSKU(int categoryId, string categoryName, int? parentCategoryId)
+		{
+			string sku = "";
+
+			List<SqlParameter> oParams = new List<SqlParameter>();
+
+			oParams.Add(new SqlParameter("CategoryId", categoryId));
+			oParams.Add(new SqlParameter("CategoryName", categoryName));
+			oParams.Add(new SqlParameter("ParentCategoryId", parentCategoryId));
+
+			sku = DataContext.ExecuteStoredProcedure("SP_CategorySKU_GenerateUnique", oParams);
+
+			return Json(new { sku = sku });
+		}
 	}
 }
