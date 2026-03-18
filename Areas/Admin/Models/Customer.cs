@@ -1,4 +1,6 @@
-﻿namespace JewelryStore.Areas.Admin.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace JewelryStore.Areas.Admin.Models
 {
 	public class Customer : EntitiesBase
 	{
@@ -26,8 +28,8 @@
 		public string PostalCode { get; set; } = string.Empty;
 		public string Country { get; set; } = string.Empty;
 
-		public List<CustomerAddress> AddressList { get; set; }
-		public List<CustomerCart> CartList { get; set; }
+        [NotMapped] public List<CustomerAddress>? AddressList { get; set; }
+		[NotMapped]public List<CustomerCart>? CartList { get; set; }
 
 	}
 }
