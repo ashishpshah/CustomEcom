@@ -1,4 +1,6 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Vml.Office;
 using JewelryStore.Areas.Admin.Models;
 using JewelryStore.Controllers;
 using JewelryStore.Infra;
@@ -53,6 +55,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 								CategoryName = GetValue<string>(dr, "CategoryName"),
 								ParentCategoryId = GetValue<int>(dr, "ParentCategoryId"),
 								ParentCategoryName = GetValue<string>(dr, "ParentCategoryName"),
+								SKU = GetValue<string>(dr, "SKU"),
 								ImagePath = GetValue<string>(dr, "ImagePath"),
 								IsActive = GetValue<bool>(dr, "IsActive"),
 								LastModifiedDate = GetValue<DateTime?>(dr, "LastModifiedDate")
@@ -97,6 +100,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 							CategoryName = GetValue<string>(dr, "CategoryName"),
 							ParentCategoryId = GetValue<int>(dr, "ParentCategoryId"),
 							ParentCategoryName = GetValue<string>(dr, "ParentCategoryName"),
+							SKU = GetValue<string>(dr, "SKU"),
 							ImagePath = GetValue<string>(dr, "ImagePath"),
 							IsActive = GetValue<bool>(dr, "IsActive"),
 						};
@@ -136,7 +140,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 
 					string uploadFolder = Path.Combine(AppHttpContextAccessor.WebRootPath, "Uploads", "Category");
 
-					string imagePath = await FileUploadService.UploadImageAsync( file, uploadFolder );
+					string imagePath = await FileUploadService.UploadImageAsync(file, uploadFolder);
 
 					viewModel.ImagePath = imagePath;
 				}
@@ -146,6 +150,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 				oParams.Add(new SqlParameter("Id", viewModel.Id));
 				oParams.Add(new SqlParameter("CategoryName", viewModel.CategoryName));
 				oParams.Add(new SqlParameter("ParentCategoryId", viewModel.ParentCategoryId));
+				oParams.Add(new SqlParameter("SKU", viewModel.SKU));
 				oParams.Add(new SqlParameter("ImagePath", viewModel.ImagePath));
 				oParams.Add(new SqlParameter("ImagePath_Remove", viewModel.ImagePath_Remove));
 				oParams.Add(new SqlParameter("IsActive", viewModel.IsActive ? 1 : 0));
@@ -159,7 +164,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 				CommonViewModel.IsSuccess = IsSuccess;
 				CommonViewModel.Message = Message;
 
-				if (Extra!=null) foreach (var path in Extra) FileUploadService.DeleteOldImage(path);
+				if (Extra != null) foreach (var path in Extra) FileUploadService.DeleteOldImage(path);
 
 				CommonViewModel.RedirectURL = IsSuccess ? Url.Content("~/") + GetCurrentControllerUrl() + "/Index" : "";
 
@@ -208,5 +213,21 @@ namespace JewelryStore.Areas.Admin.Controllers
 			return Json(CommonViewModel);
 		}
 
+
+		[HttpPost]
+		public JsonResult GenerateSKU(int categoryId, string categoryName, int? parentCategoryId)
+		{
+			string sku = "";
+
+			List<SqlParameter> oParams = new List<SqlParameter>();
+
+			oParams.Add(new SqlParameter("CategoryId", categoryId));
+			oParams.Add(new SqlParameter("CategoryName", categoryName));
+			oParams.Add(new SqlParameter("ParentCategoryId", parentCategoryId));
+
+			sku = DataContext.ExecuteStoredProcedure("SP_CategorySKU_GenerateUnique", oParams);
+
+			return Json(new { sku = sku });
+		}
 	}
 }
