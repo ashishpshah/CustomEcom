@@ -129,5 +129,49 @@ namespace JewelryStore.Areas.Api.ServiceRepository.HomeRepository
                 throw new Exception("Error saving category", ex);
             }
         }
+        public async Task<List<CustomerCart?>> ShoppingCartList_Get(int CustomerId = 0)
+        {
+            try
+            {
+                List<CustomerCart?> obj = new List<CustomerCart?>();   // FIX
+
+
+                var oParams = new List<SqlParameter>()
+                {
+                    new SqlParameter("@Id", -1),
+                    new SqlParameter("@CustomerId", CustomerId)
+                };
+
+                DataTable dt = DataContext.ExecuteStoredProcedure_DataTable("SP_Customer_Cart_Get", oParams);
+
+                if (dt.Rows.Count > 0)
+                {
+
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        obj.Add(new CustomerCart()
+                        {
+                            Id = Convert.ToInt32(row["Id"]),
+                            ProductId = Convert.ToInt32(row["ProductId"]),
+                            VariantId = Convert.ToInt32(row["VariantId"]),
+                            ProductName = row["ProductName"]?.ToString(),
+                            SKU = row["SKU"]?.ToString(),
+                            AttributeId = row["AttributeId"]?.ToString(),
+                            AttributeName = row["AttributeName"]?.ToString(),
+                            IsActive = Convert.ToBoolean(row["IsActive"]),
+                            //CreatedDate = Convert.ToDateTime(row["CreatedDate"]),
+                            //CreatedDate_Text = Convert.ToDateTime(row["CreatedDate"]).ToString("dd-MMM-yyyy")
+                        });
+                    }
+
+                }
+
+                return await Task.FromResult(obj);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

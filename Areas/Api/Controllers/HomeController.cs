@@ -149,5 +149,35 @@ namespace JewelryStore.Areas.Api.Controllers
 
             return Ok(CommonViewModel);
         }
+        [HttpGet("[Action]")]
+        public async Task<IActionResult> GetShoppingCartList(int CustomerId = 0)
+        {
+            try
+            {
+                var data = await _repository.ShoppingCartList_Get(CustomerId);
+
+                if (data != null)
+                {
+                    CommonViewModel.IsSuccess = true;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Success;
+                    CommonViewModel.Message = "Data retrieved successfully";
+                    CommonViewModel.Data = data;
+                }
+                else
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.NotFound;
+                    CommonViewModel.Message = "Cart List not found";
+                }
+            }
+            catch (Exception ex)
+            {
+                CommonViewModel.IsSuccess = false;
+                CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                CommonViewModel.Message = ex.Message;
+            }
+
+            return Ok(CommonViewModel);
+        }
     }
 }
