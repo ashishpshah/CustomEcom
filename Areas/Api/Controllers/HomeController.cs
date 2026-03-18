@@ -150,6 +150,51 @@ namespace JewelryStore.Areas.Api.Controllers
 
             return Ok(CommonViewModel);
         }
+        [HttpPost("[Action]")]
+        public async Task<IActionResult> SaveCart([FromBody] CustomerCart obj)
+        {
+            try
+            {
+               
+
+                var (IsSuccess, Message, Id, Extra) = await _repository.SaveCart(obj);
+
+                CommonViewModel.IsSuccess = IsSuccess;
+                CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
+                CommonViewModel.Message = Message;
+                CommonViewModel.Data = Id;
+            }
+            catch (Exception ex)
+            {
+                CommonViewModel.IsSuccess = false;
+                CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                CommonViewModel.Message = ex.Message;
+            }
+
+            return Ok(CommonViewModel);
+        }
+
+        [HttpDelete("[Action]")]
+        public async Task<IActionResult> RemoveCart(long id)
+        {
+            try
+            {
+                var (IsSuccess, Message, Id, Extra) = await _repository.RemoveCart(id);
+
+                CommonViewModel.IsSuccess = IsSuccess;
+                CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
+                CommonViewModel.Message = Message;
+                CommonViewModel.Data = Id;
+            }
+            catch (Exception ex)
+            {
+                CommonViewModel.IsSuccess = false;
+                CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                CommonViewModel.Message = ex.Message;
+            }
+
+            return Ok(CommonViewModel);
+        }
         [HttpGet("[Action]")]
         public async Task<IActionResult> GetShoppingCartList(int CustomerId = 0)
         {

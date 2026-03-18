@@ -2,7 +2,9 @@
 using JewelryStore.Areas.Admin.Models;
 using JewelryStore.Areas.Api.DTO;
 using JewelryStore.Infra;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using NuGet.Protocol.Core.Types;
 using System.Data;
 
 namespace JewelryStore.Areas.Api.ServiceRepository.HomeRepository
@@ -171,6 +173,54 @@ namespace JewelryStore.Areas.Api.ServiceRepository.HomeRepository
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public async Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> SaveCart(CustomerCart obj)
+        {
+            try
+            {
+                List<SqlParameter> oParams = new()
+                {
+                    new SqlParameter("Id", obj.Id),
+                    new SqlParameter("CustomerId", obj.CustomerId),
+                    new SqlParameter("ProductId", obj.ProductId),
+                    new SqlParameter("@VariantId", obj.VariantId),
+                    new SqlParameter("@AttributeId", obj.AttributeId),
+                    new SqlParameter("@Quantity", obj.Quantity),
+                    new SqlParameter("IsActive", obj.IsActive ? 1 : 0),
+                    new SqlParameter("Mode", "SAVE"),
+                    new SqlParameter("OperatedBy", 1)
+                };
+
+                var result = DataContext.ExecuteStoredProcedure("SP_Customer_Cart_Save", oParams, true);
+
+                return await Task.FromResult(result);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error saving category", ex);
+            }
+        }
+
+        public async Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> RemoveCart(long id)
+        {
+            try
+            {
+                List<SqlParameter> oParams = new()
+                {
+                    new SqlParameter("Id", id),
+                    new SqlParameter("Mode", "DELETE"),
+                     new SqlParameter("OperatedBy", Common.LoggedUser_Id())
+                };
+
+                var result = DataContext.ExecuteStoredProcedure("SP_Customer_Cart_Save", oParams, true);
+
+                return await Task.FromResult(result);
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
