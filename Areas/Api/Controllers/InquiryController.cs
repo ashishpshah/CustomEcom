@@ -3,6 +3,7 @@ using JewelryStore.Areas.Api.DTO;
 using JewelryStore.Areas.Api.ServiceRepository.CouponRepository;
 using JewelryStore.Areas.Api.ServiceRepository.InquiryRepository;
 using JewelryStore.Infra;
+using JewelryStore.Infra.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -142,7 +143,36 @@ namespace JewelryStore.Areas.Api.Controllers
                 if (obj.Inquiry_Date == null)
                 {
                     CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
                     CommonViewModel.Message = "Please Select Inquiry_Date.";
+                    return Ok(CommonViewModel);
+                }
+                if (string.IsNullOrEmpty(obj.Name))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Please Enter Name.";
+                    return Ok(CommonViewModel);
+                }
+                if (string.IsNullOrEmpty(obj.Email))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Please Enter Email.";
+                    return Ok(CommonViewModel);
+                }
+                if (!string.IsNullOrWhiteSpace(obj.Email) && !ValidateField.IsValidEmail(obj.Email))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Invalid Email format.";
+                    return Ok(CommonViewModel);
+                }
+                if (!string.IsNullOrWhiteSpace(obj.PhoneNo) && !ValidateField.IsValidMobileNo_D10(obj.PhoneNo))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Please enter valid 10-digit mobile no.";
                     return Ok(CommonViewModel);
                 }
                 if (string.IsNullOrEmpty(obj.Subject))

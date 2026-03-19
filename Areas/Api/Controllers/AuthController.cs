@@ -3,6 +3,7 @@ using JewelryStore.Areas.Admin.Models;
 using JewelryStore.Areas.Api.DTO;
 using JewelryStore.Areas.Api.ServiceRepository.HomeRepository;
 using JewelryStore.Infra;
+using JewelryStore.Infra.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -125,6 +126,20 @@ namespace JewelryStore.Areas.Api.Controllers
                     CommonViewModel.IsSuccess = false;
                     CommonViewModel.StatusCode = ResponseStatusCode.Error;
                     CommonViewModel.Message = "Please enter Email or Mobile Number.";
+                    return Ok(CommonViewModel);
+                }
+                if (!string.IsNullOrWhiteSpace(obj.Email) && !ValidateField.IsValidEmail(obj.Email))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Invalid Email format.";
+                    return Ok(CommonViewModel);
+                }
+                if (!string.IsNullOrWhiteSpace(obj.MobileNo) && !ValidateField.IsValidMobileNo_D10(obj.MobileNo))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Please enter valid 10-digit mobile no.";
                     return Ok(CommonViewModel);
                 }
                 if (string.IsNullOrEmpty(obj.Password))

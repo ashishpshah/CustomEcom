@@ -23,6 +23,9 @@ namespace JewelryStore.Areas.Admin.Models
         public string Inquiry_By { get; set; }
         public string ReplyBy { get; set; }
         public string ReplyBy_Text { get; set; }
+        public string Name { get; set; }
+        public string PhoneNo { get; set; }
+        public string Email { get; set; }
     }
    
     public class Reviews : EntitiesBase
