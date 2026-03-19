@@ -224,11 +224,11 @@ namespace JewelryStore.Areas.Api.ServiceRepository.HomeRepository
             }
         }
 
-        public async Task<object> GetHomePageComponent()
+        public async Task<object> GetHomePageComponent(long id = 0)
         {
             var oParams = new List<SqlParameter>()
             {
-                new SqlParameter("@Id", DBNull.Value)              
+                new SqlParameter("@Id", id == 0 ? (object)DBNull.Value : id)
             };
 
             DataSet ds = DataContext.ExecuteStoredProcedure_DataSet("SP_HomePageComponent_Get", oParams);
@@ -288,6 +288,130 @@ namespace JewelryStore.Areas.Api.ServiceRepository.HomeRepository
             };
 
             return await Task.FromResult(result);
+        }
+        public async Task<LoginResult> ForgotPassword_GenerateOTP(string email)
+        {
+            try
+            {
+                LoginResult result = new LoginResult();
+
+                var oParams = new List<SqlParameter>()
+                {
+                    new SqlParameter("@Email", email)
+                };
+
+                DataTable dt = DataContext.ExecuteStoredProcedure_DataTable("SP_ForgotPassword_GenerateOTP", oParams);
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    var row = dt.Rows[0];
+
+                    result.Status = Convert.ToInt32(row["Status"]);
+                    result.Message = row["Message"].ToString();
+
+                    if (result.Status == 1)
+                    {
+                        var dict = new Dictionary<string, object>();
+
+                        foreach (DataColumn col in row.Table.Columns)
+                        {
+                            dict[col.ColumnName] = row[col];
+                        }
+
+                        result.Data = dict;
+                    }
+                }
+
+                return await Task.FromResult(result);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task<LoginResult> ForgotPassword_VerifyOTP(string email, int otp)
+        {
+            try
+            {
+                LoginResult result = new LoginResult();
+
+                var oParams = new List<SqlParameter>()
+                {
+                    new SqlParameter("@Email", email),
+                    new SqlParameter("@OTP", otp)
+                };
+
+                DataTable dt = DataContext.ExecuteStoredProcedure_DataTable("SP_ForgotPassword_VerifyOTP", oParams);
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    var row = dt.Rows[0];
+
+                    result.Status = Convert.ToInt32(row["Status"]);
+                    result.Message = row["Message"].ToString();
+
+                    if (result.Status == 1)
+                    {
+                        var dict = new Dictionary<string, object>();
+
+                        foreach (DataColumn col in row.Table.Columns)
+                        {
+                            dict[col.ColumnName] = row[col];
+                        }
+
+                        result.Data = dict;
+                    }
+                }
+
+                return await Task.FromResult(result);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task<LoginResult> ForgotPassword_ResetPassword(string email, string newPassword)
+        {
+            try
+            {
+                LoginResult result = new LoginResult();
+
+                var Password = Common.Encrypt(newPassword);
+
+                var oParams = new List<SqlParameter>()
+                {
+                    new SqlParameter("@Email", email),
+                    new SqlParameter("@NewPassword", Password)
+                };
+
+                DataTable dt = DataContext.ExecuteStoredProcedure_DataTable("SP_ForgotPassword_ResetPassword", oParams);
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    var row = dt.Rows[0];
+
+                    result.Status = Convert.ToInt32(row["Status"]);
+                    result.Message = row["Message"].ToString();
+
+                    if (result.Status == 1)
+                    {
+                        var dict = new Dictionary<string, object>();
+
+                        foreach (DataColumn col in row.Table.Columns)
+                        {
+                            dict[col.ColumnName] = row[col];
+                        }
+
+                        result.Data = dict;
+                    }
+                }
+
+                return await Task.FromResult(result);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

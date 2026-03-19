@@ -84,135 +84,135 @@ namespace JewelryStore.Infra
 		public static String GetUserRole() => _UserRole;
 
 
-		//public static async Task<(bool IsSuccess, string Message)> SendEmail(string subject, string recipient_mails, bool isBodyHtml = false, string? body = null, string? templateFile = null, string? templateData = null)
-		//{
-		//	LogService.LogInsert("Common - SendEmail", $"Send Email => Starting at {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss").Replace("-", "/")} | Subject : {subject} | To : {string.Join(", ", recipient_mails)}", null);
+		public static async Task<(bool IsSuccess, string Message)> SendEmail(string subject, string recipient_mails, bool isBodyHtml = false, string? body = null, string? templateFile = null, string? templateData = null)
+		{
+			LogService.LogInsert("Common - SendEmail", $"Send Email => Starting at {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss").Replace("-", "/")} | Subject : {subject} | To : {string.Join(", ", recipient_mails)}", null);
 
-		//	(bool IsSuccess, string Message) result = (false, "Sending Mail service is stop.");
+			(bool IsSuccess, string Message) result = (false, "Sending Mail service is stop.");
 
-		//	try
-		//	{
-		//		if (AppHttpContextAccessor.IsSendMail && recipient_mails != null && recipient_mails.Length > 0)
-		//		{
+			try
+			{
+				if (AppHttpContextAccessor.IsSendMail && recipient_mails != null && recipient_mails.Length > 0)
+				{
 
-		//			if (string.IsNullOrEmpty(subject))
-		//			{
-		//				result.Message = $"Please enter valid subject.";
-		//				return result;
-		//			}
+					if (string.IsNullOrEmpty(subject))
+					{
+						result.Message = $"Please enter valid subject.";
+						return result;
+					}
 
-		//			if (string.IsNullOrEmpty(recipient_mails))
-		//			{
-		//				result.Message = $"Please enter valid recipient mail address(s).";
-		//				return result;
-		//			}
+					if (string.IsNullOrEmpty(recipient_mails))
+					{
+						result.Message = $"Please enter valid recipient mail address(s).";
+						return result;
+					}
 
-		//			subject = subject.Replace("<DD-MM-YYYY>", DateTime.Now.ToString("dd-MM-yyyy"));
-		//			subject = subject.Replace("<DD/MM/YYYY>", DateTime.Now.ToString("dd/MM/yyyy").Replace("-", "/"));
-		//			subject = subject.Replace("<YYYYMMDD>", DateTime.Now.ToString("yyyyMMdd"));
-		//			subject = subject.Replace("<DDMMYYYY>", DateTime.Now.ToString("yyyyMMdd"));
-		//			subject = subject.Replace("<HH:MM TT>", DateTime.Now.ToString("hh:mm tt"));
-		//			subject = subject.Replace("<HH:MM>", DateTime.Now.ToString("HH:mm"));
-		//			subject = subject.Replace("<HH>", DateTime.Now.ToString("HH"));
-		//			subject = subject.Replace("<MM>", DateTime.Now.ToString("mm"));
+					subject = subject.Replace("<DD-MM-YYYY>", DateTime.Now.ToString("dd-MM-yyyy"));
+					subject = subject.Replace("<DD/MM/YYYY>", DateTime.Now.ToString("dd/MM/yyyy").Replace("-", "/"));
+					subject = subject.Replace("<YYYYMMDD>", DateTime.Now.ToString("yyyyMMdd"));
+					subject = subject.Replace("<DDMMYYYY>", DateTime.Now.ToString("yyyyMMdd"));
+					subject = subject.Replace("<HH:MM TT>", DateTime.Now.ToString("hh:mm tt"));
+					subject = subject.Replace("<HH:MM>", DateTime.Now.ToString("HH:mm"));
+					subject = subject.Replace("<HH>", DateTime.Now.ToString("HH"));
+					subject = subject.Replace("<MM>", DateTime.Now.ToString("mm"));
 
-		//			if (isBodyHtml == true && !string.IsNullOrEmpty(templateFile))
-		//			{
-		//				using (StreamReader reader = new StreamReader(System.IO.Path.Combine(AppHttpContextAccessor.ContentRootPath + "/Email_Templates", templateFile + "_enquiry.html")))
-		//				{
-		//					body = reader.ReadToEnd();
-		//				}
+					if (isBodyHtml == true && !string.IsNullOrEmpty(templateFile))
+					{
+						using (StreamReader reader = new StreamReader(System.IO.Path.Combine(AppHttpContextAccessor.ContentRootPath + "/Email_Templates", templateFile + "_enquiry.html")))
+						{
+							body = reader.ReadToEnd();
+						}
 
-		//				if (!string.IsNullOrEmpty(templateData))
-		//				{
-		//					JObject data = JObject.Parse(templateData);
+						if (!string.IsNullOrEmpty(templateData))
+						{
+							JObject data = JObject.Parse(templateData);
 
-		//					foreach (var prop in data.Properties())
-		//					{
-		//						string key = "{{" + prop.Name.ToLower() + "}}";
-		//						string value = prop.Value?.ToString() ?? "";
+							foreach (var prop in data.Properties())
+							{
+								string key = "{{" + prop.Name.ToLower() + "}}";
+								string value = prop.Value?.ToString() ?? "";
 
-		//						if (prop.Name.Equals("email", StringComparison.OrdinalIgnoreCase))
-		//						{
-		//							value = $"<a href='mailto:{value}'>{value}</a>";
-		//						}
-
-
-
-		//						body = body.Replace(key, value);
-		//					}
-		//				}
-
-		//				body = System.Text.RegularExpressions.Regex.Replace(body, "{{.*?}}", "");
-		//			}
+								if (prop.Name.Equals("email", StringComparison.OrdinalIgnoreCase))
+								{
+									value = $"<a href='mailto:{value}'>{value}</a>";
+								}
 
 
-		//			using (System.Net.Mail.MailMessage mailMessage = new System.Net.Mail.MailMessage())
-		//			{
-		//				mailMessage.From = new System.Net.Mail.MailAddress(AppHttpContextAccessor.AdminFromMail, AppHttpContextAccessor.DisplayName);
-		//				mailMessage.Subject = subject;
-		//				mailMessage.Body = body;
-		//				mailMessage.IsBodyHtml = isBodyHtml;
 
-		//				foreach (string item in recipient_mails.Split(",").ToArray())
-		//					mailMessage.To.Add(new System.Net.Mail.MailAddress(item.Trim()));
+								body = body.Replace(key, value);
+							}
+						}
 
-		//				System.Net.Mail.SmtpClient smtpClient = new System.Net.Mail.SmtpClient(AppHttpContextAccessor.Host, AppHttpContextAccessor.Port)
-		//				{
-		//					EnableSsl = AppHttpContextAccessor.EnableSsl,
-		//					Credentials = new System.Net.NetworkCredential(AppHttpContextAccessor.AdminFromMail, AppHttpContextAccessor.MailPassword),
-		//					DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network,
-		//					UseDefaultCredentials = AppHttpContextAccessor.DefaultCredentials
-		//				};
+						body = System.Text.RegularExpressions.Regex.Replace(body, "{{.*?}}", "");
+					}
 
-		//				await smtpClient.SendMailAsync(mailMessage);
 
-		//				result.IsSuccess = true;
-		//				result.Message = "Mail Sent successfully.";
-		//			}
+					using (System.Net.Mail.MailMessage mailMessage = new System.Net.Mail.MailMessage())
+					{
+						mailMessage.From = new System.Net.Mail.MailAddress(AppHttpContextAccessor.AdminFromMail, AppHttpContextAccessor.DisplayName);
+						mailMessage.Subject = subject;
+						mailMessage.Body = body;
+						mailMessage.IsBodyHtml = isBodyHtml;
 
-		//		}
-		//		else
-		//		{
-		//			result.IsSuccess = false;
-		//			result.Message = "Sending Mail service is stop.";
-		//		}
+						foreach (string item in recipient_mails.Split(",").ToArray())
+							mailMessage.To.Add(new System.Net.Mail.MailAddress(item.Trim()));
 
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		result.IsSuccess = false;
+						System.Net.Mail.SmtpClient smtpClient = new System.Net.Mail.SmtpClient(AppHttpContextAccessor.Host, AppHttpContextAccessor.Port)
+						{
+							EnableSsl = AppHttpContextAccessor.EnableSsl,
+							Credentials = new System.Net.NetworkCredential(AppHttpContextAccessor.AdminFromMail, AppHttpContextAccessor.MailPassword),
+							DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network,
+							UseDefaultCredentials = AppHttpContextAccessor.DefaultCredentials
+						};
 
-		//		if (ex != null)
-		//		{
-		//			result.Message = "Error : " + ex.Message.ToString() + Environment.NewLine;
+						await smtpClient.SendMailAsync(mailMessage);
 
-		//			if (ex.InnerException != null)
-		//			{
-		//				try { result.Message = result.Message + " | InnerException: " + ex.InnerException.ToString().Substring(0, (ex.InnerException.ToString().Length > 1000 ? 1000 : ex.InnerException.ToString().Length)); } catch { result.Message = result.Message + "InnerException: " + ex.InnerException?.ToString(); }
-		//			}
+						result.IsSuccess = true;
+						result.Message = "Mail Sent successfully.";
+					}
 
-		//			if (ex.StackTrace != null)
-		//			{
-		//				try { result.Message = result.Message + " | StackTrace: " + ex.StackTrace.ToString().Substring(0, (ex.StackTrace.ToString().Length > 1000 ? 1000 : ex.StackTrace.ToString().Length)); } catch { result.Message = result.Message + "InnerException: " + ex.StackTrace?.ToString(); }
-		//			}
+				}
+				else
+				{
+					result.IsSuccess = false;
+					result.Message = "Sending Mail service is stop.";
+				}
 
-		//			if (ex.Source != null)
-		//			{
-		//				try { result.Message = result.Message + " | Source: " + ex.Source.ToString().Substring(0, (ex.Source.ToString().Length > 1000 ? 1000 : ex.Source.ToString().Length)); } catch { result.Message = result.Message + "InnerException: " + ex.Source?.ToString(); }
-		//			}
+			}
+			catch (Exception ex)
+			{
+				result.IsSuccess = false;
 
-		//			if (ex.StackTrace == null && ex.Source == null)
-		//			{
-		//				try { result.Message = result.Message + " | Exception: " + ex.ToString().Substring(0, (ex.Source.ToString().Length > 3000 ? 3000 : ex.Source.ToString().Length)); } catch { result.Message = result.Message + "Exception: " + ex?.ToString(); }
-		//			}
-		//		}
-		//	}
+				if (ex != null)
+				{
+					result.Message = "Error : " + ex.Message.ToString() + Environment.NewLine;
 
-		//	// LogService.LogInsert("Common - SendEmail", $"Send Email => Completed at {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss").Replace("-", "/")} | IsSuccess : {result.IsSuccess} | Message : {result.Message} | Subject : {subject} | To : {string.Join(", ", recipient_mails)}", null);
+					if (ex.InnerException != null)
+					{
+						try { result.Message = result.Message + " | InnerException: " + ex.InnerException.ToString().Substring(0, (ex.InnerException.ToString().Length > 1000 ? 1000 : ex.InnerException.ToString().Length)); } catch { result.Message = result.Message + "InnerException: " + ex.InnerException?.ToString(); }
+					}
 
-		//	return result;
-		//}
+					if (ex.StackTrace != null)
+					{
+						try { result.Message = result.Message + " | StackTrace: " + ex.StackTrace.ToString().Substring(0, (ex.StackTrace.ToString().Length > 1000 ? 1000 : ex.StackTrace.ToString().Length)); } catch { result.Message = result.Message + "InnerException: " + ex.StackTrace?.ToString(); }
+					}
+
+					if (ex.Source != null)
+					{
+						try { result.Message = result.Message + " | Source: " + ex.Source.ToString().Substring(0, (ex.Source.ToString().Length > 1000 ? 1000 : ex.Source.ToString().Length)); } catch { result.Message = result.Message + "InnerException: " + ex.Source?.ToString(); }
+					}
+
+					if (ex.StackTrace == null && ex.Source == null)
+					{
+						try { result.Message = result.Message + " | Exception: " + ex.ToString().Substring(0, (ex.Source.ToString().Length > 3000 ? 3000 : ex.Source.ToString().Length)); } catch { result.Message = result.Message + "Exception: " + ex?.ToString(); }
+					}
+				}
+			}
+
+			// LogService.LogInsert("Common - SendEmail", $"Send Email => Completed at {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss").Replace("-", "/")} | IsSuccess : {result.IsSuccess} | Message : {result.Message} | Subject : {subject} | To : {string.Join(", ", recipient_mails)}", null);
+
+			return result;
+		}
 
 
 
