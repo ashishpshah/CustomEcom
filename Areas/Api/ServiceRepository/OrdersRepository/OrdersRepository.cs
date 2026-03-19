@@ -199,7 +199,7 @@ namespace JewelryStore.Areas.Api.ServiceRepository.OrdersRepository
                 oParams.Add(new SqlParameter("OrderItems", order_items_table));
                 oParams.Add(new SqlParameter("IsActive", obj.IsActive ? 1 : 0));
                 oParams.Add(new SqlParameter("Mode", "SAVE"));
-                oParams.Add(new SqlParameter("OperatedBy", Common.LoggedUser_Id()));
+                oParams.Add(new SqlParameter("OperatedBy", AppHttpContextAccessor.JwtUserId));
 
                 var result = DataContext.ExecuteStoredProcedure("SP_Orders_Save", oParams, true);
 
