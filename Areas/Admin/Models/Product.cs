@@ -31,7 +31,8 @@
 		public int? StockQuantity { get; set; }
 		public string ImagePath { get; set; }
         public IFormFile? ImageFile { get; set; }
-        public string? VariantAttributes { get; set; }
+		public bool IsRemove_Image { get; set; }
+		public string? VariantAttributes { get; set; }
 		public int? AvailableStock { get; set; }
 		public int? ReservedStock { get; set; }
 
