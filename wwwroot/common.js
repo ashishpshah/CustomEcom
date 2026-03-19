@@ -417,7 +417,7 @@ function fnInitImageUploader() {
 
             if (file.size > 2 * 1024 * 1024) {
 
-                alert("Image must be less than 2MB");
+                CommonAlert_Error("Image must be less than 2MB");
                 input.val("");
                 return;
 
@@ -496,7 +496,7 @@ function fnInitImageUploader() {
 
             if (files[0].size > 2 * 1024 * 1024) {
 
-                alert("Image must be less than 2MB");
+                CommonAlert_Error("Image must be less than 2MB");
                 return;
 
             }
