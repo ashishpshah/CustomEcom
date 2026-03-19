@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Office2016.Excel;
 using JewelryStore.Areas.Admin.Models;
 using JewelryStore.Areas.Api.DTO;
 using JewelryStore.Areas.Api.ServiceRepository.HomeRepository;
@@ -226,11 +227,11 @@ namespace JewelryStore.Areas.Api.Controllers
             return Ok(CommonViewModel);
         }
         [HttpPost("[Action]")]
-        public async Task<IActionResult> GetHomeComponent()
+        public async Task<IActionResult> GetHomeComponent(long id = 0)
         {
             try
             {
-                var data = await _repository.GetHomePageComponent();
+                var data = await _repository.GetHomePageComponent(id);
 
                 CommonViewModel.IsSuccess = true;
                 CommonViewModel.StatusCode = ResponseStatusCode.Success;
@@ -246,9 +247,143 @@ namespace JewelryStore.Areas.Api.Controllers
 
             return Ok(CommonViewModel);
         }
-    }
-			
+        [HttpPost("[Action]")]
+        public async Task<IActionResult> ForgotPassword_GenerateOTP([FromBody] ForgotPasswordRequest request)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(request.Email))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Email is required";
 
-		
+                    return Ok(CommonViewModel);
+                }
+              
+                var data = await _repository.ForgotPassword_GenerateOTP(request.Email);
+
+                if (data != null && data.Status == 1)
+                {
+                    CommonViewModel.IsSuccess = true;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Success;
+                    CommonViewModel.Message = data.Message;
+                    CommonViewModel.Data = data.Data;
+                }
+                else
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.NotFound;
+                    CommonViewModel.Message = data?.Message ?? "Invalid Email";
+                }
+            }
+            catch (Exception ex)
+            {
+                CommonViewModel.IsSuccess = false;
+                CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                CommonViewModel.Message = ex.Message;
+            }
+
+            return Ok(CommonViewModel);
+        }
+
+
+        [HttpPost("[Action]")]
+        public async Task<IActionResult> ForgotPassword_VerifyOTP(string Email , int otp)
+        {
+            try
+            {
+                if (otp == 0)
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "otp is required";
+
+                    return Ok(CommonViewModel);
+                }
+
+                var data = await _repository.ForgotPassword_VerifyOTP(Email , otp);
+
+                if (data != null && data.Status == 1)
+                {
+                    CommonViewModel.IsSuccess = true;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Success;
+                    CommonViewModel.Message = data.Message;
+                    CommonViewModel.Data = data.Data;
+                }
+                else
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.NotFound;
+                    CommonViewModel.Message = data?.Message ?? "Invalid otp";
+                }
+            }
+            catch (Exception ex)
+            {
+                CommonViewModel.IsSuccess = false;
+                CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                CommonViewModel.Message = ex.Message;
+            }
+
+            return Ok(CommonViewModel);
+        }
+
+
+        [HttpPost("[Action]")]
+        public async Task<IActionResult> ForgotPassword_ResetPassword(string Email, string newPassword , string confirmPassword)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(newPassword))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "New Password is required.";
+
+                    return Ok(CommonViewModel);
+                }
+                if (string.IsNullOrEmpty(confirmPassword))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Confirm Password is required.";
+
+                    return Ok(CommonViewModel);
+                }
+                if (newPassword != confirmPassword)
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Passwords do not match.";
+
+                    return Ok(CommonViewModel);
+                }
+                var data = await _repository.ForgotPassword_ResetPassword(Email, confirmPassword);
+
+                if (data != null && data.Status == 1)
+                {
+                    CommonViewModel.IsSuccess = true;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Success;
+                    CommonViewModel.Message = data.Message;
+                    CommonViewModel.Data = data.Data;
+                }
+                else
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.NotFound;
+                    CommonViewModel.Message = data?.Message ?? "Invalid otp";
+                }
+            }
+            catch (Exception ex)
+            {
+                CommonViewModel.IsSuccess = false;
+                CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                CommonViewModel.Message = ex.Message;
+            }
+
+            return Ok(CommonViewModel);
+        }
+
+    }
 	
 }

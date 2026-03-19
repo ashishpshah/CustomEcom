@@ -5,6 +5,12 @@
         public string Username { get; set; }   // Email OR Mobile
         public string Password { get; set; }
     }
+    public class ForgotPasswordRequest
+    {
+        public string Email { get; set; }   // Email OR Mobile
+        public string NewPassword { get; set; }
+        public string ConfirmPassword { get; set; }
+    }
     public class LoginResult
     {
         public int Status { get; set; }
