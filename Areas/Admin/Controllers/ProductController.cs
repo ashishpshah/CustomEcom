@@ -222,11 +222,11 @@ namespace JewelryStore.Areas.Admin.Controllers
 				{
 					foreach (var img in viewModel.ProductImages.Where(x => x.Id > 0 && !productImages.Any(z => z.StartsWith(x.Id.ToString()))))
 					{
-						productImages.Add($"{img.Id}|-|{(img.IsPrimary ? 1 : 0)}|{(img.IsRemove ? 1 : 0)}");
+						productImages.Add($"{img.Id}||{(img.IsPrimary ? 1 : 0)}|{(img.IsRemove ? 1 : 0)}");
 					}
 				}
 
-				string imagesString = string.Join("||", productImages);
+				string imagesString = string.Join("~", productImages);
 
 				List<string> productVariant = new List<string>();
 
@@ -234,7 +234,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 				{
 					for (int i = 0; i < viewModel.ProductVariantMapping.Count; i++)
 					{
-						var variantImage = "-";
+						var variantImage = "";
 
 						if (Request.Form.Files.Count > 0 && Request.Form.Files.Any(x => x.Name.StartsWith($"ProductVariantMapping[{i}].VarientImage")))
 						{
@@ -245,11 +245,11 @@ namespace JewelryStore.Areas.Admin.Controllers
 						}
 
 						productVariant.Add($"{viewModel.ProductVariantMapping[i].Id}|{string.Join("=", viewModel.ProductVariantMapping[i].ProductVariantDetails.Select(x => x.AttributeValueName).ToArray())}|" +
-											$"{viewModel.ProductVariantMapping[i].Price}|{viewModel.ProductVariantMapping[i].SKU}|{variantImage}");
+											$"{viewModel.ProductVariantMapping[i].Price}|{viewModel.ProductVariantMapping[i].SKU}|{variantImage}|{(viewModel.ProductVariantMapping[i].IsRemove_Image ? 1 : 0)}");
 					}
 				}
 
-				string variantString = string.Join("||", productVariant);
+				string variantString = string.Join("~", productVariant);
 
 				List<SqlParameter> oParams = new List<SqlParameter>();
 

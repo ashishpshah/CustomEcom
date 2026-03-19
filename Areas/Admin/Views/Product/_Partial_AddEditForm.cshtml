@@ -192,7 +192,7 @@
 
 												<input type="file" class="imageInput" name="ProductVariantMapping[@i].VarientImage" hidden accept="image/*">
 
-												<input type="hidden" name="ProductVariantMapping[@i].IsRemove" value="false" class="imageRemoveFlag">
+												<input type="hidden" name="ProductVariantMapping[@i].IsRemove_Image" value="false" class="imageRemoveFlag">
 
 												<input type="hidden" name="ProductVariantMapping[@i].Id" value="@Model.Obj.ProductVariantMapping[i]?.Id">
 												<input type="hidden" value="@Model.Obj?.ProductImages?.Where(x => x.VariantId == Model.Obj.ProductVariantMapping[i].Id).FirstOrDefault()?.ImagePath" class="setImagePreview">
