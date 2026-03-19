@@ -11,12 +11,15 @@ using JewelryStore.Areas.Api.ServiceRepository.ProductStockRepository;
 using JewelryStore.Areas.Api.ServiceRepository.ReviewsRepository;
 
 using JewelryStore.Infra;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using System.Globalization;
+using System.Text;
 
 namespace JewelryStore
 {
@@ -68,8 +71,30 @@ namespace JewelryStore
 				o.ValueLengthLimit = int.MaxValue;
 				o.MultipartBodyLengthLimit = long.MaxValue;
 			});
+            builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+            var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+            var key = Encoding.ASCII.GetBytes(jwtSettings.Key);
 
-			builder.Services.AddControllersWithViews()
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ClockSkew = TimeSpan.Zero //For Removie extra 5 Minutes
+                };
+            });
+            builder.Services.AddControllersWithViews()
 				.AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 
 			// ✅ ONE localization config

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
+using System.Security.Claims;
 
 namespace JewelryStore.Infra
 {
@@ -67,6 +68,9 @@ namespace JewelryStore.Infra
 		public static string Protect(string str) => $"{_dataProtector.Protect(str)}";
 		public static string UnProtect(string str) => $"{_dataProtector.Unprotect(str)}";
 
+        public static long JwtUserId =>
+            Convert.ToInt64(AppHttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 
-	}
+
+    }
 }

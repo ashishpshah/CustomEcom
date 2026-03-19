@@ -100,6 +100,9 @@ namespace JewelryStore.Areas.Api.ServiceRepository.InquiryRepository
                     {
                         Id = Convert.ToInt32(dr["Id"]),
                         ProductId = Convert.ToInt32(dr["ProductId"]),
+                        Name = dr["Name"]?.ToString(),
+                        PhoneNo = dr["PhoneNo"]?.ToString(),
+                        Email = dr["Email"]?.ToString(),
                         ProductName = dr["ProductName"]?.ToString(),
                         Inquiry_Date = Convert.ToDateTime(dr["Inquiry_Date"]),
                         Subject = dr["Subject"]?.ToString(),
@@ -214,6 +217,9 @@ namespace JewelryStore.Areas.Api.ServiceRepository.InquiryRepository
                 var UserId = Common.LoggedUser_Id();
                 oParams.Add(new SqlParameter("Id", obj.Id));
                 oParams.Add(new SqlParameter("ProductId", obj.ProductId));
+                oParams.Add(new SqlParameter("Name", obj.Name));
+                oParams.Add(new SqlParameter("PhoneNo", obj.PhoneNo));
+                oParams.Add(new SqlParameter("Email", obj.Email));
                 oParams.Add(new SqlParameter("Subject", obj.Subject));
                 oParams.Add(new SqlParameter("Message", obj.Message));
                 oParams.Add(new SqlParameter("Inquiry_Date", obj.Inquiry_Date));
