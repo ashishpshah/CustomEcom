@@ -4,6 +4,133 @@
 	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
+
+
+
+@section styles {
+	<style type="text/css">
+		.text-muted {
+			color: #888;
+			font-size: 12px;
+		}
+
+		/* Filter Container */
+		.status-filter {
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
+		}
+
+		/* Base Button */
+		.status-btn {
+			padding: 6px 14px;
+			border-radius: 50px;
+			font-size: 13px;
+			cursor: pointer;
+			background: #f1f3f6;
+			color: #555;
+			transition: all 0.25s ease;
+			border: 1px solid transparent;
+		}
+
+			/* Hover Effect */
+			.status-btn:hover {
+				background: #e2e6ea;
+			}
+
+			/* Active */
+			.status-btn.active {
+				background: #232f3e;
+				color: #fff;
+			}
+
+			/* Individual Colors */
+			.status-btn.pending.active {
+				background: #ff9800 !important;
+			}
+
+			.status-btn.confirmed.active {
+				background: #17a2b8 !important;
+			}
+
+			.status-btn.processing.active {
+				background: #007bff !important;
+			}
+
+			.status-btn.completed.active {
+				background: #28a745 !important;
+			}
+
+			.status-btn.cancelled.active {
+				background: #dc3545 !important;
+			}
+
+			.status-btn.returned.active {
+				background: #6c757d !important;
+			}
+
+		/* TABLE */
+		.table {
+			border-radius: 10px;
+			overflow: hidden;
+			background: #fff;
+		}
+
+			.table thead th {
+				background: #f8f9fa;
+				font-weight: 600;
+				font-size: 14px;
+			}
+
+			.table tbody tr:hover {
+				background: #f6f8fb;
+			}
+
+		/* STATUS BADGES */
+		.badge-status {
+			padding: 6px 10px;
+			border-radius: 50px;
+			font-size: 12px;
+			font-weight: 500;
+		}
+
+		/* Amazon-like colors */
+		.badge-pending {
+			background: #fff3cd;
+			color: #856404;
+		}
+
+		.badge-confirmed {
+			background: #d1ecf1;
+			color: #0c5460;
+		}
+
+		.badge-processing {
+			background: #cce5ff;
+			color: #004085;
+		}
+
+		.badge-completed {
+			background: #d4edda;
+			color: #155724;
+		}
+
+		.badge-cancelled {
+			background: #f8d7da;
+			color: #721c24;
+		}
+
+		.badge-returned {
+			background: #e2e3e5;
+			color: #383d41;
+		}
+
+		/* Card */
+		.card {
+			border-radius: 12px;
+		}
+	</style>
+}
 <div class="content-header">
 	<div class="container-fluid">
 		<div class="row mb-2">
@@ -40,7 +167,27 @@
 					<div class="card-body">
 						<div class="row no-gooters">
 							<div class="col-md-12 my-1">
-								<table id="table_Common_Data" class="table table-bordered table-striped w-100"> </table>
+								<!-- STATUS FILTER -->
+								<div class="status-filter mb-3">
+									<label class="status-btn active" data-status="">
+										All &nbsp; &nbsp;(<span id="count_ALL">0</span>)
+									</label>
+
+									@foreach (var item in Model.SelectListItems.Where(x => x.Group == "OS"))
+									{
+										<label class="status-btn status-@item.Text.ToLower()" data-status="@item.Value">
+											@item.Text &nbsp; &nbsp;(<span id="count_@item.Value">0</span>)
+										</label>
+									}
+
+								</div>
+							</div>
+
+							<div class="clearfix"></div>
+						</div>
+						<div class="row no-gooters">
+							<div class="col-md-12 my-1">
+								<table id="table_Common_Data" class="table table-bordered table-striped w-100" data-select-all="false"> </table>
 							</div>
 
 							<div class="clearfix"></div>
@@ -58,7 +205,23 @@
 {
 	<script type="text/javascript">
 
-		$(document).ready(function () { fnLoadTableData(); });
+		var selectedStatus = "";
+
+		$(document).ready(function () {
+
+			fnLoadTableData();
+
+			$('.status-btn').on('click', function () {
+
+				$('.status-btn').removeClass('active');
+				$(this).addClass('active');
+
+				selectedStatus = $(this).data("status");
+
+				fnLoadTableData();
+			});
+
+		});
 
 		function fnLoadTableData() {
 
@@ -79,10 +242,12 @@
 				"bServerSide": true,
 				"bProcessing": true,
 				"bSearchable": true,
-				"order": [[2, 'asc']],
+				"order": [[2, 'desc']],
 				"language": { "emptyTable": "No record found.", "processing": '<i class="fa fa-spinner fa-spin fa-3x fa-fw" style="color:#2a2b2b;"></i><span class="sr-only">Loading...</span> ' },
+				"sAjaxDataProp": "aaData",
 				"fnServerParams": function (aoData) {
-					//aoData.push({ "name": "SearchTerm", "value": "" + $('#inputSearch').val() });
+					var status = $('.status-btn.active').data('status');
+					aoData.push({ "name": "sStatus", "value": status });
 				},
 				columnDefs: [
 					{ "targets": 0, "className": "text-center", "width": "3%", "autoWidth": false, "searchable": false, "orderable": false },
@@ -92,34 +257,99 @@
 					{
 						title: "<input type='checkbox' id='chkAll' />",
 						data: "Id",
-						render: function (data) { return '<input type="checkbox" class="chkRow" value="' + data + '" />'; }
+						orderable: false,
+						searchable: false,
+						className: "text-center",
+						render: function (data) {
+							return '<input type="checkbox" class="chkRow" value="' + data + '" />';
+						}
 					},
 					{ title: "Sr.No.", data: "SrNo", width: "5%", className: "text-center" },
 					{ title: "Order No.", data: "OrderNumber" },
 					{
-					title: "Order Date",
-					data: "OrderDate",
-					render: function (data, type, row) {
-						if (data) {
+						title: "Order Date",
+						data: "OrderDate",
+						render: function (data, type) {
+							if (!data) return '';
+
 							var date = new Date(data);
+
+							// ✅ For sorting (very important)
+							if (type === 'sort' || type === 'type') {
+								return date.getTime();
+							}
+
+							// ✅ Format: dd-MMM-yyyy HH:mm
 							var day = ("0" + date.getDate()).slice(-2);
-							var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-											  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+							var monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 							var month = monthNames[date.getMonth()];
 							var year = date.getFullYear();
 
-							return day + "-" + month + "-" + year;
+							var hours = ("0" + date.getHours()).slice(-2);
+							var minutes = ("0" + date.getMinutes()).slice(-2);
+
+							var formattedDate = day + "-" + month + "-" + year + " " + hours + ":" + minutes;
+
+							// ✅ Relative time calculation
+							var now = new Date();
+							var diffMs = now - date;
+							var diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+							// 👉 Only show relative if within 5 days
+							if (diffDays <= 5) {
+
+								var seconds = Math.floor(diffMs / 1000);
+
+								if (seconds < 60)
+									return formattedDate + " <span class='text-muted'>(just now)</span>";
+
+								var minutesDiff = Math.floor(seconds / 60);
+								if (minutesDiff < 60)
+									return formattedDate + " <span class='text-muted'>(" + minutesDiff + " min ago)</span>";
+
+								var hoursDiff = Math.floor(minutesDiff / 60);
+								if (hoursDiff < 24)
+									return formattedDate + " <span class='text-muted'>(" + hoursDiff + " hours ago)</span>";
+
+								var daysDiff = Math.floor(hoursDiff / 24);
+								return formattedDate + " <span class='text-muted'>(" + daysDiff + " days ago)</span>";
+							}
+
+							// ✅ Older than 5 days → no relative
+							return formattedDate;
 						}
-						return "";
-					}
 					},
 					{ title: "No.Of.Items", data: "No_Of_Items" },
 					{ title: "Final Amount", data: "FinalAmount" },
 					{
 						title: "Status",
 						data: "OrderStatus",
-						className: "text-center",
-						render: function (data) { return data == 'PEND' ? '<span class="badge badge-danger">Pending</span>' : '<span class="badge badge-success">Completed</span>'; }
+						className: "text-center", width: "10%",
+						//render: function (data) { return data == 'PEND' ? '<span class="badge badge-danger">Pending</span>' : '<span class="badge badge-success">Completed</span>'; }
+						render: function (data) {
+							switch (data) {
+								case 'PEND':
+									return '<span class="badge-status badge-pending">Pending</span>';
+
+								case 'CONF':
+									return '<span class="badge-status badge-confirmed">Confirmed</span>';
+
+								case 'PROC':
+									return '<span class="badge-status badge-processing">Processing</span>';
+
+								case 'COMP':
+									return '<span class="badge-status badge-completed">Completed</span>';
+
+								case 'CANC':
+									return '<span class="badge-status badge-cancelled">Cancelled</span>';
+
+								case 'RET':
+									return '<span class="badge-status badge-returned">Returned</span>';
+
+								default:
+									return '<span class="badge-status">Unknown</span>';
+							}
+						}
 					},
 					{
 						title: "Action",
@@ -144,12 +374,147 @@
 								'</div>';
 						}
 					}
-				]
+				 ],
+				"initComplete": function () {
+
+					var btn = `
+						<button id="btnChangeStatus" class="btn btn-primary btn-sm mr-2">
+							<i class="fa fa-sync"></i> Change Status
+						</button>
+					`;
+
+					// Insert BEFORE search box
+					$('#table_Common_Data_filter').prepend(btn);
+					$('#table_Common_Data_filter').addClass('d-flex align-items-end gap-2');
+				},
+				 "fnDrawCallback": function (settings) {
+					var res = settings.json;
+					if (res && res.StatusCounts) {
+						$('#count_ALL').text(res.StatusCounts.All);
+						$('#count_PEND').text(res.StatusCounts.Pending);
+						$('#count_CONF').text(res.StatusCounts.Confirmed);
+						$('#count_PROC').text(res.StatusCounts.Processing);
+						$('#count_COMP').text(res.StatusCounts.Completed);
+						$('#count_CANC').text(res.StatusCounts.Cancelled);
+						$('#count_RET').text(res.StatusCounts.Returned);
+					}
+
+					$('.chkRow').each(function () { $(this).prop('checked', false); });
+				}
+				//,
+				// "drawCallback": function () {
+				// 	loadStatusCounts();
+				// }
 			});
 		}
 
+		$(document).on('change', '#chkAll', function () {
+
+			if ($(this).is(':checked')) {
+
+				Swal.fire({
+					title: "Select All Records?",
+					text: "Do you want to select all records across all pages?",
+					icon: "question",
+					showCancelButton: true,
+					confirmButtonText: "Yes, All Pages",
+					cancelButtonText: "Only This Page"
+				}).then((result) => {
+
+					if (result.isConfirmed) {
+						$('#table_Common_Data').attr('data-select-all', 'true');
+					} else {
+						$('#table_Common_Data').attr('data-select-all', 'false');
+					}
+
+					$('.chkRow').prop('checked', true);
+				});
+
+			} else {
+
+				$('#table_Common_Data').attr('data-select-all', 'false');
+				$('.chkRow').prop('checked', false);
+			}
+		});
+
+		$(document).on('change', '.chkRow', function () {
+
+			if (!$(this).is(':checked')) {
+				$('#chkAll').prop('checked', false);
+				$('#table_Common_Data').attr('data-select-all', 'false');
+			}
+		});
+
+		$('.status-filter').on('click', '.status-btn', function () {
+
+			$('.status-btn').removeClass('active');
+			$(this).addClass('active');
+
+			fnLoadTableData(); // reload table
+		});
+
+		function getCurrentPageIds() {
+
+			var ids = [];
+
+			$('.chkRow:checked').each(function () {
+				ids.push($(this).val());
+			});
+
+			return ids;
+		}
+
+		$(document).on('click', '#btnChangeStatus', function () {
+
+			var isAll = $('#table_Common_Data').attr('data-select-all') === 'true';
+			var ids = getCurrentPageIds();
+
+			if (!isAll && ids.length === 0) {
+				Swal.fire("Warning", "Please select at least one order", "warning");
+				return;
+			}
+
+			Swal.fire({
+				title: 'Change Order Status',
+				input: 'select',
+				inputOptions: {
+					'PEND': 'Pending',
+					'CONF': 'Confirmed',
+					'PROC': 'Processing',
+					'COMP': 'Completed',
+					'CANC': 'Cancelled',
+					'RET': 'Returned'
+				},
+				showCancelButton: true
+			}).then((result) => {
+
+				if (result.isConfirmed) {
+
+					$.ajax({
+						url: '@Url.Action("UpdateStatus", "Orders", new { area = "Admin" })',
+						type: 'POST',
+						data: {
+							ids: ids,
+							isAllSelected: isAll,
+							status: result.value
+						},
+						traditional: true,
+						success: function () {
+
+							$('#chkAll').prop('checked', false);
+							$('#table_Common_Data').attr('data-select-all', 'false');
+
+							$('#table_Common_Data').DataTable().ajax.reload(null, false);
+
+							Swal.fire("Success", "Updated successfully", "success");
+						}
+					});
+				}
+			});
+		});
+
 		function fnParialView_Loaded_Success($id, $isAlert){
-			
+
 			initImageUploader();
 		}
 		function fnBtnAddNewItem() {
@@ -241,5 +606,6 @@
 
 			$("#FinalAmount").val(finalAmount.toFixed(2));
 		}
+
 	</script>
 }

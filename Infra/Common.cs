@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json.Linq;
+using System.ComponentModel;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text;
@@ -435,6 +437,49 @@ namespace JewelryStore.Infra
 
 			return age;
 		}
+
+		public enum OrderStatus
+		{
+			[Description("Pending")] PEND,
+			[Description("Confirmed")] CONF,
+			[Description("Processing")] PROC,
+			[Description("Completed")] COMP,
+			[Description("Cancelled")] CANC,
+			[Description("Returned")] RET
+		}
+		public static string GetEnumDescription(Enum value)
+		{
+			var field = value.GetType().GetField(value.ToString());
+			var attr = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));
+			return attr?.Description ?? value.ToString();
+		}
+
+		public static string GetStatusName(string status)
+		{
+			switch (status)
+			{
+				case "PEND": return "Pending";
+				case "CONF": return "Confirmed";
+				case "PROC": return "Processing";
+				case "COMP": return "Completed";
+				case "CANC": return "Cancelled";
+				case "RET": return "Returned";
+				default: return "Unknown";
+			}
+		}
+
+		public static List<SelectListItem_Custom> GetStatusList()
+		{
+			return new List<SelectListItem_Custom>
+			{
+				new SelectListItem_Custom("PEND", "Pending", "OS"),
+				new SelectListItem_Custom("CONF", "Confirmed", "OS"),
+				new SelectListItem_Custom("PROC", "Processing", "OS"),
+				new SelectListItem_Custom("COMP", "Completed", "OS"),
+				new SelectListItem_Custom("CANC", "Cancelled", "OS"),
+				new SelectListItem_Custom("RET", "Returned", "OS")
+			};
+		}
 	}
 
 	public static class CurrentUser
@@ -495,7 +540,6 @@ namespace JewelryStore.Infra
 			}
 		}
 	}
-
 
 
 }

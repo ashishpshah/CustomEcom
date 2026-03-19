@@ -13,20 +13,19 @@ namespace JewelryStore.Areas.Admin.Controllers
 	public class OrdersController : BaseController<ResponseModel<Orders>>
 	{
 		public IActionResult Index()
-	{
-            var list = new List<SelectListItem_Custom>();
+		{
+			var list = Common.GetStatusList();
 
-            var oParams = new List<SqlParameter>();
+			var oParams = new List<SqlParameter>();
 
-            DataTable dt = null;
-            dt = DataContext.ExecuteStoredProcedure_DataTable("SP_Variant_Combo", null, true);
+			DataTable dt = DataContext.ExecuteStoredProcedure_DataTable("SP_Variant_Combo", null, true);
 
-            if (dt != null && dt.Rows.Count > 0)
-                foreach (DataRow dr in dt.Rows)
-                    list.Add(new SelectListItem_Custom(GetValue<string>(dr, "Id"), GetValue<string>(dr, "Product_Name"), GetValue<decimal>(dr, "Price"), "VARIANT", GetValue<int>(dr, "Id")));
+			if (dt != null && dt.Rows.Count > 0)
+				foreach (DataRow dr in dt.Rows)
+					list.Add(new SelectListItem_Custom(GetValue<string>(dr, "Id"), GetValue<string>(dr, "Product_Name"), GetValue<decimal>(dr, "Price"), "VARIANT", GetValue<int>(dr, "Id")));
 
 			CommonViewModel.SelectListItems = list;
-            return View(CommonViewModel);
+			return View(CommonViewModel);
 		}
 
 		public ActionResult GetDataList(JqueryDatatableParam param)
@@ -35,12 +34,25 @@ namespace JewelryStore.Areas.Admin.Controllers
 			int FilteredRecords = 0;
 			List<Orders> result = new List<Orders>();
 
+			var counts = new
+			{
+				All = 0,
+				Pending = 0,
+				Confirmed = 0,
+				Processing = 0,
+				Completed = 0,
+				Cancelled = 0,
+				Returned = 0
+			};
+
+
 			try
 			{
 				var oParams = new List<SqlParameter>();
 
 				oParams.Add(new SqlParameter("@Id", null));
 				oParams.Add(new SqlParameter("@Search", param.sSearch));
+				oParams.Add(new SqlParameter("@OrderStatus", string.IsNullOrEmpty(param.sStatus) ? (object)DBNull.Value : param.sStatus));
 				oParams.Add(new SqlParameter("@Start", param.iDisplayStart));
 				oParams.Add(new SqlParameter("@Length", param.iDisplayLength));
 				oParams.Add(new SqlParameter("@SortColumnIndex", param.iSortCol_0));
@@ -52,8 +64,21 @@ namespace JewelryStore.Areas.Admin.Controllers
 				{
 					if (ds.Tables[0].Rows.Count > 0)
 					{
-						TotalRecords = GetValue<int>(ds.Tables[0].Rows[0], "TotalRecords");
-						FilteredRecords = GetValue<int>(ds.Tables[0].Rows[0], "FilteredRecords");
+						var dr = ds.Tables[0].Rows[0];
+
+						TotalRecords = GetValue<int>(dr, "TotalRecords");
+						FilteredRecords = GetValue<int>(dr, "FilteredRecords");
+
+						counts = new
+						{
+							All = GetValue<int>(dr, "AllCount"),
+							Pending = GetValue<int>(dr, "Pending"),
+							Confirmed = GetValue<int>(dr, "Confirmed"),
+							Processing = GetValue<int>(dr, "Processing"),
+							Completed = GetValue<int>(dr, "Completed"),
+							Cancelled = GetValue<int>(dr, "Cancelled"),
+							Returned = GetValue<int>(dr, "Returned")
+						};
 					}
 
 					if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
@@ -63,29 +88,29 @@ namespace JewelryStore.Areas.Admin.Controllers
 								SrNo = GetValue<int>(dr, "SrNo"),
 								Id = GetValue<int>(dr, "Id"),
 								OrderNumber = GetValue<string>(dr, "OrderNumber"),
-                                OrderStatus = GetValue<string>(dr, "OrderStatus"),
-                                OrderDate = GetValue<DateTime?>(dr, "OrderDate"),
-                                No_Of_Items = GetValue<int>(dr, "No_Of_Items"),
+								OrderStatus = GetValue<string>(dr, "OrderStatus"),
+								OrderDate = GetValue<DateTime?>(dr, "OrderDate"),
+								No_Of_Items = GetValue<int>(dr, "No_Of_Items"),
 								TotalAmount = GetValue<decimal?>(dr, "TotalAmount"),
 								DiscountAmount = GetValue<decimal?>(dr, "DiscountAmount"),
-								FinalAmount = GetValue<decimal?>(dr, "FinalAmount"),								
+								FinalAmount = GetValue<decimal?>(dr, "FinalAmount"),
 								IsActive = GetValue<bool>(dr, "IsActive"),
-								LastModifiedDate = GetValue<DateTime?>(dr, "LastModifiedDate")
+								LastModifiedDate_Text = GetValue<string>(dr, "LastModifiedDate_Text")
 							});
 				}
 
 			}
 			catch (Exception ex) { }
 
-			return Json(new { param.sEcho, iTotalRecords = TotalRecords, iTotalDisplayRecords = FilteredRecords, aaData = result });
+			return Json(new { param.sEcho, iTotalRecords = TotalRecords, iTotalDisplayRecords = result?.Count() ?? 0, aaData = result, StatusCounts = counts });
 
 		}
 
 
 		[HttpGet]
-		public IActionResult Partial_AddEditForm(int id ,string Flag = "")
+		public IActionResult Partial_AddEditForm(int id, string Flag = "")
 		{
-			var obj = new Orders() {};
+			var obj = new Orders() { };
 			var listOrderItems = new List<OrderItems>();
 
 			var list = new List<SelectListItem_Custom>();
@@ -113,7 +138,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 							Id = GetValue<int>(dr, "Id"),
 							OrderNumber = GetValue<string>(dr, "OrderNumber"),
 							OrderStatus = GetValue<string>(dr, "OrderStatus"),
-                            OrderDate = GetValue<DateTime?>(dr, "OrderDate"),
+							OrderDate = GetValue<DateTime?>(dr, "OrderDate"),
 							No_Of_Items = GetValue<int>(dr, "No_Of_Items"),
 							TotalAmount = GetValue<decimal?>(dr, "TotalAmount"),
 							DiscountAmount = GetValue<decimal?>(dr, "DiscountAmount"),
@@ -153,46 +178,46 @@ namespace JewelryStore.Areas.Admin.Controllers
 				else
 				{
 					dt = new DataTable();
-                    dt = DataContext.ExecuteStoredProcedure_DataTable("SP_GenerateOrderNumber", null);
+					dt = DataContext.ExecuteStoredProcedure_DataTable("SP_GenerateOrderNumber", null);
 
-                    if (dt != null && dt.Rows.Count > 0)
-                    {
-                        var dr = dt.Rows[0];
+					if (dt != null && dt.Rows.Count > 0)
+					{
+						var dr = dt.Rows[0];
 
-                        obj = new Orders()
-                        {
-                           
-                            OrderNumber = GetValue<string>(dr, "OrderNumber"),
-                            OrderDate = DateTime.Now
+						obj = new Orders()
+						{
 
-                        };
-                    }
-                }
-					//oParams = new List<SqlParameter>();
-					//oParams.Add(new SqlParameter("@Id", -1));
+							OrderNumber = GetValue<string>(dr, "OrderNumber"),
+							OrderDate = DateTime.Now
 
-					dt = DataContext.ExecuteStoredProcedure_DataTable("SP_Variant_Combo", null, true);
+						};
+					}
+				}
+				//oParams = new List<SqlParameter>();
+				//oParams.Add(new SqlParameter("@Id", -1));
 
-                if (dt != null && dt.Rows.Count > 0)
-                    foreach (DataRow dr in dt.Rows)
-                        list.Add(new SelectListItem_Custom(GetValue<string>(dr, "Id"), GetValue<string>(dr, "Product_Name"), GetValue<decimal>(dr, "Price"), "VARIANT", GetValue<int>(dr, "Id")));
+				dt = DataContext.ExecuteStoredProcedure_DataTable("SP_Variant_Combo", null, true);
+
+				if (dt != null && dt.Rows.Count > 0)
+					foreach (DataRow dr in dt.Rows)
+						list.Add(new SelectListItem_Custom(GetValue<string>(dr, "Id"), GetValue<string>(dr, "Product_Name"), GetValue<decimal>(dr, "Price"), "VARIANT", GetValue<int>(dr, "Id")));
 
 
-            }
-            catch (Exception ex) { LogService.LogInsert(GetCurrentAction(), "", ex); }
+			}
+			catch (Exception ex) { LogService.LogInsert(GetCurrentAction(), "", ex); }
 			obj.ListOrderItems = listOrderItems;
 			CommonViewModel.Obj = obj;
-			
+
 			CommonViewModel.SelectListItems = list;
 
-			if(Flag == "VIEW")
+			if (Flag == "VIEW")
 			{
-                return PartialView("_Partial_AddEditForm_View", CommonViewModel);
-            }
+				return PartialView("_Partial_AddEditForm_View", CommonViewModel);
+			}
 			else if (Flag == "VIEWITEMS")
 			{
-                return PartialView("_Partial_AddEditForm_ViewItems", CommonViewModel);
-            }
+				return PartialView("_Partial_AddEditForm_ViewItems", CommonViewModel);
+			}
 
 			return PartialView("_Partial_AddEditForm", CommonViewModel);
 
@@ -204,58 +229,58 @@ namespace JewelryStore.Areas.Admin.Controllers
 		{
 			try
 			{
-                if ( viewModel.ListOrderItems == null || !viewModel.ListOrderItems.Any())
-                {
-                    CommonViewModel.IsSuccess = false;
-                    CommonViewModel.Message = "Please select at least one product.";
+				if (viewModel.ListOrderItems == null || !viewModel.ListOrderItems.Any())
+				{
+					CommonViewModel.IsSuccess = false;
+					CommonViewModel.Message = "Please select at least one product.";
 
-                    return Json(CommonViewModel);
-                    
-                }
+					return Json(CommonViewModel);
 
-                // Remove empty rows if needed
-                var validItems = viewModel.ListOrderItems
-                    .Where(x => x != null && x.VariantId > 0)
-                    .ToList();
+				}
 
-                if (!validItems.Any())
-                {
-                    CommonViewModel.IsSuccess = false;
-                    CommonViewModel.Message = "Please select at least one product.";
+				// Remove empty rows if needed
+				var validItems = viewModel.ListOrderItems
+					.Where(x => x != null && x.VariantId > 0)
+					.ToList();
 
-                    return Json(CommonViewModel);
-                }
+				if (!validItems.Any())
+				{
+					CommonViewModel.IsSuccess = false;
+					CommonViewModel.Message = "Please select at least one product.";
 
-                // Check duplicate VariantId
-                var duplicateVariants = validItems
-                    .GroupBy(x => x.VariantId)
-                    .Where(g => g.Count() > 1)
-                    .Select(g => g.Key)
-                    .ToList();
+					return Json(CommonViewModel);
+				}
 
-                if (duplicateVariants.Any())
-                {
-                    CommonViewModel.IsSuccess = false;
-                    CommonViewModel.Message = "Same product cannot be added more than once.";
-                    return Json(CommonViewModel);                  
-                }
-                var (IsSuccess, Message, Id, Extra) = (false, ResponseStatusMessage.Error, 0M, new List<string>());
+				// Check duplicate VariantId
+				var duplicateVariants = validItems
+					.GroupBy(x => x.VariantId)
+					.Where(g => g.Count() > 1)
+					.Select(g => g.Key)
+					.ToList();
 
-                DataTable order_items_table = new DataTable();
-                order_items_table.Columns.Add("VariantId", typeof(int));
-                order_items_table.Columns.Add("Quantity", typeof(int));
-                order_items_table.Columns.Add("UnitPrice", typeof(decimal));              
-                order_items_table.Columns.Add("TotalPrice", typeof(decimal));
+				if (duplicateVariants.Any())
+				{
+					CommonViewModel.IsSuccess = false;
+					CommonViewModel.Message = "Same product cannot be added more than once.";
+					return Json(CommonViewModel);
+				}
+				var (IsSuccess, Message, Id, Extra) = (false, ResponseStatusMessage.Error, 0M, new List<string>());
 
-                if (viewModel != null && viewModel.ListOrderItems.Count > 0)
-                {
-                    foreach (var orderitems in viewModel.ListOrderItems)
-                    {
-                        order_items_table.Rows.Add(orderitems.VariantId , orderitems.Quantity,orderitems.UnitPrice,orderitems.TotalPrice);
-                    }
-                }
+				DataTable order_items_table = new DataTable();
+				order_items_table.Columns.Add("VariantId", typeof(int));
+				order_items_table.Columns.Add("Quantity", typeof(int));
+				order_items_table.Columns.Add("UnitPrice", typeof(decimal));
+				order_items_table.Columns.Add("TotalPrice", typeof(decimal));
 
-                List<SqlParameter> oParams = new List<SqlParameter>();
+				if (viewModel != null && viewModel.ListOrderItems.Count > 0)
+				{
+					foreach (var orderitems in viewModel.ListOrderItems)
+					{
+						order_items_table.Rows.Add(orderitems.VariantId, orderitems.Quantity, orderitems.UnitPrice, orderitems.TotalPrice);
+					}
+				}
+
+				List<SqlParameter> oParams = new List<SqlParameter>();
 
 				oParams.Add(new SqlParameter("Id", viewModel.Id));
 				oParams.Add(new SqlParameter("OrderNumber", viewModel.OrderNumber));
@@ -263,7 +288,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 				oParams.Add(new SqlParameter("TotalAmount", viewModel.TotalAmount));
 				oParams.Add(new SqlParameter("DiscountAmount", viewModel.DiscountAmount));
 				oParams.Add(new SqlParameter("FinalAmount", viewModel.FinalAmount));
-				oParams.Add(new SqlParameter("OrderItems",  order_items_table));				
+				oParams.Add(new SqlParameter("OrderItems", order_items_table));
 				oParams.Add(new SqlParameter("IsActive", viewModel.IsActive ? 1 : 0));
 				oParams.Add(new SqlParameter("Mode", "SAVE"));
 				oParams.Add(new SqlParameter("OperatedBy", Logged_In_UserId));
@@ -323,5 +348,21 @@ namespace JewelryStore.Areas.Admin.Controllers
 			return Json(CommonViewModel);
 		}
 
+
+		[HttpPost]
+		public IActionResult UpdateStatus(List<int> ids, string status)
+		{
+			//var orders = db.Orders.Where(x => ids.Contains(x.Id)).ToList();
+
+			//foreach (var order in orders)
+			//{
+			//	order.OrderStatus = status;
+			//	order.LastModifiedDate = DateTime.Now;
+			//}
+
+			//db.SaveChanges();
+
+			return Ok();
+		}
 	}
 }
