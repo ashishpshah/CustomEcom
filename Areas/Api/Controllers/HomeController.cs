@@ -8,6 +8,8 @@ using JewelryStore.Areas.Api.ServiceRepository.ProductRepository;
 using JewelryStore.Infra;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using Newtonsoft.Json;
 using NuGet.Protocol.Core.Types;
 using System.Data;
 
@@ -269,6 +271,17 @@ namespace JewelryStore.Areas.Api.Controllers
                     CommonViewModel.StatusCode = ResponseStatusCode.Success;
                     CommonViewModel.Message = data.Message;
                     CommonViewModel.Data = data.Data;
+                    var dict = data.Data as IDictionary<string, object>;
+                    var newOtp = dict?["OTP"]?.ToString();
+                    
+                    Common.SendEmail(
+                        "Your OTP Code",
+                        request.Email,
+                        true,
+                        "",
+                        "otp_message",
+                        JsonConvert.SerializeObject(new { otp = newOtp })
+                    );
                 }
                 else
                 {
@@ -289,11 +302,11 @@ namespace JewelryStore.Areas.Api.Controllers
 
 
         [HttpPost("[Action]")]
-        public async Task<IActionResult> ForgotPassword_VerifyOTP(string Email , int otp)
+        public async Task<IActionResult> ForgotPassword_VerifyOTP([FromBody] ForgotPasswordRequest request)
         {
             try
             {
-                if (otp == 0)
+                if (request.Otp == 0)
                 {
                     CommonViewModel.IsSuccess = false;
                     CommonViewModel.StatusCode = ResponseStatusCode.Error;
@@ -302,7 +315,7 @@ namespace JewelryStore.Areas.Api.Controllers
                     return Ok(CommonViewModel);
                 }
 
-                var data = await _repository.ForgotPassword_VerifyOTP(Email , otp);
+                var data = await _repository.ForgotPassword_VerifyOTP(request.Email , request.Otp);
 
                 if (data != null && data.Status == 1)
                 {
@@ -330,11 +343,11 @@ namespace JewelryStore.Areas.Api.Controllers
 
 
         [HttpPost("[Action]")]
-        public async Task<IActionResult> ForgotPassword_ResetPassword(string Email, string newPassword , string confirmPassword)
+        public async Task<IActionResult> ForgotPassword_ResetPassword([FromBody] ForgotPasswordRequest request)
         {
             try
             {
-                if (string.IsNullOrEmpty(newPassword))
+                if (string.IsNullOrEmpty(request.NewPassword))
                 {
                     CommonViewModel.IsSuccess = false;
                     CommonViewModel.StatusCode = ResponseStatusCode.Error;
@@ -342,7 +355,7 @@ namespace JewelryStore.Areas.Api.Controllers
 
                     return Ok(CommonViewModel);
                 }
-                if (string.IsNullOrEmpty(confirmPassword))
+                if (string.IsNullOrEmpty(request.ConfirmPassword))
                 {
                     CommonViewModel.IsSuccess = false;
                     CommonViewModel.StatusCode = ResponseStatusCode.Error;
@@ -350,7 +363,7 @@ namespace JewelryStore.Areas.Api.Controllers
 
                     return Ok(CommonViewModel);
                 }
-                if (newPassword != confirmPassword)
+                if (request.NewPassword != request.ConfirmPassword)
                 {
                     CommonViewModel.IsSuccess = false;
                     CommonViewModel.StatusCode = ResponseStatusCode.Error;
@@ -358,7 +371,7 @@ namespace JewelryStore.Areas.Api.Controllers
 
                     return Ok(CommonViewModel);
                 }
-                var data = await _repository.ForgotPassword_ResetPassword(Email, confirmPassword);
+                var data = await _repository.ForgotPassword_ResetPassword(request.Email, request.NewPassword);
 
                 if (data != null && data.Status == 1)
                 {
