@@ -118,7 +118,7 @@
 				columns:[
 					{title:"No",data:"SrNo"},
 					{title:"Name",data:"OfferName"},
-					
+
 					/* DISCOUNT TYPE */
 					{
 						title: "Discount Type",
@@ -155,7 +155,7 @@
 						title: "Min Qty",
 						data: "MinQty",
 						render: d => d || "-"
-					},					
+					},
 					{
 						title: "Max Discount",
 						data: "MaxDiscountAmount",
@@ -225,6 +225,19 @@
 					}
 				]
 			});
+		}
+
+
+		function fnChange_Select($id) {
+
+			var selectedValue = $('#select' + $id).val();
+
+			if (typeof selectedValue != 'undefined' && selectedValue != null && selectedValue != '' && selectedValue.length > 0)
+				$('#input' + $id).val(selectedValue.join(','));
+			else
+				$('#input' + $id).val('');
+
+			$('#input' + $id).trigger('change');
 		}
 
 	</script>
