@@ -3,6 +3,7 @@ using JewelryStore.Areas.Api.ServiceRepository.AttibuteRepository;
 using JewelryStore.Areas.Api.ServiceRepository.AttributeRepository;
 using JewelryStore.Areas.Api.ServiceRepository.CategoryRepository;
 using JewelryStore.Areas.Api.ServiceRepository.CouponRepository;
+using JewelryStore.Areas.Api.ServiceRepository.DashboardRepository;
 using JewelryStore.Areas.Api.ServiceRepository.HomeRepository;
 using JewelryStore.Areas.Api.ServiceRepository.InquiryRepository;
 using JewelryStore.Areas.Api.ServiceRepository.OrdersRepository;
@@ -57,6 +58,7 @@ namespace JewelryStore
             builder.Services.AddScoped<IInquiryRepository, InquiryRepository>();
             builder.Services.AddScoped<IProductStockRepository, ProductStockRepository>();
             builder.Services.AddScoped<IHomeRepository, HomeRepository>();
+            builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 
 
             builder.WebHost.ConfigureKestrel(options =>

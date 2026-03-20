@@ -18,4 +18,16 @@
         public string Message { get; set; }
         public object Data { get; set; }
     }
+    public class ChangePasswordResult
+    {
+        public int Status { get; set; }
+        public string Message { get; set; }
+        
+    }
+    public class ChangePasswordRequest
+    {
+        public string OldPassword { get; set; }
+        public string NewPassword { get; set; }
+        public string ConfirmPassword { get; set; }
+    }
 }
