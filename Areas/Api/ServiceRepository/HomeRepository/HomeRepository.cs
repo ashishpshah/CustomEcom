@@ -140,7 +140,7 @@ namespace JewelryStore.Areas.Api.ServiceRepository.HomeRepository
 
                 var oParams = new List<SqlParameter>()
                 {
-                    new SqlParameter("@Id", -1),
+                    
                     new SqlParameter("@CustomerId", CustomerId)
                 };
 
@@ -155,12 +155,15 @@ namespace JewelryStore.Areas.Api.ServiceRepository.HomeRepository
                         {
                             Id = Convert.ToInt32(row["Id"]),
                             ProductId = Convert.ToInt32(row["ProductId"]),
+                            Quantity = Convert.ToInt32(row["Quantity"]),
                             VariantId = Convert.ToInt32(row["VariantId"]),
                             ProductName = row["ProductName"]?.ToString(),
+                            Price = Convert.ToDecimal(row["ProductName"]),
                             SKU = row["SKU"]?.ToString(),
                             AttributeId = row["AttributeId"]?.ToString(),
                             AttributeName = row["AttributeName"]?.ToString(),
                             IsActive = Convert.ToBoolean(row["IsActive"]),
+                            ImagePath = row["ImagePath"]?.ToString(),
                             //CreatedDate = Convert.ToDateTime(row["CreatedDate"]),
                             //CreatedDate_Text = Convert.ToDateTime(row["CreatedDate"]).ToString("dd-MMM-yyyy")
                         });
