@@ -158,7 +158,7 @@ namespace JewelryStore.Areas.Api.ServiceRepository.HomeRepository
                             Quantity = Convert.ToInt32(row["Quantity"]),
                             VariantId = Convert.ToInt32(row["VariantId"]),
                             ProductName = row["ProductName"]?.ToString(),
-                            Price = Convert.ToDecimal(row["ProductName"]),
+                            Price = Convert.ToDecimal(row["Price"]),
                             SKU = row["SKU"]?.ToString(),
                             AttributeId = row["AttributeId"]?.ToString(),
                             AttributeName = row["AttributeName"]?.ToString(),
