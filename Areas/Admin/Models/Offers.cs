@@ -40,6 +40,8 @@ namespace JewelryStore.Areas.Admin.Models
 
 		/* 🔥 UI / Derived Fields */
 		public string Applicability { get; set; }
+		public string ApplyOnly_Category { get; set; }
+		public string ApplyOnly_Product { get; set; }
 		public int UsedCount { get; set; }
 
 		/* 🔥 CHILD COLLECTIONS */

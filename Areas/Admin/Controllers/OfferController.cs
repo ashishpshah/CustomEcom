@@ -97,13 +97,14 @@ namespace JewelryStore.Areas.Admin.Controllers
 		public IActionResult Partial_AddEditForm(long id)
 		{
 			Offer obj = new Offer();
+			var oParams = new List<SqlParameter>();
 
 			try
 			{
-				var oParams = new List<SqlParameter>
-			{
-				new SqlParameter("@Id", id)
-			};
+				oParams = new List<SqlParameter>
+				{
+					new SqlParameter("@Id", id)
+				};
 
 				DataSet ds = DataContext.ExecuteStoredProcedure_DataSet("SP_Offer_Get", oParams);
 
@@ -125,6 +126,8 @@ namespace JewelryStore.Areas.Admin.Controllers
 							IsCouponRequired = GetValue<bool>(dr, "IsCouponRequired"),
 							StartDate = GetValue<DateTime?>(dr, "StartDate"),
 							EndDate = GetValue<DateTime?>(dr, "EndDate"),
+							ApplyOnly_Category = GetValue<string>(dr, "ApplyOnly_Category") ?? string.Empty,
+							ApplyOnly_Product = GetValue<string>(dr, "ApplyOnly_Product") ?? string.Empty,
 							IsActive = GetValue<bool>(dr, "IsActive")
 						};
 					}
@@ -169,6 +172,30 @@ namespace JewelryStore.Areas.Admin.Controllers
 			//list.AddRange(EnumHelper.ToSelectList<OfferBenefitTypeEnum>("BENEFIT_TYPE"));
 			//list.AddRange(EnumHelper.ToSelectList<DayOfWeekEnum>("DAY_OF_WEEK"));
 
+
+			oParams = new List<SqlParameter>();
+			oParams.Add(new SqlParameter("@Id", -1));
+
+			var dt = DataContext.ExecuteStoredProcedure_DataTable("SP_Category_Get", oParams, true);
+
+			if (dt != null && dt.Rows.Count > 0)
+				foreach (DataRow dr in dt.Rows)
+					if (GetValue<bool>(dr, "IsActive") == true && GetValue<int>(dr, "ParentCategoryId") > 0)
+						list.Add(new SelectListItem_Custom(GetValue<string>(dr, "Id"), (string.IsNullOrEmpty(GetValue<string>(dr, "ParentCategoryName")) ? GetValue<string>(dr, "CategoryName") : GetValue<string>(dr, "CategoryName") + " - " + GetValue<string>(dr, "ParentCategoryName")), GetValue<string>(dr, "ParentCategoryId"), "CAT", GetValue<int>(dr, "DisplayOrder")));
+
+			oParams = new List<SqlParameter>();
+			oParams.Add(new SqlParameter("@Id", -2));
+
+			dt = DataContext.ExecuteStoredProcedure_DataTable("SP_Product_Get", oParams, true);
+
+			if (dt != null && dt.Rows.Count > 0)
+			{
+				list.AddRange(dt.AsEnumerable().GroupBy(r => new { Id = r.Field<int>("ProductId"), Name = r.Field<string>("ProductName") })
+					.Select(g => new SelectListItem_Custom(g.Key.Id.ToString(), g.Key.Name, "PROD")).ToList());
+			}
+			//foreach (DataRow dr in dt.Rows)
+			//CommonViewModel.SelectListItems.Add(new SelectListItem_Custom(GetValue<string>(dr, "ProductId") + "-" + GetValue<string>(dr, "VarientId"), GetValue<string>(dr, "ProductName") + " - " + GetValue<string>(dr, "VariantAttributeValues_Only"), GetValue<string>(dr, "CategoryId"), "PROD"));
+
 			CommonViewModel.SelectListItems = list;
 
 			return PartialView("_Partial_AddEditForm", CommonViewModel);
@@ -197,6 +224,8 @@ namespace JewelryStore.Areas.Admin.Controllers
 					new SqlParameter("@CouponCode", viewModel.CouponCode ?? (object)DBNull.Value),
 					new SqlParameter("@StartDate", viewModel.StartDate),
 					new SqlParameter("@EndDate", viewModel.EndDate),
+					new SqlParameter("@ApplyOnly_Category", viewModel.ApplyOnly_Category ?? (object)DBNull.Value),
+					new SqlParameter("@ApplyOnly_Product", viewModel.ApplyOnly_Product ?? (object)DBNull.Value),
 
 					///* CSV DATA */
 					//new SqlParameter("@ApplicabilityData", OfferHelper.BuildApplicability(viewModel.OfferApplicability)),
@@ -211,6 +240,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 
 				var (IsSuccess, Message, Id, Extra) = DataContext.ExecuteStoredProcedure("SP_Offer_Save", oParams, true);
 
+				CommonViewModel.IsConfirm = true;
 				CommonViewModel.IsSuccess = IsSuccess;
 				CommonViewModel.Message = Message;
 				CommonViewModel.RedirectURL = IsSuccess ? Url.Content("~/Admin/Offer/Index") : "";
