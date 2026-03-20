@@ -1,0 +1,275 @@
+﻿@model ResponseModel<Offer>
+@{
+	Layout = null;
+}
+
+<div class="col-12">
+	<div class="card card-primary card-outline">
+
+		<div class="card-header">
+			<h5>@(Model.Obj.Id > 0 ? "Edit" : "Create") Offer</h5>
+			<input type="hidden" name="Id" value="@Model.Obj?.Id" />
+		</div>
+
+		<div class="card-body">
+
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">Offer Name *</label>
+				<div class="col-sm-4">
+					<input type="text" name="OfferName" class="form-control form-control-sm"
+						   value="@Model.Obj?.OfferName" />
+				</div>
+
+				@* <label class="col-sm-2 col-form-label text-right">Offer Type</label>
+				<div class="col-sm-4">
+					<select name="OfferType" class="form-control form-control-sm">
+						@if (Model.SelectListItems != null)
+						{
+							foreach (var item in Model.SelectListItems.Where(x => x.Group == "OFFER_TYPE"))
+							{
+								if (item.Value == Model.Obj.OfferType.ToString() || ((Model.Obj == null || Model.Obj.Id <= 0) && Model.SelectListItems.Where(x => x.Group == "OFFER_TYPE").Count() == 1))
+								{
+									<option value="@item.Value" selected>@item.Text</option>
+								}
+								else
+								{
+									<option value="@item.Value">@item.Text</option>
+								}
+							}
+						}
+					</select>
+				</div> *@
+
+			</div>
+
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">Discount Type</label>
+				<div class="col-sm-2">
+					<select name="DiscountType" class="form-control form-control-sm">
+						@if (Model.SelectListItems != null)
+						{
+							foreach (var item in Model.SelectListItems.Where(x => x.Group == "DISCOUNT_TYPE"))
+							{
+								if (item.Value == Model.Obj?.DiscountType?.ToString() || ((Model.Obj == null || Model.Obj.Id <= 0) && Model.SelectListItems.Where(x => x.Group == "DISCOUNT_TYPE").Count() == 1))
+								{
+									<option value="@item.Value" selected>@item.Text</option>
+								}
+								else
+								{
+									<option value="@item.Value">@item.Text</option>
+								}
+							}
+						}
+					</select>
+				</div>
+
+				<label class="col-sm-2 col-form-label text-right">Discount Value</label>
+				<div class="col-sm-2">
+					<input type="number" name="DiscountValue" class="form-control form-control-sm" value="@Model.Obj?.DiscountValue" />
+				</div>
+
+			</div>
+
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">Min Order Price</label>
+				<div class="col-sm-2">
+					<input type="number" name="MinOrderAmount" class="form-control form-control-sm" value="@Model.Obj?.MinOrderAmount" />
+				</div>
+
+				<label class="col-sm-2 col-form-label text-right">Min Qty</label>
+				<div class="col-sm-2">
+					<input type="number" name="MinQty" class="form-control form-control-sm" value="@Model.Obj?.MinQty" />
+				</div>
+
+				<label class="col-sm-2 col-form-label text-right">Max Discount Amount</label>
+				<div class="col-sm-2">
+					<input type="number" name="MaxDiscountAmount" class="form-control form-control-sm" value="@Model.Obj?.MaxDiscountAmount" />
+				</div>
+
+			</div>
+
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">Coupon Required</label>
+				<div class="col-sm-2">
+					<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0">
+						<input type="checkbox" class="custom-control-input"
+							   id="switch_CouponRequired" name="IsCouponRequired" @(Model.Obj == null || Model.Obj.IsCouponRequired == true || Model.Obj.Id == 0 ? "checked" : "")
+							   onchange="fnChange_Switch(this, 'label_Switch_CouponRequired')">
+						<label class="custom-control-label" for="switch_CouponRequired" id="label_Switch_CouponRequired" data-true="Yes" data-false="No">@((Model.Obj != null && Model.Obj.IsCouponRequired == true) || Model.Obj == null || Model.Obj.Id == 0 ? "Yes" : "No")</label>
+					</div>
+				</div>
+
+				<label class="col-sm-2 col-form-label text-right">Coupon Code</label>
+				<div class="col-sm-2">
+					<input type="text" name="CouponCode" class="form-control form-control-sm" value="@Model.Obj?.CouponCode" />
+				</div>
+
+			</div>
+
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">Start Date</label>
+				<div class="col-sm-2">
+					<input type="date" name="StartDate" class="form-control form-control-sm" value="@(Model.Obj?.StartDate?.ToString("yyyy-MM-dd"))" />
+				</div>
+
+				<label class="col-sm-2 col-form-label text-right">End Date</label>
+				<div class="col-sm-2">
+					<input type="date" name="EndDate" class="form-control form-control-sm" value="@(Model.Obj?.EndDate?.ToString("yyyy-MM-dd"))" />
+				</div>
+
+			</div>
+
+			<div class="form-group row">
+
+				<label class="col-sm-2 col-form-label text-right">Status</label>
+				<div class="col-sm-2">
+					<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success border-0">
+						<input type="checkbox" class="custom-control-input"
+							   id="switch_Status" name="IsActive" @(Model.Obj == null || Model.Obj.IsActive == true || Model.Obj.Id == 0 ? "checked" : "")
+							   onchange="fnChange_Switch(this, 'label_Switch_Status')">
+						<label class="custom-control-label" for="switch_Status" id="label_Switch_Status" data-true="Active" data-false="Inactive">@((Model.Obj != null && Model.Obj.IsActive == true) || Model.Obj == null || Model.Obj.Id == 0 ? "Active" : "Inactive")</label>
+					</div>
+				</div>
+			</div>
+
+			@* <hr />
+
+			<!-- =========================
+				 CONDITIONS
+			========================= -->
+
+			<h5>Conditions</h5>
+
+			<table class="table table-bordered table-sm" id="tblConditions">
+				<thead>
+					<tr>
+						<th>Type</th>
+						<th>Value</th>
+						<th width="5%">
+							<button type="button" class="btn btn-success btn-sm" onclick="addConditionRow()">+</button>
+						</th>
+					</tr>
+				</thead>
+
+				<tbody>
+
+					@if (Model.Obj?.OfferConditions != null && Model.Obj.OfferConditions.Count > 0)
+					{
+						for (int i = 0; i < Model.Obj.OfferConditions.Count; i++)
+						{
+							<tr>
+								<td>
+									<select name="OfferConditions[@i].ConditionType" class="form-control">
+										@if (Model.SelectListItems != null)
+										{
+											foreach (var item in Model.SelectListItems.Where(x => x.Group == "CONDITION_TYPE"))
+											{
+												if (item.Value == Model.Obj.OfferConditions[i].ConditionType)
+												{
+													<option value="@item.Value" selected>@item.Text</option>
+												}
+												else
+												{
+													<option value="@item.Value">@item.Text</option>
+												}
+											}
+										}
+									</select>
+								</td>
+
+								<td>
+									<input type="text" name="OfferConditions[@i].ConditionValue" value="@Model.Obj.OfferConditions[i].ConditionValue" class="form-control" />
+								</td>
+
+								<td>
+									<button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button>
+								</td>
+							</tr>
+						}
+					}
+
+				</tbody>
+			</table>
+
+			<hr />
+
+			<!-- =========================
+				 BENEFITS
+			========================= -->
+
+			<h5>Benefits</h5>
+
+			<table class="table table-bordered table-sm" id="tblBenefits">
+				<thead>
+					<tr>
+						<th>Type</th>
+						<th>Value</th>
+						<th>Free Product</th>
+						<th>Qty</th>
+						<th width="5%">
+							<button type="button" class="btn btn-success btn-sm" onclick="addBenefitRow()">+</button>
+						</th>
+					</tr>
+				</thead>
+
+				<tbody>
+
+					@if (Model.Obj?.OfferBenefits != null && Model.Obj.OfferBenefits.Count > 0)
+					{
+						for (int i = 0; i < Model.Obj.OfferBenefits.Count; i++)
+						{
+							<tr>
+								<td>
+									<select name="OfferBenefits[@i].BenefitType" class="form-control">
+										@if (Model.SelectListItems != null)
+										{
+											foreach (var item in Model.SelectListItems.Where(x => x.Group == "BENEFIT_TYPE"))
+											{
+												if (item.Value == Model.Obj.OfferBenefits[i].BenefitType)
+												{
+													<option value="@item.Value" selected>@item.Text</option>
+												}
+												else
+												{
+													<option value="@item.Value">@item.Text</option>
+												}
+											}
+										}
+									</select>
+								</td>
+
+								<td>
+									<input type="number" name="OfferBenefits[@i].Value" value="@Model.Obj.OfferBenefits[i].Value" class="form-control" />
+								</td>
+
+								<td>
+									<input type="number" name="OfferBenefits[@i].FreeProductId" value="@Model.Obj.OfferBenefits[i].FreeProductId" class="form-control" />
+								</td>
+
+								<td>
+									<input type="number" name="OfferBenefits[@i].FreeQty" value="@Model.Obj.OfferBenefits[i].FreeQty" class="form-control" />
+								</td>
+
+								<td>
+									<button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button>
+								</td>
+							</tr>
+						}
+					}
+
+				</tbody>
+			</table>
+ *@
+		</div>
+
+		<div class="card-footer text-center">
+			<button type="submit" class="btn btn-success btnSubmit">Save</button>
+			<button type="button" class="btn btn-danger" onclick="fnCloseParialView('divformSave', '#table_Common_Data');">Cancel</button>
+		</div>
+	</div>
+</div>

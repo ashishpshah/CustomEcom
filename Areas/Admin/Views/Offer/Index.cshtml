@@ -1,0 +1,281 @@
+﻿@model ResponseModel<Offer>
+
+@{
+	ViewData["Title"] = "Offer";
+	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+	<div class="container-fluid">
+		<div class="row mb-2">
+			<div class="col-sm-6">
+				<h1 class="m-0 font-weight-bold">Offer</h1>
+			</div>
+			<div class="col-sm-6 text-right">
+				<button class="btn btn-primary"
+						onclick="fnLoadParialView('divformSave','@Url.Action("Partial_AddEditForm", "Offer", new { area = "Admin" })')">
+					<i class="fas fa-plus"></i> Add Offer
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<section class="content">
+	<div class="container-fluid">
+
+		<div class="row no-gutters divformSave_Display d-none" style="margin: 5px !important;">
+			<div class="col-12">
+				<form id="formSave" asp-area="Admin" asp-controller="Offer" asp-action="Save" method="post" class="form-horizontal" enctype="multipart/form-data">
+					<div class="row no-gutters" id="divformSave"></div>
+					<div class="clearfix"></div>
+					<hr />
+				</form>
+			</div>
+		</div>
+		<div class="row divformSave_Hide">
+			<div class="col-12">
+				<div class="card card-primary card-outline">
+
+					<div class="card-body">
+
+						<div class="row mb-2">
+							<div class="col-md-3">
+								<select id="ddlQuickFilter" class="form-control form-control-sm">
+									<option value="">All</option>
+									<option value="RECENT">Recent</option>
+									<option value="EXPIRING">Expiring</option>
+									<option value="TOP">Top</option>
+								</select>
+							</div>
+							<div class="col-md-2">
+								<button class="btn btn-sm btn-primary" onclick="reload()">Apply</button>
+							</div>
+						</div>
+
+						<div class="row no-gooters">
+							<div class="col-md-12 my-1">
+								<table id="table_Common_Data" class="table table-bordered table-striped w-100"> </table>
+							</div>
+
+							<div class="clearfix"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+@section Scripts {
+	<script>
+
+		$(document).ready(function(){
+			loadTable();
+		});
+
+		function reload(){
+			$('#table_Common_Data').DataTable().ajax.reload();
+		}
+
+		function loadTable(){
+
+			if($.fn.DataTable.isDataTable('#table_Common_Data')){
+				$('#table_Common_Data').DataTable().destroy();
+			}
+
+			$("#table_Common_Data").DataTable({
+				"destroy": true,
+				"paging": true,
+				"lengthChange": true,
+				"searching": true,
+				"ordering": true,
+				"info": true,
+				"autoWidth": false,
+				"responsive": true,
+				"pageLength": 25,
+				"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+				"sAjaxSource": "@Url.Action("GetDataList", "Offer", new { area = "Admin" })",
+				// ajax:{
+				// 	url:'@Url.Action("GetDataList", "Offer", new { area = "Admin" })',
+				// 	type:'POST',
+				// 	data:function(d){
+				// 		d.QuickFilter=$("#ddlQuickFilter").val();
+				// 	}
+				// },
+				"bServerSide": true,
+				"bProcessing": true,
+				"bSearchable": true,
+				"order": [[0, 'desc']],
+				"language": { "emptyTable": "No record found.", "processing": '<i class="fa fa-spinner fa-spin fa-3x fa-fw" style="color:#2a2b2b;"></i><span class="sr-only">Loading...</span> ' },
+				"fnServerParams": function (aoData) {
+					aoData.push({ "name": "QuickFilter", "value": "" + $("#ddlQuickFilter").val() });
+				},
+				columnDefs: [
+					{ "targets": 0, "className": "text-center", "width": "3%", "autoWidth": false, "searchable": false, "orderable": false },
+					{ "targets": -1, "className": "text-center", "width": "5%", "autoWidth": false, "searchable": false, "orderable": false }
+				],
+				columns:[
+					{title:"No",data:"SrNo"},
+					{title:"Name",data:"OfferName"},
+					
+					/* DISCOUNT TYPE */
+					{
+						title: "Discount Type",
+						data: "DiscountType",
+						render: function (data) {
+							if (!data) return "-";
+							return data === "PERCENT" ? `<span class="badge badge-primary">%</span>` : `<span class="badge badge-warning">Flat</span>`;
+						}
+					},
+
+					/* DISCOUNT VALUE */
+					{
+						title: "Discount",
+						data: null,
+						render: function (row) {
+
+							if (!row.DiscountValue) return "-";
+
+							if (row.DiscountType === "PERCENT")
+								return row.DiscountValue + " %";
+
+							if (row.DiscountType === "FLAT")
+								return "₹ " + row.DiscountValue;
+
+							return row.DiscountValue;
+						}
+					},
+					{
+						title: "Min Order",
+						data: "MinOrderAmount",
+						render: d => d ? "₹ " + d : "-"
+					},
+					{
+						title: "Min Qty",
+						data: "MinQty",
+						render: d => d || "-"
+					},					
+					{
+						title: "Max Discount",
+						data: "MaxDiscountAmount",
+						render: d => d || "-"
+					},
+					{
+						title: "Coupon",
+						data: null,
+						render: function (row) {
+							if (row.IsCouponRequired) return `<span class="text-bold">${row.CouponCode}</span>`;
+							//if (row.IsCouponRequired) return `<span class="badge badge-warning">${row.CouponCode}</span>`;
+							return `<span class="text-muted">Auto</span>`;
+						}
+					},
+					{
+						title: "Validity",
+						data: null,
+						render: function (row) {
+							if (!row.StartDate || !row.EndDate) return "-";
+							return moment(row.StartDate).format("DD MMM YYYY") + " - " + moment(row.EndDate).format("DD MMM YYYY");
+						}
+					},
+					{
+						title: "Usage",
+						data: "UsedCount",
+						className: "text-center"
+					},
+					{
+						title: "Status",
+						data: null,
+						render: function (row) {
+
+							let now = new Date();
+
+							if (!row.IsActive)
+								return '<span class="badge badge-danger">Inactive</span>';
+
+							if (row.EndDate && new Date(row.EndDate) < now)
+								return '<span class="badge badge-secondary">Expired</span>';
+
+							if (row.StartDate && new Date(row.StartDate) > now)
+								return '<span class="badge badge-warning">Upcoming</span>';
+
+							return '<span class="badge badge-success">Active</span>';
+						}
+					},
+					{
+						title: "Updated",
+						data: "LastModifiedDate",
+						render: d => d ? moment(d).format("DD MMM YYYY hh:mm A") : "-"
+					},
+					{
+						title: "Action",
+						data: null,
+						orderable: false,
+						className: "text-center",
+						render: function (data, type, row) {
+							return '<div class="btn-group">' +
+								'<button type="button" class="btn btn-info btn-sm btn-flat" data-toggle="tooltip" data-placement="top" title="Edit" ' +
+								'onclick="fnLoadParialView(\'divformSave\', \'@Url.Action("Partial_AddEditForm", "Offer", new { area = "Admin" })?Id=' + row.Id + '\')">' +
+								'<i class="far fa-edit"></i></button> ' +
+								'<button type="button" class="btn btn-danger btn-sm btn-flat ml-2" data-toggle="tooltip" data-placement="top" title="Delete" ' +
+								'onclick="fnDelete_Confirm(\'@Url.Action("DeleteConfirmed", "Offer", new { area = "Admin" })?Id=' + row.Id + '\')">' +
+								'<i class="fa fa-trash"></i></button> ' +
+								'</div>';
+						}
+					}
+				]
+			});
+		}
+
+	</script>
+
+	@* <script>
+
+		/* ADD CONDITION */
+		function addConditionRow() {
+			let index = $("#tblConditions tbody tr").length;
+
+			let options = '';
+			@foreach (var item in ViewBag.ConditionTypes)
+			{
+			 <text>options += `<option value="@item.Value">@item.Text</option>`;</text>
+			}
+
+			let row = `
+			<tr>
+				<td><select name="OfferConditions[${index}].ConditionType" class="form-control">${options}</select></td>
+				<td><input name="OfferConditions[${index}].ConditionValue" class="form-control"/></td>
+				<td><button class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button></td>
+			</tr>`;
+
+			$("#tblConditions tbody").append(row);
+		}
+
+		/* ADD BENEFIT */
+		function addBenefitRow() {
+			let index = $("#tblBenefits tbody tr").length;
+
+			let options = '';
+			@foreach (var item in ViewBag.BenefitTypes)
+			{
+						<text>options += `<option value="@item.Value">@item.Text</option>`;</text>
+			}
+
+			let row = `
+			<tr>
+				<td><select name="OfferBenefits[${index}].BenefitType" class="form-control">${options}</select></td>
+				<td><input type="number" name="OfferBenefits[${index}].Value" class="form-control"/></td>
+				<td><input type="number" name="OfferBenefits[${index}].FreeProductId" class="form-control"/></td>
+				<td><input type="number" name="OfferBenefits[${index}].FreeQty" class="form-control"/></td>
+				<td><button class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button></td>
+			</tr>`;
+
+			$("#tblBenefits tbody").append(row);
+		}
+
+		function removeRow(btn) {
+			$(btn).closest('tr').remove();
+		}
+
+	</script> *@
+}
