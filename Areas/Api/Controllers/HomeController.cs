@@ -4,7 +4,6 @@ using DocumentFormat.OpenXml.Office2016.Excel;
 using JewelryStore.Areas.Admin.Models;
 using JewelryStore.Areas.Api.DTO;
 using JewelryStore.Areas.Api.ServiceRepository.HomeRepository;
-using JewelryStore.Areas.Api.ServiceRepository.ProductRepository;
 using JewelryStore.Infra;
 using JewelryStore.Infra.Services;
 using Microsoft.AspNetCore.Http;
