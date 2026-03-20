@@ -135,7 +135,7 @@
 	<div class="container-fluid">
 		<div class="row mb-2">
 			<div class="col-sm-6">
-				<h1 class="m-0 font-weight-bold">Category</h1>
+				<h1 class="m-0 font-weight-bold">Order</h1>
 			</div>
 			<div class="col-sm-6">
 				<div class="float-sm-right">
@@ -205,6 +205,24 @@
 {
 	<script type="text/javascript">
 
+		const statusFlow = {
+			PEND: ["CONF", "CANC"],          // Pending → Confirmed / Cancelled
+			CONF: ["PROC", "CANC"],          // Confirmed → Processing / Cancelled
+			PROC: ["COMP", "CANC"],          // Processing → Completed / Cancelled
+			COMP: [],						// Completed → no further changes
+			CANC: [],                        // Cancelled → no further changes
+			RET: []                          // Returned → no further changes
+		};
+
+		const statusLabels = {
+			PEND: "Pending",
+			CONF: "Confirmed",
+			PROC: "Processing",
+			COMP: "Completed",
+			CANC: "Cancelled",
+			RET: "Returned"
+		};
+		var table_Common_Data = {};
 		var selectedStatus = "";
 
 		$(document).ready(function () {
@@ -227,7 +245,7 @@
 
 			if ($.fn.DataTable.isDataTable('#table_Common_Data')) { $('#table_Common_Data').DataTable().destroy(); }
 
-			$("#table_Common_Data").DataTable({
+			table_Common_Data = $("#table_Common_Data").DataTable({
 				"destroy": true,
 				"paging": true,
 				"lengthChange": true,
@@ -377,18 +395,24 @@
 				 ],
 				"initComplete": function () {
 
-					var btn = `
-						<button id="btnChangeStatus" class="btn btn-primary btn-sm mr-2">
-							<i class="fa fa-sync"></i> Change Status
-						</button>
-					`;
+					if ($('#table_Common_Data_filter #btnChangeStatus').length === 0) {
+						var btn = `
+							<button id="btnChangeStatus" class="btn btn-primary btn-sm mr-2">
+								<i class="fa fa-sync"></i> Change Status
+							</button>
+						`;
 
-					// Insert BEFORE search box
-					$('#table_Common_Data_filter').prepend(btn);
-					$('#table_Common_Data_filter').addClass('d-flex align-items-end gap-2');
+						// Insert BEFORE search box
+						$('#table_Common_Data_filter').prepend(btn);
+						//$('#table_Common_Data_filter').addClass('d-flex align-items-end gap-2');
+					}
 				},
-				 "fnDrawCallback": function (settings) {
+				"fnDrawCallback": function (settings) {
+
+					var api = this.api(); // ✅ FIX: define api
 					var res = settings.json;
+
+					// ✅ Update counts
 					if (res && res.StatusCounts) {
 						$('#count_ALL').text(res.StatusCounts.All);
 						$('#count_PEND').text(res.StatusCounts.Pending);
@@ -399,7 +423,39 @@
 						$('#count_RET').text(res.StatusCounts.Returned);
 					}
 
-					$('.chkRow').each(function () { $(this).prop('checked', false); });
+					// ✅ Reset checkboxes (current page only)
+					$('#chkAll').prop('checked', false);
+					$('#table_Common_Data .chkRow').prop('checked', false);
+
+					// ✅ Get data safely
+					var data = res?.aaData || [];
+
+					let isSameStatus = true;
+
+					if (data.length > 0) {
+						let firstStatus = data[0].OrderStatus;
+
+						// ✅ Use for loop (break works)
+						for (let i = 1; i < data.length; i++) {
+							if (data[i].OrderStatus !== firstStatus) {
+								isSameStatus = false;
+								break;
+							}
+						}
+					} else {
+						isSameStatus = false;
+					}
+
+					// ✅ Column index (checkbox column)
+					var columnIndex = 0;
+
+					if (isSameStatus) {
+						api.column(columnIndex).visible(true);
+						$('#table_Common_Data_filter #btnChangeStatus').show();
+					} else {
+						api.column(columnIndex).visible(false);
+						$('#table_Common_Data_filter #btnChangeStatus').hide();
+					}
 				}
 				//,
 				// "drawCallback": function () {
@@ -410,39 +466,19 @@
 
 		$(document).on('change', '#chkAll', function () {
 
-			if ($(this).is(':checked')) {
+			let isChecked = $(this).is(':checked');
 
-				Swal.fire({
-					title: "Select All Records?",
-					text: "Do you want to select all records across all pages?",
-					icon: "question",
-					showCancelButton: true,
-					confirmButtonText: "Yes, All Pages",
-					cancelButtonText: "Only This Page"
-				}).then((result) => {
-
-					if (result.isConfirmed) {
-						$('#table_Common_Data').attr('data-select-all', 'true');
-					} else {
-						$('#table_Common_Data').attr('data-select-all', 'false');
-					}
-
-					$('.chkRow').prop('checked', true);
-				});
-
-			} else {
-
-				$('#table_Common_Data').attr('data-select-all', 'false');
-				$('.chkRow').prop('checked', false);
-			}
+			// Only affect current page rows
+			$('#table_Common_Data tbody .chkRow').prop('checked', isChecked);
 		});
 
-		$(document).on('change', '.chkRow', function () {
+		$(document).on('change', '#table_Common_Data .chkRow', function () {
 
-			if (!$(this).is(':checked')) {
-				$('#chkAll').prop('checked', false);
-				$('#table_Common_Data').attr('data-select-all', 'false');
-			}
+			let total = $('#table_Common_Data tbody .chkRow').length;
+			let checked = $('#table_Common_Data tbody .chkRow:checked').length;
+
+			// Update header checkbox
+			$('#chkAll').prop('checked', total === checked);
 		});
 
 		$('.status-filter').on('click', '.status-btn', function () {
@@ -453,39 +489,54 @@
 			fnLoadTableData(); // reload table
 		});
 
-		function getCurrentPageIds() {
+		$(document).on('click', '#btnChangeStatus', function () {
 
 			var ids = [];
-
 			$('.chkRow:checked').each(function () {
 				ids.push($(this).val());
 			});
 
-			return ids;
-		}
-
-		$(document).on('click', '#btnChangeStatus', function () {
-
-			var isAll = $('#table_Common_Data').attr('data-select-all') === 'true';
-			var ids = getCurrentPageIds();
-
-			if (!isAll && ids.length === 0) {
+			if (ids.length === 0) {
 				Swal.fire("Warning", "Please select at least one order", "warning");
 				return;
 			}
 
+			// ✅ Get current status
+			let data = table_Common_Data.rows({ page: 'current' }).data();
+			debugger;
+			if (data.length === 0) return null;
+			let currentStatus = data[0].OrderStatus;
+
+			if (!currentStatus) {
+				Swal.fire("Error", "Unable to determine current status", "error");
+				return;
+			}
+
+			// ✅ Get allowed next statuses
+			let allowedStatuses = statusFlow[currentStatus] || [];
+
+			if (allowedStatuses.length === 0) {
+				Swal.fire("Info", "No further status changes allowed", "info");
+				return;
+			}
+
+			// ✅ Build dropdown dynamically
+			let inputOptions = {};
+			allowedStatuses.forEach(s => {
+				inputOptions[s] = statusLabels[s];
+			});
+
 			Swal.fire({
 				title: 'Change Order Status',
 				input: 'select',
-				inputOptions: {
-					'PEND': 'Pending',
-					'CONF': 'Confirmed',
-					'PROC': 'Processing',
-					'COMP': 'Completed',
-					'CANC': 'Cancelled',
-					'RET': 'Returned'
-				},
-				showCancelButton: true
+				inputOptions: inputOptions,
+				inputPlaceholder: 'Select status',
+				showCancelButton: true,
+				inputValidator: (value) => {
+					if (!value) {
+						return 'Please select a status';
+					}
+				}
 			}).then((result) => {
 
 				if (result.isConfirmed) {
@@ -495,28 +546,74 @@
 						type: 'POST',
 						data: {
 							ids: ids,
-							isAllSelected: isAll,
 							status: result.value
 						},
 						traditional: true,
-						success: function () {
+						success: function (res) {
+							debugger;
+							if (res.IsSuccess) {
+								$('#chkAll').prop('checked', false);
+								$('#table_Common_Data').DataTable().ajax.reload(null, false);
+								Swal.fire("Success", res.Message || "Updated successfully", "success");
 
-							$('#chkAll').prop('checked', false);
-							$('#table_Common_Data').attr('data-select-all', 'false');
-
-							$('#table_Common_Data').DataTable().ajax.reload(null, false);
-
-							Swal.fire("Success", "Updated successfully", "success");
+							} else Swal.fire("Error", res.Message || "Failed to update", "error");
 						}
 					});
 				}
 			});
 		});
 
-		function fnParialView_Loaded_Success($id, $isAlert){
+		// $(document).on('click', '#btnChangeStatus', function () {
 
+		// 	var ids = [];
+		// 	$('.chkRow:checked').each(function () { ids.push($(this).val()); });
+
+		// 	if (ids && ids.length === 0) {
+		// 		Swal.fire("Warning", "Please select at least one order", "warning");
+		// 		return;
+		// 	}
+
+		// 	Swal.fire({
+		// 		title: 'Change Order Status',
+		// 		input: 'select',
+		// 		inputOptions: {
+		// 			'CONF': 'Confirmed',
+		// 			'PROC': 'Processing',
+		// 			'COMP': 'Completed',
+		// 			'CANC': 'Cancelled'
+		// 		},
+		// 		showCancelButton: true
+		// 	}).then((result) => {
+
+		// 		if (result.isConfirmed) {
+
+		// 			$.ajax({
+		// 				url: '@Url.Action("UpdateStatus", "Orders", new { area = "Admin" })',
+		// 				type: 'POST',
+		// 				data: {
+		// 					ids: ids,
+		// 					isAllSelected: isAll,
+		// 					status: result.value
+		// 				},
+		// 				traditional: true,
+		// 				success: function () {
+
+		// 					$('#chkAll').prop('checked', false);
+		// 					$('#table_Common_Data').attr('data-select-all', 'false');
+
+		// 					$('#table_Common_Data').DataTable().ajax.reload(null, false);
+
+		// 					Swal.fire("Success", "Updated successfully", "success");
+		// 				}
+		// 			});
+		// 		}
+		// 	});
+		// });
+
+		function fnParialView_Loaded_Success($id, $isAlert){
 			initImageUploader();
 		}
+
 		function fnBtnAddNewItem() {
 
 			var rowCount = $('#orderItemsTable tbody tr').length;

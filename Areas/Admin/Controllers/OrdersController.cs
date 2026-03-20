@@ -102,7 +102,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 			}
 			catch (Exception ex) { }
 
-			return Json(new { param.sEcho, iTotalRecords = TotalRecords, iTotalDisplayRecords = result?.Count() ?? 0, aaData = result, StatusCounts = counts });
+			return Json(new { param.sEcho, iTotalRecords = TotalRecords, iTotalDisplayRecords = FilteredRecords, aaData = result, StatusCounts = counts });
 
 		}
 
@@ -290,6 +290,7 @@ namespace JewelryStore.Areas.Admin.Controllers
 				oParams.Add(new SqlParameter("FinalAmount", viewModel.FinalAmount));
 				oParams.Add(new SqlParameter("OrderItems", order_items_table));
 				oParams.Add(new SqlParameter("IsActive", viewModel.IsActive ? 1 : 0));
+				oParams.Add(new SqlParameter("NewStatus", (object)DBNull.Value));
 				oParams.Add(new SqlParameter("Mode", "SAVE"));
 				oParams.Add(new SqlParameter("OperatedBy", Logged_In_UserId));
 
@@ -352,17 +353,55 @@ namespace JewelryStore.Areas.Admin.Controllers
 		[HttpPost]
 		public IActionResult UpdateStatus(List<int> ids, string status)
 		{
-			//var orders = db.Orders.Where(x => ids.Contains(x.Id)).ToList();
+			try
+			{
+				if (ids  == null || !ids.Any())
+				{
+					CommonViewModel.IsSuccess = false;
+					CommonViewModel.Message = "Please select at least one order.";
 
-			//foreach (var order in orders)
-			//{
-			//	order.OrderStatus = status;
-			//	order.LastModifiedDate = DateTime.Now;
-			//}
+					return Json(CommonViewModel);
 
-			//db.SaveChanges();
+				}
 
-			return Ok();
+				var (IsSuccess, Message, Id, Extra) = (false, ResponseStatusMessage.Error, 0M, new List<string>());
+
+				DataTable order_items_table = new DataTable();
+				order_items_table.Columns.Add("VariantId", typeof(int));
+				order_items_table.Columns.Add("Quantity", typeof(int));
+				order_items_table.Columns.Add("UnitPrice", typeof(decimal));
+				order_items_table.Columns.Add("TotalPrice", typeof(decimal));
+
+				List<SqlParameter> oParams = new List<SqlParameter>();
+
+				oParams.Add(new SqlParameter("Id", (object)DBNull.Value));
+				oParams.Add(new SqlParameter("OrderNumber", string.Join(",", ids)));
+				oParams.Add(new SqlParameter("OrderDate", (object)DBNull.Value));
+				oParams.Add(new SqlParameter("TotalAmount", (object)DBNull.Value));
+				oParams.Add(new SqlParameter("DiscountAmount", (object)DBNull.Value));
+				oParams.Add(new SqlParameter("FinalAmount", (object)DBNull.Value));
+				oParams.Add(new SqlParameter("OrderItems", order_items_table));
+				oParams.Add(new SqlParameter("IsActive", (object)DBNull.Value));
+				oParams.Add(new SqlParameter("NewStatus", (object)status ?? DBNull.Value));
+				oParams.Add(new SqlParameter("Mode", "STATUS"));
+				oParams.Add(new SqlParameter("OperatedBy", Logged_In_UserId));
+
+				(IsSuccess, Message, Id, Extra) = DataContext.ExecuteStoredProcedure("SP_Orders_Save", oParams, true);
+
+				CommonViewModel.IsConfirm = true;
+				CommonViewModel.IsSuccess = IsSuccess;
+				CommonViewModel.Message = Message;
+
+			}
+			catch (Exception ex)
+			{
+				LogService.LogInsert(GetCurrentAction(), "", ex);
+
+				CommonViewModel.IsSuccess = false;
+				CommonViewModel.Message = ResponseStatusMessage.Error + " | " + ex.Message;
+			}
+
+			return Json(CommonViewModel);
 		}
 	}
 }
