@@ -179,30 +179,55 @@ namespace JewelryStore.Areas.Api.ServiceRepository.HomeRepository
             }
         }
 
-        public async Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> SaveCart(CustomerCart obj)
+        public async Task<(bool IsSuccess, string Message, long Id, List<Dictionary<string, object>> Data)> SaveCart(CartRequest obj)
         {
             try
             {
                 List<SqlParameter> oParams = new()
                 {
-                    new SqlParameter("Id", obj.Id),
-                    new SqlParameter("CustomerId", obj.CustomerId),
-                    new SqlParameter("ProductId", obj.ProductId),
+                    new SqlParameter("@CustomerId", obj.CustomerId),
+                    new SqlParameter("@ProductId", obj.ProductId),
                     new SqlParameter("@VariantId", obj.VariantId),
-                    new SqlParameter("@AttributeId", obj.AttributeId),
-                    new SqlParameter("@Quantity", obj.Quantity),
-                    new SqlParameter("IsActive", obj.IsActive ? 1 : 0),
-                    new SqlParameter("Mode", "SAVE"),
-                    new SqlParameter("OperatedBy", 1)
+                    new SqlParameter("@Quantity", obj.Quantity)
                 };
 
-                var result = DataContext.ExecuteStoredProcedure("SP_Customer_Cart_Save", oParams, true);
+                DataTable dt = DataContext.ExecuteStoredProcedure_DataTable("SP_AddToCart", oParams);
 
-                return await Task.FromResult(result);
+                List<Dictionary<string, object>> cartList = new();
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        var dict = new Dictionary<string, object>
+                        {
+                            ["Id"] = row["Id"],
+                            ["ProductId"] = row["ProductId"],
+                            ["VariantId"] = row["VariantId"],
+                            ["Quantity"] = row["Quantity"],
+                            ["Price"] = row["Price"],
+                            ["LineTotal"] = row["LineTotal"],
+                            ["LastModifiedDate"] = row["LastModifiedDate"],
+                            ["IsActive"] = row["IsActive"]
+                        };
+
+                        cartList.Add(dict);
+                    }
+
+                    return (true, "Cart updated successfully", 0, cartList);
+                }
+                else
+                {
+                    return (false, "No data found", 0, null);
+                }
             }
-            catch (Exception ex)
+            catch (SqlException ex)
             {
-                throw new Exception("Error saving category", ex);
+                return (false, ex.Message, 0, null);
+            }
+            catch (Exception)
+            {
+                return (false, "Something went wrong", 0, null);
             }
         }
 

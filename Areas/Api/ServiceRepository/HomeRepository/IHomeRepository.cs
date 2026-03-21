@@ -13,8 +13,8 @@ namespace JewelryStore.Areas.Api.ServiceRepository.HomeRepository
         Task<LoginResult?> ForgotPassword_GenerateOTP(string email);
         Task<LoginResult?> ForgotPassword_VerifyOTP(string email, int otp);
         Task<LoginResult?> ForgotPassword_ResetPassword(string email, string newPassword);
-        Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> Register(Customer obj);
-        Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> SaveCart(CustomerCart obj);
+        Task<(bool IsSuccess, string Message, long Id , List<string> Extra)> Register(Customer obj);
+        Task<(bool IsSuccess, string Message, long Id, List<Dictionary<string, object>> Data)> SaveCart(CartRequest obj);
         Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> RemoveCart(long id);
     }
 }

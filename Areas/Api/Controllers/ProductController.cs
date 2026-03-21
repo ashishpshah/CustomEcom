@@ -149,6 +149,7 @@ namespace JewelryStore.Areas.Api.Controllers
                 CommonViewModel.IsSuccess = false;
                 CommonViewModel.StatusCode = ResponseStatusCode.Error;
                 CommonViewModel.Message = ex.Message;
+                
             }
 
             return Ok(CommonViewModel);
