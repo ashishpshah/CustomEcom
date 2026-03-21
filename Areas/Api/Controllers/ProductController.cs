@@ -1,4 +1,5 @@
 ﻿using JewelryStore.Areas.Admin.Models;
+using JewelryStore.Areas.Api.DTO;
 using JewelryStore.Areas.Api.ServiceRepository.ProductRepository;
 using JewelryStore.Infra;
 using Microsoft.AspNetCore.Http;
@@ -19,7 +20,7 @@ namespace JewelryStore.Areas.Api.Controllers
         }
 
         [HttpPost("[Action]")]
-        public async Task<IActionResult> GetAll(PagingRequest request)
+        public async Task<IActionResult> GetAll(ProductPagingRequest request)
         {
             try
             {
