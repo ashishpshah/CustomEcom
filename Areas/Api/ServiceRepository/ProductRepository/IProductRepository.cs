@@ -7,7 +7,7 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
     public interface IProductRepository
     {
         //   Task<List<Product>> GetAllProduct(PagingRequest request);
-        Task<object> GetAllProduct(PagingRequest request);
+        Task<object> GetAllProduct(ProductPagingRequest request);
 
         Task<Product?> GetProductById(int id);
         Task<List<DropdownModel?>> GetCategory_Dropdown();

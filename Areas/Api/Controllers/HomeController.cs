@@ -61,18 +61,18 @@ namespace JewelryStore.Areas.Api.Controllers
 		
 		
         [HttpPost("[Action]")]
-        public async Task<IActionResult> SaveCart([FromBody] CustomerCart obj)
+        public async Task<IActionResult> SaveCart([FromBody] CartRequest obj)
         {
             try
             {
                
 
-                var (IsSuccess, Message, Id, Extra) = await _repository.SaveCart(obj);
+                var (IsSuccess, Message, Id, Data) = await _repository.SaveCart(obj);
 
                 CommonViewModel.IsSuccess = IsSuccess;
                 CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
                 CommonViewModel.Message = Message;
-                CommonViewModel.Data = Id;
+                CommonViewModel.Data = Data;
             }
             catch (Exception ex)
             {

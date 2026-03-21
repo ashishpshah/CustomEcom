@@ -12,11 +12,12 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ProductRepository
     public class ProductRepository : IProductRepository
     {
 
-        public async Task<object> GetAllProduct(PagingRequest request)
+        public async Task<object> GetAllProduct(ProductPagingRequest request)
         {
             var oParams = new List<SqlParameter>()
             {
-                new SqlParameter("@Id", DBNull.Value),
+                new SqlParameter("@Id", request.Id),
+                new SqlParameter("@CategoryId", request.CategoryId),
                 new SqlParameter("@Search", request.Search),
                 new SqlParameter("@Start", request.Start),
                 new SqlParameter("@Length", request.Length),
