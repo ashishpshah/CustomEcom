@@ -1,6 +1,7 @@
 ﻿using JewelryStore.Areas.Api.DTO;
 using JewelryStore.Areas.Api.ServiceRepository.AttibuteRepository;
 using JewelryStore.Areas.Api.ServiceRepository.AttributeRepository;
+using JewelryStore.Areas.Api.ServiceRepository.CartRepository;
 using JewelryStore.Areas.Api.ServiceRepository.CategoryRepository;
 using JewelryStore.Areas.Api.ServiceRepository.CouponRepository;
 using JewelryStore.Areas.Api.ServiceRepository.DashboardRepository;
@@ -59,6 +60,7 @@ namespace JewelryStore
             builder.Services.AddScoped<IProductStockRepository, ProductStockRepository>();
             builder.Services.AddScoped<IHomeRepository, HomeRepository>();
             builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+            builder.Services.AddScoped<ICartRepository, CartRepository>();
 
 
             builder.WebHost.ConfigureKestrel(options =>
