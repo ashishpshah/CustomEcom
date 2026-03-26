@@ -71,7 +71,7 @@ using System.Data;
             new SqlParameter("@Quantity", (object?)obj.Quantity ?? DBNull.Value)
         };
 
-            DataContext.ExecuteStoredProcedure("SP_RemoveFromCart", oParams, true);
+            DataContext.ExecuteStoredProcedure("SP_RemoveFromCart", oParams, false);
 
             // If no exception → success
             return await Task.FromResult((true, 0));
