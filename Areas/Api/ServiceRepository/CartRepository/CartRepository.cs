@@ -22,23 +22,18 @@ using System.Data;
 
             DataTable dt = DataContext.ExecuteStoredProcedure_DataTable("SP_AddToCart", oParams);
 
-            List<Dictionary<string, object>> cartList = new();
-
+           
+            var cartList = new List<Dictionary<string, object>>();
             if (dt != null && dt.Rows.Count > 0)
             {
                 foreach (DataRow row in dt.Rows)
                 {
-                    var dict = new Dictionary<string, object>
+                    var dict = new Dictionary<string, object>();
+
+                    foreach (DataColumn col in dt.Columns)
                     {
-                        ["Id"] = row["Id"],
-                        ["ProductId"] = row["ProductId"],
-                        ["VariantId"] = row["VariantId"],
-                        ["Quantity"] = row["Quantity"],
-                        ["Price"] = row["Price"],
-                        ["LineTotal"] = row["LineTotal"],
-                        ["LastModifiedDate"] = row["LastModifiedDate"],
-                        ["IsActive"] = row["IsActive"]
-                    };
+                        dict[col.ColumnName] = row[col];
+                    }
 
                     cartList.Add(dict);
                 }

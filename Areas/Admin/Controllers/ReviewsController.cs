@@ -29,6 +29,7 @@ namespace JewelryStore.Areas.Admin.Controllers
                 var oParams = new List<SqlParameter>();
 
                 oParams.Add(new SqlParameter("@Id", null));
+                oParams.Add(new SqlParameter("@ProductId", null));
                 oParams.Add(new SqlParameter("@Search", param.sSearch));
                 oParams.Add(new SqlParameter("@Start", param.iDisplayStart));
                 oParams.Add(new SqlParameter("@Length", param.iDisplayLength));

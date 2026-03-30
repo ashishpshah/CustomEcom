@@ -22,7 +22,7 @@ namespace JewelryStore.Areas.Api.Controllers
         }
 
         [HttpPost("[Action]")]
-        public async Task<IActionResult> GetAll(PagingRequest request)
+        public async Task<IActionResult> GetAll(ReviewPagingRequest request)
         {
             try
             {

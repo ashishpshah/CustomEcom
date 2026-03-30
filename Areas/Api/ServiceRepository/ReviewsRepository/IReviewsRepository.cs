@@ -8,7 +8,7 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ReviewsRepository
 {
     public interface IReviewsRepository
     {
-        Task<object> GetAllReviews(PagingRequest request);
+        Task<object> GetAllReviews(ReviewPagingRequest request);
 
         Task<Reviews?> GetReviewsById(int id);
 

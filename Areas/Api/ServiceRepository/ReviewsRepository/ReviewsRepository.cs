@@ -8,13 +8,14 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ReviewsRepository
 {
     public class ReviewsRepository : IReviewsRepository
     {
-        public async Task<object> GetAllReviews(PagingRequest request)
+        public async Task<object> GetAllReviews(ReviewPagingRequest request)
         {
             try
             {
                 var oParams = new List<SqlParameter>()
                 {
-                    new SqlParameter("@Id", DBNull.Value),
+                    new SqlParameter("@Id", request.Id == 0?DBNull.Value:request.Id),
+                    new SqlParameter("@ProductId", request.ProductId == 0?DBNull.Value:request.ProductId),
                     new SqlParameter("@Search", request.Search),
                     new SqlParameter("@Start", request.Start),
                     new SqlParameter("@Length", request.Length),

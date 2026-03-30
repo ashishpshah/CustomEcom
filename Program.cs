@@ -11,7 +11,7 @@ using JewelryStore.Areas.Api.ServiceRepository.OrdersRepository;
 using JewelryStore.Areas.Api.ServiceRepository.ProductRepository;
 using JewelryStore.Areas.Api.ServiceRepository.ProductStockRepository;
 using JewelryStore.Areas.Api.ServiceRepository.ReviewsRepository;
-
+using JewelryStore.Areas.Api.ServiceRepository.SimilarProductRepository;
 using JewelryStore.Infra;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
@@ -61,6 +61,7 @@ namespace JewelryStore
             builder.Services.AddScoped<IHomeRepository, HomeRepository>();
             builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
             builder.Services.AddScoped<ICartRepository, CartRepository>();
+            builder.Services.AddScoped<ISimilarProductRepository, SimilarProductRepository>();
 
 
             builder.WebHost.ConfigureKestrel(options =>
