@@ -103,7 +103,7 @@ namespace JewelryStore.Areas.Api.Controllers
 
                 CommonViewModel.IsSuccess = true;
                 CommonViewModel.StatusCode = ResponseStatusCode.Success;
-                CommonViewModel.Message = throw ex;
+                CommonViewModel.Message = IsSuccess.ToString();
                 CommonViewModel.Data = data;
             }
             catch (Exception ex)
