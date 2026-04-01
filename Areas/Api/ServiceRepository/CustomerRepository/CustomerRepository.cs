@@ -8,13 +8,13 @@ namespace JewelryStore.Areas.Api.ServiceRepository.CustomerRepository
 {
     public class CustomerRepository : ICustomerRepository
     {
-        public async Task<object> GetAllCustomer(PagingRequest request)
+        public async Task<object> GetAllCustomer(ReviewPagingRequest request)
         {
             try
             {
                 var oParams = new List<SqlParameter>()
         {
-            new SqlParameter("@Id", DBNull.Value),
+           new SqlParameter("@Id", request.Id == 0 ? DBNull.Value : request.Id),
             new SqlParameter("@Search", request.Search),
             new SqlParameter("@Start", request.Start),
             new SqlParameter("@Length", request.Length),
@@ -26,43 +26,78 @@ namespace JewelryStore.Areas.Api.ServiceRepository.CustomerRepository
 
                 var table1 = new List<Dictionary<string, object>>();
                 var table2 = new List<Dictionary<string, object>>();
+                var table3 = new List<Dictionary<string, object>>();
+                var table4 = new List<Dictionary<string, object>>();
+                var table5 = new List<Dictionary<string, object>>();
 
-                // Counts
-                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                if (ds != null && ds.Tables.Count > 0)
                 {
+                    // Table 0
                     foreach (DataRow row in ds.Tables[0].Rows)
                     {
                         var dict = new Dictionary<string, object>();
-
                         foreach (DataColumn col in ds.Tables[0].Columns)
-                        {
                             dict[col.ColumnName] = row[col];
-                        }
 
                         table1.Add(dict);
                     }
                 }
 
-                //  Data
-                if (ds != null && ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                if (ds != null && ds.Tables.Count > 1)
                 {
                     foreach (DataRow row in ds.Tables[1].Rows)
                     {
                         var dict = new Dictionary<string, object>();
-
                         foreach (DataColumn col in ds.Tables[1].Columns)
-                        {
                             dict[col.ColumnName] = row[col];
-                        }
 
                         table2.Add(dict);
+                    }
+                }
+
+                if (ds != null && ds.Tables.Count > 2)
+                {
+                    foreach (DataRow row in ds.Tables[2].Rows)
+                    {
+                        var dict = new Dictionary<string, object>();
+                        foreach (DataColumn col in ds.Tables[2].Columns)
+                            dict[col.ColumnName] = row[col];
+
+                        table3.Add(dict);
+                    }
+                }
+
+                if (ds != null && ds.Tables.Count > 3)
+                {
+                    foreach (DataRow row in ds.Tables[3].Rows)
+                    {
+                        var dict = new Dictionary<string, object>();
+                        foreach (DataColumn col in ds.Tables[3].Columns)
+                            dict[col.ColumnName] = row[col];
+
+                        table4.Add(dict);
+                    }
+                }
+
+                if (ds != null && ds.Tables.Count > 4)
+                {
+                    foreach (DataRow row in ds.Tables[4].Rows)
+                    {
+                        var dict = new Dictionary<string, object>();
+                        foreach (DataColumn col in ds.Tables[4].Columns)
+                            dict[col.ColumnName] = row[col];
+
+                        table5.Add(dict);
                     }
                 }
 
                 var result = new
                 {
                     table1 = table1,
-                    table2 = table2
+                    table2 = table2,
+                    table3 = table3,
+                    table4 = table4,
+                    table5 = table5
                 };
 
                 return await Task.FromResult(result);

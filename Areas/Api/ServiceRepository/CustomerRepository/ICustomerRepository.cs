@@ -7,7 +7,7 @@ namespace JewelryStore.Areas.Api.ServiceRepository.CustomerRepository
 {
     public interface ICustomerRepository
     {
-        Task<object> GetAllCustomer(PagingRequest request);
+        Task<object> GetAllCustomer(ReviewPagingRequest request);
 
         Task<Customer?> GetCustomerById(int id);
 
