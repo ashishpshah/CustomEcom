@@ -125,6 +125,8 @@ namespace JewelryStore.Areas.Api.ServiceRepository.ReviewsRepository
                 oParams.Add(new SqlParameter("Rating", obj.Rating));
                 oParams.Add(new SqlParameter("ReviewText", obj.ReviewText));
                 oParams.Add(new SqlParameter("IsApproved", (obj.IsApproved ?? false) ? 1 : 0));
+                oParams.Add(new SqlParameter("Mode", "SAVE"));
+                oParams.Add(new SqlParameter("OperatedBy", obj.Id == 0 ? obj.CreatedBy : obj.LastModifiedBy));
                 var result = DataContext.ExecuteStoredProcedure("SP_Reviews_Save", oParams, true);
 
                 return await Task.FromResult(result);

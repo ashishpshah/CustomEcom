@@ -106,7 +106,7 @@ namespace JewelryStore.Infra
 			catch (Exception ex)
 			{
 				LogService.LogInsert("ExecuteStoredProcedure_DataTable - DataContext", "", ex);
-				return null;
+				throw ex;
 			}
 
 			return dt;
