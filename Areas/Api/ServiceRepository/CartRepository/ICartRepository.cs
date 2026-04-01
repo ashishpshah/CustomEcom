@@ -11,6 +11,6 @@ namespace JewelryStore.Areas.Api.ServiceRepository.CartRepository
         Task<(bool IsSuccess, string Message, long Id, List<Dictionary<string, object>> Data)> SaveCart(CartRequest obj);
         Task<(bool IsSuccess, long Id)> RemoveCart(CartRequest obj);
         Task<object> ApplyOffersToCart(OfferRequest obj);
-        Task<(bool IsSuccess, long OrderId, string OrderNumber)> Checkout(int customerId, int createdBy);
+        Task<(bool IsSuccess, object Data)> Checkout(int customerId, int createdBy);
     }
 }

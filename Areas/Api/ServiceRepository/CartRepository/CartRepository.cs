@@ -145,33 +145,69 @@ using System.Data;
 
         return await Task.FromResult(result);
     }
-    public async Task<(bool IsSuccess, long OrderId, string OrderNumber)> Checkout(int customerId, int createdBy)
+    public async Task<(bool IsSuccess, object Data)> Checkout(int customerId, int createdBy)
     {
         try
         {
             List<SqlParameter> oParams = new()
+        {
+            new SqlParameter("@CustomerId", customerId),
+            new SqlParameter("@CreatedBy", createdBy)
+        };
+
+            DataSet ds = DataContext.ExecuteStoredProcedure_DataSet("SP_Checkout", oParams);
+
+            var table1 = new List<Dictionary<string, object>>();
+            var table2 = new List<Dictionary<string, object>>();
+
+            //long orderId = 0;
+            //string orderNumber = string.Empty;
+
+            // 🔷 Table 0 (Order Header)
+            if (ds != null && ds.Tables.Count > 0)
             {
-                new SqlParameter("@CustomerId", customerId),
-                new SqlParameter("@CreatedBy", createdBy)
-            };
+                foreach (DataRow row in ds.Tables[0].Rows)
+                {
+                    var dict = new Dictionary<string, object>();
 
-            var ds = DataContext.ExecuteStoredProcedure_DataTable("SP_Checkout", oParams);
+                    foreach (DataColumn col in ds.Tables[0].Columns)
+                    {
+                        dict[col.ColumnName] = row[col] == DBNull.Value ? null : row[col];
+                    }
 
-            if (ds != null && ds.Rows.Count > 0)
-            {
-                var row = ds.Rows[0];
+                    table1.Add(dict);
 
-                long orderId = Convert.ToInt64(row["OrderId"]);
-                string orderNumber = row["OrderNumber"].ToString();
-
-                return await Task.FromResult((true, orderId, orderNumber));
+                 
+                }
             }
 
-            return await Task.FromResult((false, 0, string.Empty));
+            // 🔷 Table 1 (Order Items)
+            if (ds != null && ds.Tables.Count > 1)
+            {
+                foreach (DataRow row in ds.Tables[1].Rows)
+                {
+                    var dict = new Dictionary<string, object>();
+
+                    foreach (DataColumn col in ds.Tables[1].Columns)
+                    {
+                        dict[col.ColumnName] = row[col] == DBNull.Value ? null : row[col];
+                    }
+
+                    table2.Add(dict);
+                }
+            }
+
+            var result = new
+            {
+                Order = table1,
+                Items = table2
+            };
+
+            return await Task.FromResult((true, result));
         }
         catch (Exception)
         {
-            return await Task.FromResult((false, 0, string.Empty));
+            return await Task.FromResult((false,string.Empty));
         }
     }
 

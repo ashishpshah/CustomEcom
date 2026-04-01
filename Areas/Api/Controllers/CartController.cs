@@ -99,12 +99,12 @@ namespace JewelryStore.Areas.Api.Controllers
         {
             try
             {
-                var (IsSuccess, OrderId , OrderNumber) = await _repository.Checkout(customerId , createdBy);
+                var (IsSuccess, data) = await _repository.Checkout(customerId , createdBy);
 
                 CommonViewModel.IsSuccess = true;
                 CommonViewModel.StatusCode = ResponseStatusCode.Success;
                 CommonViewModel.Message = IsSuccess.ToString();
-                CommonViewModel.Data = new object[] { OrderId, OrderNumber };
+                CommonViewModel.Data = data;
             }
             catch (Exception ex)
             {
