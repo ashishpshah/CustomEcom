@@ -205,9 +205,9 @@ using System.Data;
 
             return await Task.FromResult((true, result));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return await Task.FromResult((false,string.Empty));
+            throw ex;
         }
     }
 

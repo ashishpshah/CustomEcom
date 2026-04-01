@@ -138,7 +138,7 @@ namespace JewelryStore.Infra
 					con.Close();
 				}
 			}
-			catch (Exception ex) { LogService.LogInsert("ExecuteStoredProcedure_DataSet - DataContext", "", ex); }
+			catch (Exception ex) { LogService.LogInsert("ExecuteStoredProcedure_DataSet - DataContext", "", ex); throw ex; }
 
 			return ds;
 		}
