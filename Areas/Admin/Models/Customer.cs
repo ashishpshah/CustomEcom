@@ -2,8 +2,12 @@
 
 namespace JewelryStore.Areas.Admin.Models
 {
-	public class Customer : EntitiesBase
+	public class	Customer : EntitiesBase
 	{
+        public int Id { get; set; }
+
+		public int CustomerId { get; set; }
+
 		public string FirstName { get; set; } = string.Empty;
 		public string? LastName { get; set; }
 
@@ -27,6 +31,7 @@ namespace JewelryStore.Areas.Admin.Models
 
 		public string PostalCode { get; set; } = string.Empty;
 		public string Country { get; set; } = string.Empty;
+		public string AddressType { get; set; } = string.Empty;
 
         [NotMapped] public List<CustomerAddress>? AddressList { get; set; }
 		[NotMapped]public List<CustomerCart>? CartList { get; set; }

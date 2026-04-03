@@ -1,6 +1,7 @@
 ﻿using JewelryStore.Areas.Admin.Models;
 using JewelryStore.Areas.Api.ServiceRepository.CustomerRepository;
 using JewelryStore.Infra;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
@@ -164,6 +165,59 @@ namespace JewelryStore.Areas.Api.ServiceRepository.CustomerRepository
 
             Type targetType = Nullable.GetUnderlyingType(typeof(TModel)) ?? typeof(TModel);
             return (TModel)Convert.ChangeType(row[columnName], targetType);
+        }
+
+        public async Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> AddOrUpdateCustomer(Customer customer)
+        {
+            try
+            {
+                List<SqlParameter> parameters = new()
+        {
+            new SqlParameter("@Id", customer.Id),
+            new SqlParameter("@CustomerId", customer.CustomerId),
+            new SqlParameter("@AddressLine1", customer.AddressLine1 ?? (object)DBNull.Value),
+            new SqlParameter("@AddressLine2", customer.AddressLine2 ?? (object)DBNull.Value),
+            new SqlParameter("@City", customer.City ?? (object)DBNull.Value),
+            new SqlParameter("@State", customer.State ?? (object)DBNull.Value),
+            new SqlParameter("@PostalCode", customer.PostalCode ?? (object)DBNull.Value),
+            new SqlParameter("@Country", customer.Country ?? (object)DBNull.Value),
+            new SqlParameter("@AddressType", customer.AddressType ?? (object)DBNull.Value),
+              new SqlParameter("@Mode", "SAVE"),
+            new SqlParameter("@Operated_By", customer.Id == 0 ? customer.CreatedBy : customer.LastModifiedBy)
+        };
+
+                var result = DataContext.ExecuteStoredProcedure(
+                    "SP_CustomerAddress_Save",
+                    parameters,
+                    true
+                );
+
+                return await Task.FromResult(result);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error saving customer address", ex);
+            }
+        }
+
+        public async Task<(bool IsSuccess, string Message, long Id, List<string> Extra)> RemoveCustomerAddress(long id)
+        {
+            try
+            {
+                List<SqlParameter> oParams = new()
+                {
+                    new SqlParameter("Id", id),
+                    new SqlParameter("Mode", "DELETE")
+                };
+
+                var result = DataContext.ExecuteStoredProcedure("SP_CustomerAddress_Save", oParams, true);
+
+                return await Task.FromResult(result);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
     }

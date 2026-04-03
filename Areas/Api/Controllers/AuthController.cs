@@ -121,11 +121,11 @@ namespace JewelryStore.Areas.Api.Controllers
                     CommonViewModel.Message = "Please enter Last Name.";
                     return Ok(CommonViewModel);
                 }
-                if (string.IsNullOrWhiteSpace(obj.Email) && string.IsNullOrWhiteSpace(obj.MobileNo))
+                if (string.IsNullOrWhiteSpace(obj.Email) )
                 {
                     CommonViewModel.IsSuccess = false;
                     CommonViewModel.StatusCode = ResponseStatusCode.Error;
-                    CommonViewModel.Message = "Please enter Email or Mobile Number.";
+                    CommonViewModel.Message = "Please enter Email.";
                     return Ok(CommonViewModel);
                 }
                 if (!string.IsNullOrWhiteSpace(obj.Email) && !ValidateField.IsValidEmail(obj.Email))
@@ -133,6 +133,13 @@ namespace JewelryStore.Areas.Api.Controllers
                     CommonViewModel.IsSuccess = false;
                     CommonViewModel.StatusCode = ResponseStatusCode.Error;
                     CommonViewModel.Message = "Invalid Email format.";
+                    return Ok(CommonViewModel);
+                }
+                if (string.IsNullOrWhiteSpace(obj.MobileNo))
+                {
+                    CommonViewModel.IsSuccess = false;
+                    CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                    CommonViewModel.Message = "Please enter Mobile Number.";
                     return Ok(CommonViewModel);
                 }
                 if (!string.IsNullOrWhiteSpace(obj.MobileNo) && !ValidateField.IsValidMobileNo_D10(obj.MobileNo))

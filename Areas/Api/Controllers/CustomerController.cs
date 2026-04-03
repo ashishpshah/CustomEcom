@@ -71,57 +71,47 @@ namespace JewelryStore.Areas.Api.Controllers
             return Ok(CommonViewModel);
         }
 
-        //[HttpPost("[Action]")]
-        //public async Task<IActionResult> Save([FromForm] Category category)
-        //{
-        //    try
-        //    {
-        //        if (category.ImageFile != null)
-        //        {
-        //            string uploadFolder = Path.Combine(AppHttpContextAccessor.WebRootPath, "Uploads", "Category");
+        [HttpPost("[Action]")]
+        public async Task<IActionResult> Save(Customer customer)
+        {
+            try
+            {
+                var (IsSuccess, Message, Id, Extra) = await _repository.AddOrUpdateCustomer(customer);
 
-        //            string imagePath = await FileUploadService.UploadImageAsync(category.ImageFile, uploadFolder);
+                CommonViewModel.IsSuccess = IsSuccess;
+                CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
+                CommonViewModel.Message = Message;
+                CommonViewModel.Data = Id;
+            }
+            catch (Exception ex)
+            {
+                CommonViewModel.IsSuccess = false;
+                CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                CommonViewModel.Message = ex.Message;
+            }
 
-        //            category.ImagePath = imagePath;
-        //        }
+            return Ok(CommonViewModel);
+        }
+        [HttpDelete("[Action]")]
+        public async Task<IActionResult> Delete(long id)
+        {
+            try
+            {
+                var (IsSuccess, Message, Id, Extra) = await _repository.RemoveCustomerAddress(id);
 
-        //        var (IsSuccess, Message, Id, Extra) = await _repository.SaveCategory(category);
+                CommonViewModel.IsSuccess = IsSuccess;
+                CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
+                CommonViewModel.Message = Message;
+                CommonViewModel.Data = Id;
+            }
+            catch (Exception ex)
+            {
+                CommonViewModel.IsSuccess = false;
+                CommonViewModel.StatusCode = ResponseStatusCode.Error;
+                CommonViewModel.Message = ex.Message;
+            }
 
-        //        CommonViewModel.IsSuccess = IsSuccess;
-        //        CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
-        //        CommonViewModel.Message = Message;
-        //        CommonViewModel.Data = Id;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        CommonViewModel.IsSuccess = false;
-        //        CommonViewModel.StatusCode = ResponseStatusCode.Error;
-        //        CommonViewModel.Message = ex.Message;
-        //    }
-
-        //    return Ok(CommonViewModel);
-        //}
-
-        //[HttpDelete("[Action]")]
-        //public async Task<IActionResult> Delete(long id)
-        //{
-        //    try
-        //    {
-        //        var (IsSuccess, Message, Id, Extra) = await _repository.DeleteCategory(id);
-
-        //        CommonViewModel.IsSuccess = IsSuccess;
-        //        CommonViewModel.StatusCode = IsSuccess ? ResponseStatusCode.Success : ResponseStatusCode.Error;
-        //        CommonViewModel.Message = Message;
-        //        CommonViewModel.Data = Id;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        CommonViewModel.IsSuccess = false;
-        //        CommonViewModel.StatusCode = ResponseStatusCode.Error;
-        //        CommonViewModel.Message = ex.Message;
-        //    }
-
-        //    return Ok(CommonViewModel);
-        //}
+            return Ok(CommonViewModel);
+        }
     }
 }
