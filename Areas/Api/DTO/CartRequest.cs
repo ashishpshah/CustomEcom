@@ -10,8 +10,8 @@
     public class OfferRequest
     {
         public int CustomerId { get; set; }
-        public string CouponCode { get; set; }
-        public int SelectedOfferId { get; set; }
-        public int RemoveOfferId { get; set; }
+        public string? CouponCode { get; set; }
+        public int? SelectedOfferId { get; set; }
+        public int? RemoveOfferId { get; set; }
     }
 }

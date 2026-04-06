@@ -8,11 +8,11 @@ namespace JewelryStore.Areas.Admin.Models
 
 		public int CustomerId { get; set; }
 
-		public string FirstName { get; set; } = string.Empty;
+		public string? FirstName { get; set; }
 		public string? LastName { get; set; }
 
-		public string Email { get; set; } = string.Empty;
-		public string MobileNo { get; set; } = string.Empty;
+		public string? Email { get; set; }
+		public string? MobileNo { get; set; }
 
 		public string? Password { get; set; }
 		public bool IsPassword_Reset { get; set; }
@@ -23,15 +23,18 @@ namespace JewelryStore.Areas.Admin.Models
 		public string FullName => $"{FirstName} {LastName}".Trim();
 
 
-		public string AddressLine1 { get; set; } = string.Empty;
+		public string? AddressLine1 { get; set; }
 		public string? AddressLine2 { get; set; }
 
-		public string City { get; set; } = string.Empty;
-		public string State { get; set; } = string.Empty;
+		public string? City { get; set; }
+		public string? State { get; set; }
 
-		public string PostalCode { get; set; } = string.Empty;
-		public string Country { get; set; } = string.Empty;
-		public string AddressType { get; set; } = string.Empty;
+		public string? PostalCode { get; set; }
+		public string? Country { get; set; }
+		public string? AddressType { get; set; }
+
+        public string? AlternativeMobileNo { get; set; } 
+        public string? CustomerName { get; set; } 
 
         [NotMapped] public List<CustomerAddress>? AddressList { get; set; }
 		[NotMapped]public List<CustomerCart>? CartList { get; set; }

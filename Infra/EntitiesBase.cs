@@ -10,11 +10,11 @@ namespace JewelryStore
 		//[DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
 		public virtual int Id { get; set; }
 		public virtual int CompanyId { get; set; }
-		public virtual int CreatedBy { get; set; }
+		public virtual int? CreatedBy { get; set; }
 		[DataType(DataType.Date)]
 		[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
 		public virtual Nullable<System.DateTime> CreatedDate { get; set; }
-		public virtual int LastModifiedBy { get; set; }
+		public virtual int? LastModifiedBy { get; set; }
 		[DataType(DataType.Date)]
 		[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
 		public virtual Nullable<System.DateTime> LastModifiedDate { get; set; }

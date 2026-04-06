@@ -181,7 +181,10 @@ namespace JewelryStore.Areas.Api.ServiceRepository.CustomerRepository
             new SqlParameter("@State", customer.State ?? (object)DBNull.Value),
             new SqlParameter("@PostalCode", customer.PostalCode ?? (object)DBNull.Value),
             new SqlParameter("@Country", customer.Country ?? (object)DBNull.Value),
+            new SqlParameter("@MobileNo", customer.MobileNo ?? (object)DBNull.Value),
+            new SqlParameter("@AlternativeMobileNo", customer.AlternativeMobileNo ?? (object)DBNull.Value),
             new SqlParameter("@AddressType", customer.AddressType ?? (object)DBNull.Value),
+            new SqlParameter("@CustomerName", customer.CustomerName ?? (object)DBNull.Value),
               new SqlParameter("@Mode", "SAVE"),
             new SqlParameter("@Operated_By", customer.Id == 0 ? customer.CreatedBy : customer.LastModifiedBy)
         };
