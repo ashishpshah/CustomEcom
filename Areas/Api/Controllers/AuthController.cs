@@ -194,7 +194,7 @@ namespace JewelryStore.Areas.Api.Controllers
                     CommonViewModel.IsSuccess = true;
                     CommonViewModel.StatusCode = ResponseStatusCode.Success;
                     CommonViewModel.Message = data.Message;
-                    CommonViewModel.Data = data.Data;
+                    CommonViewModel.Data = null;
                     var dict = data.Data as IDictionary<string, object>;
                     var newOtp = dict?["OTP"]?.ToString();
 
