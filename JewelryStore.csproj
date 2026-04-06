@@ -7,7 +7,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Content Remove="wwwroot\Email_Templates\otp_message_enquiry.html" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Folder Include="Areas\Admin\Data\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="wwwroot\Email_Templates\otp_message_enquiry.html" />
 	</ItemGroup>
 
 	<ItemGroup>

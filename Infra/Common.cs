@@ -120,7 +120,7 @@ namespace JewelryStore.Infra
 
 					if (isBodyHtml == true && !string.IsNullOrEmpty(templateFile))
 					{
-						using (StreamReader reader = new StreamReader(System.IO.Path.Combine(AppHttpContextAccessor.ContentRootPath + "/Email_Templates", templateFile + "_enquiry.html")))
+						using (StreamReader reader = new StreamReader(System.IO.Path.Combine(AppHttpContextAccessor.WebRootPath, "Email_Templates", templateFile + "_enquiry.html")))
 						{
 							body = reader.ReadToEnd();
 						}
